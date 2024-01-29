@@ -8,6 +8,7 @@ class Service(Enum):
     DISCORD = (0, "light_cyan")
     WEBSERVER = (1, "light_magenta")
     RUSTAPI = (2, "light_yellow")
+    FCMREGISTRAR = (3, "light_green")
 
     def __init__(self, value, color):
         self._value_ = value
@@ -17,7 +18,8 @@ class Service(Enum):
         return self.name
 
 class Messenger:
-    def __init__(self):
+    def __init__(self, config):
+        #self.config = config
         self.message_queue = Queue()
         self.listeners = {}
 

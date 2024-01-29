@@ -26,3 +26,4 @@ class ConfigManager:
         """Set a value in the configuration."""
         self.config[key] = value
         self.save_config()
+
