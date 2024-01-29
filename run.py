@@ -1,13 +1,17 @@
 import asyncio
 from rustplus import RustSocket
 
-from rustplus_api import rust_plus_api
-from discord_bot import discord_bot
-from web import web_server
+from messenger import Messenger
+from rustplus_api import RustPlusAPI
+from discord_bot import DiscordBot
+from web import WebServer
 
 def main():
-    pass
-
+    messenger = Messenger()
+    
+    rustplus_api = RustPlusAPI(messenger)
+    discord_bot = DiscordBot(messenger)
+    web_server = WebServer(messenger)
 
 
 
