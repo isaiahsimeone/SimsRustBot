@@ -42,5 +42,8 @@ class Messenger:
         colour = service_id.colour;
         Printer.print_info(f"[{service_name}] {message}", colour=colour)
     
+    def get_config(self):
+        return self.config
+    
     def start(self):
         threading.Thread(target=self.notify_listeners, daemon=True).start()
