@@ -4,7 +4,7 @@ class WebServer:
     def __init__(self, messenger):
         self.messenger = messenger
         self.messenger.subscribe(Service.WEBSERVER, self.process_message)
-        self.messenger.print(Service.WEBSERVER, "Web Server subscribed for messages")
+        self.messenger.log(Service.WEBSERVER, "Web Server subscribed for messages")
         
     def process_message(self, message):
         pass

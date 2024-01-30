@@ -4,7 +4,7 @@ class RustPlusAPI:
     def __init__(self, messenger):
         self.messenger = messenger
         self.messenger.subscribe(Service.RUSTAPI, self.process_message)
-        self.messenger.print(Service.RUSTAPI, "Rust Service subscribed for messages")
+        self.messenger.log(Service.RUSTAPI, "Rust Service subscribed for messages")
         
     def process_message(self, message):
         pass

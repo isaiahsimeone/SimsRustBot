@@ -10,7 +10,7 @@ class Service(Enum):
 
     def __init__(self, value, colour):
         self._value_ = value
-        self.color = colour
+        self.colour = colour
 
     def get_name(self):
         return self.name
@@ -40,7 +40,7 @@ class Messenger:
     def log(self, service_id, message):
         service_name = service_id.get_name()[0:4]
         colour = service_id.colour;
-        Util.pretty_print(colour, f"[{service_name}] {message}")
+        Printer.print_info(f"[{service_name}] {message}", colour=colour)
     
     def start(self):
         threading.Thread(target=self.notify_listeners, daemon=True).start()
