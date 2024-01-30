@@ -17,11 +17,15 @@ class DiscordBot:
         self.log("Discord Bot subscribed for messages")
     
     def start_bot(self, token):
-        intents = discord.Intents.default()
+        intents = discord.Intents.all()
         intents.message_content = True
         self.bot = discord.Client(intents=intents)
-        self.bot.run(self.discord_bot_token)
-    
+        if self.messenger.get_config().get("discord_disable_lib_logging") == "true":
+            self.log("Discord library logging is disabled")
+            self.bot.run(token, log_handler=None)
+        else:
+            self.bot.run(token)
+
     def get_bot_token(self):
         bot_token = self.messenger.get_config().get("discord_bot_token")
         

@@ -12,5 +12,7 @@
         "type": "server",
         "url": "https://rusticated.com/discord"
     },
-    "discord_bot_token": "MTIwMTczNjQ2MTUzNjQ3NzI5NA.GUzVQg.sdkNtYHTj6jk8dztTKXfyXeD5x_s37phLW-6gw"
+    "discord_bot_token": "MTIwMTczNjQ2MTUzNjQ3NzI5NA.GUzVQg.sdkNtYHTj6jk8dztTKXfyXeD5x_s37phLW-6gw",
+    "werkzeug_disable_logging": "true",
+    "discord_disable_lib_logging": "true"
 }

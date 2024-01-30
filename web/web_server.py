@@ -1,15 +1,21 @@
 from messenger import Messenger, Service
 from flask import Flask, render_template, request, session, redirect, url_for
-import uuid
+import logging
 
 app = Flask(__name__)
 app.secret_key = 'secret'
 
-class WebServer:
+# Only show errors
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
-    
+class WebServer:
     def __init__(self, messenger):
         self.messenger = messenger
+        if messenger.get_config().get("werkzeug_disable_logging") == "true":
+            self.log("Werkzeug logging is disabled")
+            logger = logging.getLogger('werkzeug')
+            logger.setLevel(logging.ERROR)
 
     # entry point
     def run(self):
