@@ -1,25 +1,23 @@
 from queue import Queue, Empty
-import sys
 import threading
 from enum import Enum
-from termcolor import colored
+from util.printer import Printer
 
 class Service(Enum):
     DISCORD = (0, "light_cyan")
     WEBSERVER = (1, "light_magenta")
     RUSTAPI = (2, "light_yellow")
-    FCMREGISTRAR = (3, "light_green")
 
-    def __init__(self, value, color):
+    def __init__(self, value, colour):
         self._value_ = value
-        self.color = color
+        self.color = colour
 
     def get_name(self):
         return self.name
 
 class Messenger:
     def __init__(self, config):
-        #self.config = config
+        self.config = config
         self.message_queue = Queue()
         self.listeners = {}
 
@@ -39,13 +37,10 @@ class Messenger:
             except Empty:
                 continue
 
-    def print(self, service_id, *args, file=sys.stdout, sep=' ', end='\n', flush=False):
+    def log(self, service_id, message):
         service_name = service_id.get_name()[0:4]
-        color = service_id.color
-        output = sep.join(map(str, args))
-        file.write(colored(f"[{service_name}] {output}", color) + end)
-        if flush:
-            file.flush()
+        colour = service_id.colour;
+        Util.pretty_print(colour, f"[{service_name}] {message}")
     
     def start(self):
         threading.Thread(target=self.notify_listeners, daemon=True).start()
