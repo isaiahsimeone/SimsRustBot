@@ -24,9 +24,9 @@ def main():
     web_server = WebServer(messenger)
 
     # Creating threads for each service
-    rustplus_thread = threading.Thread(target=start_rustplus_api, args=(rustplus_api,))
-    discord_thread = threading.Thread(target=start_discord_bot, args=(discord_bot,))
-    web_server_thread = threading.Thread(target=start_web_server, args=(web_server,))
+    rustplus_thread = threading.Thread(target=start_service_threaded, args=(rustplus_api,))
+    discord_thread = threading.Thread(target=start_service_threaded, args=(discord_bot,))
+    web_server_thread = threading.Thread(target=start_service_threaded, args=(web_server,))
 
     # Starting threads
     rustplus_thread.start()
@@ -38,16 +38,10 @@ def main():
     discord_thread.join()
     web_server_thread.join()
 
-
     
-def start_rustplus_api(rustplus_api):
-    rustplus_api.run()
-
-def start_discord_bot(discord_bot):
-    discord_bot.run()
-
-def start_web_server(web_server):
-    web_server.run()
+def start_service_threaded(service):
+    Printer.print("info", "Starting thread for", service)
+    service.run()
 
 
 if __name__ == "__main__":

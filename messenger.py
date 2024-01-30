@@ -2,6 +2,7 @@ from queue import Queue, Empty
 import threading
 from enum import Enum
 from util.printer import Printer
+from termcolor import colored
 
 class Service(Enum):
     DISCORD = (0, "light_cyan")
@@ -40,7 +41,7 @@ class Messenger:
     def log(self, service_id, message):
         service_name = service_id.get_name()[0:4]
         colour = service_id.colour;
-        Printer.print_info(f"[{service_name}] {message}", colour=colour)
+        Printer.print("info", colored(f"[{service_name}] {message}", colour))
     
     def get_config(self):
         return self.config

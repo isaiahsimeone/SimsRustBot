@@ -17,20 +17,24 @@ class Printer:
             file.flush()
 
     @classmethod
-    def print_info(cls, *args, colour='white', attrs=None, file=sys.stdout, sep=' ', end='\n', flush=False):
-        cls._print('INFO', args, colour, attrs or [], file, sep, end, flush)
+    def print(cls, level, *args, sep=' ', end='\n', flush=False, file=None):
+        if level == 'info':
+            colour, attrs = 'white', None
+            file = file or sys.stdout
+        elif level == 'error':
+            colour, attrs = 'red', ['bold']
+            file = file or sys.stderr
+        elif level == 'prompt':
+            colour, attrs = 'yellow', ['reverse']
+            file = file or sys.stderr
+        elif level == 'warn':
+            colour, attrs = 'yellow', None
+            file = file or sys.stderr
+        else:
+            raise ValueError("Invalid log level")
 
-    @classmethod
-    def print_error(cls, *args, file=sys.stderr, sep=' ', end='\n', flush=True):
-        cls._print('ERROR', args, 'red', ['bold'], file, sep, end, flush)
+        cls._print(level.upper(), args, colour, attrs, file, sep, end, flush)
 
-    @classmethod
-    def print_prompt(cls, *args, file=sys.stderr, sep=' ', end='\n', flush=True):
-        cls._print('PROMPT', args, 'yellow', ['reverse'], file, sep, end, flush)
-
-    @classmethod
-    def print_warning(cls, *args, file=sys.stderr, sep=' ', end='\n', flush=True):
-        cls._print('WARN', args, 'yellow', None, file, sep, end, flush)
 
     def print_banner():
         art = [
