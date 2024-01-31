@@ -13,8 +13,8 @@
         "url": "https://rusticated.com/discord"
     },
     "discord_bot_token": "MTIwMTczNjQ2MTUzNjQ3NzI5NA.GUzVQg.sdkNtYHTj6jk8dztTKXfyXeD5x_s37phLW-6gw",
-    "werkzeug_disable_logging": "false",
-    "discord_disable_lib_logging": "true",
+    "werkzeug_disable_logging": "true",
+    "discord_disable_lib_logging": "false",
     "web_server_port": "5000",
     "web_server_host": "localhost"
 }
