@@ -23,18 +23,20 @@ class WebServer:
         self.port = self.config.get("web_server_port", 4000)
         self.host = self.config.get("web_server_host", '127.0.0.1')
 
-    def run(self):
+    def execute(self):
         setup_routes(app, self)  # Set up routes with the WebServer instance
-        threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
+        
         self.log(f"Web Server started at http://{self.host}:{self.port}")
         self.messenger.subscribe(Service.WEBSERVER, self.process_message)
         self.log("Web Server subscribed for messages")
+        
+        threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
 
-    def process_message(self, message):
-        pass
+    def process_message(self, message, sender):
+        self.log("Got message: " + message + " from " + str(sender))
 
-    def send_message(self, message):
-        self.messenger.send_message(Service.WEBSERVER, message)
+    def send_message(self, message, target_service_id=None):
+        self.messenger.send_message(Service.WEBSERVER, message, target_service_id)
 
     def log(self, message):
         self.messenger.log(Service.WEBSERVER, message)

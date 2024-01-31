@@ -14,7 +14,7 @@ class RustPlusAPI:
         self.playerToken = None
          
     # entry point
-    def run(self):
+    def execute(self):
         self.messenger.subscribe(Service.RUSTAPI, self.process_message)
         self.log("Rust Service subscribed for messages")
         
@@ -45,11 +45,11 @@ class RustPlusAPI:
         await self.socket.disconnect()
         self.log("Disconnected from Rust Server (" + self.server + ")")
     
-    def process_message(self, message):
-        pass
+    def process_message(self, message, sender):
+        self.log("Got message: " + message + " from " + str(sender))
     
-    def send_message(self, message):
-        self.messenger.send_message(Service.RUSTAPI, message)
+    def send_message(self, message, target_service_id=None):
+        self.messenger.send_message(Service.RUSTAPI, message, target_service_id)
         
     def log(self, message):
         self.messenger.log(Service.RUSTAPI, message)

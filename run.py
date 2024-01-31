@@ -41,7 +41,7 @@ def main():
     
 def start_service_threaded(service):
     Printer.print("info", "Starting thread for", service)
-    service.run()
+    service.execute()
 
 
 if __name__ == "__main__":

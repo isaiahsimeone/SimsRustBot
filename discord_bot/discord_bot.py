@@ -7,14 +7,14 @@ class DiscordBot:
         self.bot = None
     
     # entry point
-    def run(self):
+    def execute(self):
         self.discord_bot_token = self.get_bot_token()
         self.log_synchronous("No token was entered, so no discord bot will be started" if self.discord_bot_token is None else "Bot token found. Attempting to start Discord bot")
         
-        self.start_bot(self.discord_bot_token)
-        
         self.messenger.subscribe(Service.DISCORD, self.process_message)
         self.log_synchronous("Discord Bot subscribed for messages")
+        
+        self.start_bot(self.discord_bot_token)
     
     def start_bot(self, token):
         intents = discord.Intents.all()
@@ -44,11 +44,11 @@ class DiscordBot:
                 return token
         return bot_token
         
-    def process_message(self, message):
-        pass
+    def process_message(self, message, sender):
+        self.log_synchronous("Got message: " + message + " from " + str(sender))
     
-    def send_message(self, message):
-        self.messenger.send_message(Service.DISCORD, message)
+    def send_message(self, message, target_service_id=None):
+        self.messenger.send_message(Service.DISCORD, message, target_service_id)
     
     def log_synchronous(self, message):
         self.messenger.log(Service.DISCORD, message)
