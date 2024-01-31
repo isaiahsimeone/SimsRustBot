@@ -1,11 +1,18 @@
 from messenger import Messenger, Service
-from rustplus import *
-
+from rustplus import RustSocket
+import asyncio
 
 class RustPlusAPI:
     def __init__(self, messenger):
         self.messenger = messenger
         self.config = messenger.get_config()
+        self.socket = None
+        
+        self.server = None
+        self.port = None
+        self.steamID = None
+        self.playerToken = None
+         
 
     # entry point
     def run(self):
@@ -13,16 +20,33 @@ class RustPlusAPI:
         self.log("Rust Service subscribed for messages")
         
         self.log("Attempting to connect to RustPlus")
+
+        asyncio.run(self.api_main())
         
-        ip = self.config.get("fcm_credentials").get("ip")
-        port = self.config.get("fcm_credentials").get("port")
-        #steamid = self.config.get("steam_id")
-        playerId = self.config.get("fcm_credentials").get("playerId")
+    async def api_main(self):
+                
+        fcm_creds = self.config.get("fcm_credentials")
         
-        print(ip, port, "A", playerId)
+        self.server = fcm_creds.get("ip")
+        self.port = fcm_creds.get("port")
+        self.steamID = fcm_creds.get("playerId")
+        self.playerToken = fcm_creds.get("playerToken")
+         
+        socket = RustSocket(self.server, self.port, self.steamID, self.playerToken)
+        self.socket = socket
         
-        #socket = RustSocket()
-        
+        await self.connect_api()
+
+    async def connect_api(self):
+        self.log("Connecting to Rust Server (" + self.server + ")...")
+        await self.socket.connect()
+        self.log("Connected to Rust Server! (" + self.server + ")")
+    
+    async def disconnect_api(self):
+        self.log("Disconnecting from Rust Server (" + self.server + ")...")
+        await self.socket.disconnect()
+        self.log("Disconnected from Rust Server (" + self.server + ")")
+    
     def process_message(self, message):
         pass
     
