@@ -1,27 +1,32 @@
 from messenger import Messenger, Service
 import discord
 
-
 class DiscordBot:
     def __init__(self, messenger):
         self.messenger = messenger
+        self.bot = None
     
     # entry point
     def run(self):
         self.discord_bot_token = self.get_bot_token()
-        self.log("No token was entered, so no discord bot will be started" if self.discord_bot_token is None else "Bot token found. Attempting to start Discord bot")
+        self.log_synchronous("No token was entered, so no discord bot will be started" if self.discord_bot_token is None else "Bot token found. Attempting to start Discord bot")
         
         self.start_bot(self.discord_bot_token)
         
         self.messenger.subscribe(Service.DISCORD, self.process_message)
-        self.log("Discord Bot subscribed for messages")
+        self.log_synchronous("Discord Bot subscribed for messages")
     
     def start_bot(self, token):
         intents = discord.Intents.all()
         intents.message_content = True
         self.bot = discord.Client(intents=intents)
+        
+        # Set up event handlers
+        from .bot_event_handlers import setup_event_handlers
+        setup_event_handlers(self.bot, self)
+        
         if self.messenger.get_config().get("discord_disable_lib_logging") == "true":
-            self.log("Discord library logging is disabled")
+            self.log_synchronous("Discord library logging is disabled")
             self.bot.run(token, log_handler=None)
         else:
             self.bot.run(token)
@@ -30,7 +35,7 @@ class DiscordBot:
         bot_token = self.messenger.get_config().get("discord_bot_token")
         
         if not bot_token:
-            self.log("ERROR: I don't have a discord bot token! Enter one, or leave blank")
+            self.log_synchronous("ERROR: I don't have a discord bot token! Enter one, or leave blank")
             token = input("Enter discord bot token: ").strip()
             if token == "":
                 return None
@@ -44,6 +49,9 @@ class DiscordBot:
     
     def send_message(self, message):
         self.messenger.send_message(Service.DISCORD, message)
-        
-    def log(self, message):
+    
+    def log_synchronous(self, message):
+        self.messenger.log(Service.DISCORD, message)
+    
+    async def log(self, message):
         self.messenger.log(Service.DISCORD, message)

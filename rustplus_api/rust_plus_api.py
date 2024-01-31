@@ -13,7 +13,6 @@ class RustPlusAPI:
         self.steamID = None
         self.playerToken = None
          
-
     # entry point
     def run(self):
         self.messenger.subscribe(Service.RUSTAPI, self.process_message)
@@ -24,7 +23,6 @@ class RustPlusAPI:
         asyncio.run(self.api_main())
         
     async def api_main(self):
-                
         fcm_creds = self.config.get("fcm_credentials")
         
         self.server = fcm_creds.get("ip")
