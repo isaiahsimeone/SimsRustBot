@@ -114,12 +114,16 @@ class ConfigManager:
         config_needs_update = False
 
         if os.path.isfile(self.config_path):
-            with open(self.config_path, 'r') as config_file:
-                existing_config = json.load(config_file)
-                for key in default_config.keys():
-                    if key not in existing_config:
-                        existing_config[key] = default_config[key]
-                        config_needs_update = True
+            try:
+                with open(self.config_path, 'r') as config_file:
+                    existing_config = json.load(config_file)
+                    for key in default_config.keys():
+                        if key not in existing_config:
+                            existing_config[key] = default_config[key]
+                            config_needs_update = True
+            except json.JSONDecodeError:
+                existing_config = default_config
+                config_needs_update = True
 
             if config_needs_update:
                 with open(self.config_path, 'w') as config_file:
