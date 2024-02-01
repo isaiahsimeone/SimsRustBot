@@ -4,6 +4,7 @@ import discord
 class DiscordBot:
     def __init__(self, messenger):
         self.messenger = messenger
+        self.config = self.messenger.get_config().get("discord")
         self.bot = None
     
     # entry point
@@ -25,14 +26,14 @@ class DiscordBot:
         from .bot_event_handlers import setup_event_handlers
         setup_event_handlers(self.bot, self)
         
-        if self.messenger.get_config().get("discord_disable_lib_logging") == "true":
+        if self.config.get("logging_enabled") == "true":
             self.log_synchronous("Discord library logging is disabled")
             self.bot.run(token, log_handler=None)
         else:
             self.bot.run(token)
 
     def get_bot_token(self):
-        bot_token = self.messenger.get_config().get("discord_bot_token")
+        bot_token = self.config.get("bot_token")
         
         if not bot_token:
             self.log_synchronous("ERROR: I don't have a discord bot token! Enter one, or leave blank")
@@ -40,7 +41,7 @@ class DiscordBot:
             if token == "":
                 return None
             else:
-                self.messenger.get_config().set("discord_bot_token", token)
+                self.config.set("bot_token", token)
                 return token
         return bot_token
         

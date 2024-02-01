@@ -7,7 +7,11 @@ class ConfigManager:
     def __init__(self, config_path, default_config=None):
         self.config_path = config_path
         self.default_config = default_config or {}
+        
+        self.generate_initial_config_if_absent()
+        
         self.config_data = self.load_config()
+        
 
     def load_config(self):
         if os.path.exists(self.config_path) and os.path.getsize(self.config_path) > 0:
@@ -86,3 +90,44 @@ class ConfigManager:
                 self.set("fcm_credentials", fcm_credentials_dict)
                 self.save_config()
                 return None
+
+    
+    def generate_initial_config_if_absent(self):
+        default_config = {
+            "fcm_credentials": {
+                
+            },
+            "discord": {
+                "bot_token": "",
+                "logging_enabled": "true"
+            },
+            "web": {
+                "host": "localhost",
+                "port": "5000",
+                "logging_enabled": "true"
+            },
+            "rust": {
+                
+            }
+        }
+
+        config_needs_update = False
+
+        if os.path.isfile(self.config_path):
+            with open(self.config_path, 'r') as config_file:
+                existing_config = json.load(config_file)
+                for key in default_config.keys():
+                    if key not in existing_config:
+                        existing_config[key] = default_config[key]
+                        config_needs_update = True
+
+            if config_needs_update:
+                with open(self.config_path, 'w') as config_file:
+                    json.dump(existing_config, config_file, indent=4)
+                Printer.print("info", "Configuration file updated with missing fields. Creating...")
+            else:
+                Printer.print("info", "Configuration file already exists and is up to date.")
+        else:
+            with open(self.config_path, 'w') as config_file:
+                json.dump(default_config, config_file, indent=4)
+            Printer.print("info", "Initial configuration generated.")

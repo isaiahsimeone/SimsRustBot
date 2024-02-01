@@ -14,14 +14,14 @@ log.setLevel(logging.ERROR)
 class WebServer:
     def __init__(self, messenger):
         self.messenger = messenger
-        self.config = self.messenger.get_config()
-        if self.config.get("werkzeug_disable_logging") == "true":
+        self.config = self.messenger.get_config().get("web")
+        if self.config.get("logging_enabled") != "true":
             self.log("Werkzeug logging is disabled")
             logger = logging.getLogger('werkzeug')
             logger.setLevel(logging.ERROR)
 
-        self.port = self.config.get("web_server_port", 4000)
-        self.host = self.config.get("web_server_host", '127.0.0.1')
+        self.port = self.config.get("port")
+        self.host = self.config.get("host")
 
     def execute(self):
         setup_routes(app, self)  # Set up routes with the WebServer instance
