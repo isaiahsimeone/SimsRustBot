@@ -1,66 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rust Server Interface</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/css/style.css">
-</head>
-<body>
-    <div class="container-fluid p-0">
-        <div class="row no-gutters">
-            <!-- Left Panel: Command List -->
-            <div class="col-md-2 bg-dark text-light">
-                <div class="logo p-3">
-                    <a target="_blank" href="https://www.github.com/isaiahsimeone/simsrustbot">
-                        <img src="static/images/sims_rust_bot_logo.png" alt="Sim's Rust Bot" class="img-fluid">
-                    </a>
-                </div>
-                <ul class="nav flex-column">
-                    <!-- Dynamically generate command buttons here -->
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">COMMAND_1</a>
-                    </li>
-                    <!-- Repeat for other commands -->
-                </ul>
-            </div>
-            <!-- Center Panel: Map -->
-            <div class="col-md-8">
-                <div id="map-container" class="map-container">
-                    <!-- The map image will be placed here -->
-                    <img src="static/images/map.jpg" alt="Rust Map" class="img-fluid">
-                </div>
-            </div>
-            <!-- Right Panel: Player List and Chat -->
-            <div class="col-md-2 bg-light">
-                <div class="server_info p-3">
-                    <p>Server info here</p>
-                </div>
-                <div class="players p-3">
-                    <!-- Dynamically generate player list here -->
-                    <p>Player name 1</p>
-                    <!-- Repeat for other players -->
-                </div>
-                <div class="chat-area">
-                    <div class="chat-messages p-3">
-                        <!-- Dynamically generate chat messages here -->
-                        <div class="chat-message other">This is a chat message from someone else</div>
-                        <div class="chat-message me">This is a chat message from me</div>
-                        <!-- Repeat for other messages -->
-                    </div>
-                    <div class="chat-input p-3">
-                        <input type="text" class="form-control" placeholder="Send message...">
-                        <button class="btn btn-primary mt-2">Send</button>
-                    </div>
-                </div>
-            </div>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="static/css/style.css" />
+  </head>
+  <body>
+    <!-- Command Modal -->
+    <div class="modal fade" id="commandModal" tabindex="-1" aria-labelledby="commandModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="commandModalLabel">Command Options</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Modal Content Here -->
+            modal content
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save Changes</button>
+          </div>
         </div>
+      </div>
+    </div>
+    <div class="container-fluid p-0">
+      <div class="row no-gutters">
+        <!-- Left Panel: Command List -->
+        <div class="col-md-2 bg-dark text-light">
+          <div class="logo p-3">
+            <a target="_blank" href="https://www.github.com/isaiahsimeone/simsrustbot">
+              <img src="static/images/sims_rust_bot_logo.png" alt="Sim's Rust Bot" class="img-fluid" />
+            </a>
+          </div>
+          <div class="command-list">
+            <!-- Toggleable command -->
+            <div class="command-btn toggleable inactive">Toggleable COMMAND_1</div>
+
+            <!-- Command that opens a modal -->
+            <div class="command-btn modal-trigger" data-toggle="modal" data-target="#commandModal">Modal COMMAND_2</div>
+
+            <!-- Repeat for other commands -->
+          </div>
+        </div>
+
+        <!-- Center Panel: Map -->
+        <div class="col-md-8">
+          <div id="panzoom-element" class="panzoom">
+            <div id="map-container" class="map-container">
+              <!-- The map image will be placed here -->
+              <img src="static/images/map.jpg" alt="RUST_MAP" id="map-image" />
+            </div>
+          </div>
+        </div>
+        <!-- Right Panel: Player List and Chat -->
+        <div class="col-md-2 bg-light">
+          <div class="server_info p-3">
+            <p>Server info here</p>
+          </div>
+          <div class="players p-3">
+            <!-- Dynamically generate player list here -->
+            <p>Player name 1</p>
+            <!-- Repeat for other players -->
+          </div>
+          <div class="chat-area">
+            <div class="chat-messages p-3">
+              <!-- Dynamically generate chat messages here -->
+              <div class="chat-message other">This is a chat message from someone else</div>
+              <div class="chat-message me">This is a chat message from me</div>
+              <!-- Repeat for other messages -->
+            </div>
+            <div class="chat-input p-3">
+              <input type="text" class="form-control" placeholder="Send message..." />
+              <button class="btn btn-primary mt-2">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script src="static/js/main.js"></script>
-</body>
+    <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        console.log("jQuery version:", $.fn.jquery); // Check jQuery version
+        console.log("Panzoom:", typeof Panzoom); // Check if Panzoom is loaded
+
+        const panzoomElement = document.getElementById("panzoom-element");
+        if (panzoomElement) {
+          const panzoom = Panzoom(panzoomElement, {
+            maxScale: 6,
+            contain: "outside",
+            animate: "true",
+          });
+          panzoomElement.parentElement.addEventListener("wheel", panzoom.zoomWithWheel);
+        } else {
+          console.error("Panzoom element not found");
+        }
+      });
+    </script>
+
+    <script src="static/js/script.js"></script>
+  </body>
 </html>

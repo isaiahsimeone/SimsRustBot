@@ -22,5 +22,4 @@ class Message(Base):
     user = relationship("User", back_populates="messages")
     
 
-
 User.messages = relationship("Message", order_by=Message.id, back_populates="user")
