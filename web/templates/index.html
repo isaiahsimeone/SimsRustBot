@@ -3,32 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rust Map Interface</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Rust Server Interface</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
-    <div class="left-pane">
-        <div class="logo">LOGO</div>
-        <div class="commands">
-            <!-- Commands will go here -->
-            <div class="command" onclick="expandOptions(this)">Send Team Message</div>
-            <div class="command" onclick="expandOptions(this)">Turn on Device</div>
-            <!-- More commands -->
-        </div>
-    </div>
-    <div class="map-pane">
-        <img src="map.jpg" alt="Rust Map" class="fullscreen-map">
-    </div>
-    <div class="right-pane">
-        <div class="chat">
-            <!-- Chat messages will go here -->
-        </div>
-        <div class="send-message">
-            <input type="text" id="message-input" placeholder="Send message">
-            <button onclick="sendMessage()">Send</button>
+    <div class="container-fluid p-0">
+        <div class="row no-gutters">
+            <!-- Left Panel: Command List -->
+            <div class="col-md-2 bg-dark text-light">
+                <div class="logo p-3">
+                    <a target="_blank" href="https://www.github.com/isaiahsimeone/simsrustbot">
+                        <img src="static/images/sims_rust_bot_logo.png" alt="Sim's Rust Bot" class="img-fluid">
+                    </a>
+                </div>
+                <ul class="nav flex-column">
+                    <!-- Dynamically generate command buttons here -->
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">COMMAND_1</a>
+                    </li>
+                    <!-- Repeat for other commands -->
+                </ul>
+            </div>
+            <!-- Center Panel: Map -->
+            <div class="col-md-8">
+                <div id="map-container" class="map-container">
+                    <!-- The map image will be placed here -->
+                    <img src="static/images/map.jpg" alt="Rust Map" class="img-fluid">
+                </div>
+            </div>
+            <!-- Right Panel: Player List and Chat -->
+            <div class="col-md-2 bg-light">
+                <div class="server_info p-3">
+                    <p>Server info here</p>
+                </div>
+                <div class="players p-3">
+                    <!-- Dynamically generate player list here -->
+                    <p>Player name 1</p>
+                    <!-- Repeat for other players -->
+                </div>
+                <div class="chat-area">
+                    <div class="chat-messages p-3">
+                        <!-- Dynamically generate chat messages here -->
+                        <div class="chat-message other">This is a chat message from someone else</div>
+                        <div class="chat-message me">This is a chat message from me</div>
+                        <!-- Repeat for other messages -->
+                    </div>
+                    <div class="chat-input p-3">
+                        <input type="text" class="form-control" placeholder="Send message...">
+                        <button class="btn btn-primary mt-2">Send</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="static/js/main.js"></script>
 </body>
 </html>

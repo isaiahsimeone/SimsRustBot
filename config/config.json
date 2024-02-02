@@ -13,13 +13,15 @@
         "url": "https://rusticated.com/discord"
     },
     "database": {
-        "path": "database/db.db"
+        "path": "sqlite:///database/db.db"
     },
     "discord": {
+        "enabled": "true",
         "bot_token": "MTIwMTczNjQ2MTUzNjQ3NzI5NA.GUzVQg.sdkNtYHTj6jk8dztTKXfyXeD5x_s37phLW-6gw",
         "logging_enabled": "true"
     },
     "web": {
+        "enabled": "true",
         "host": "localhost",
         "port": "5000",
         "logging_enabled": "true"

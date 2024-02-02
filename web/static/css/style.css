@@ -1,0 +1,80 @@
+/* Custom Styles */
+.logo {
+    background: #333;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.map-container {
+    position: relative;
+    height: 100vh; /* Adjust height to fit the viewport */
+    overflow: hidden; /* This will prevent the map from making the page scrollable */
+}
+
+.map-container img {
+    height: 100%; /* Make the map image take full height of its container */
+    width: auto; /* Adjust width automatically */
+    min-width: 100%; /* Ensure it covers the container width */
+    object-fit: cover; /* This will cover the area, potentially clipping the image */
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%); /* Center the image */
+    /* Add styles for zoom and pan functionality */
+}
+
+.bg-dark, .bg-light {
+    z-index: 10; /* Make sure this number is higher than the z-index of the map image */
+    position: relative; /* Required for z-index to take effect */
+}
+
+.server_info {
+    border-top: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.players {
+    border-top: 1px solid #ccc;
+}
+
+.players p {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.chat-area {
+    border-top: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: calc(100vh - 200px); /* Adjust height accordingly */
+}
+
+.chat-messages {
+    overflow-y: auto;
+}
+
+.chat-message {
+    padding: 0.5rem;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    max-width: 75%;
+}
+
+.chat-message.other {
+    background-color: #e5e5e5;
+}
+
+.chat-message.me {
+    background-color: #dcf8c6;
+    margin-left: auto;
+}
+
+.chat-input {
+    border-top: 1px solid #ccc;
+}
