@@ -56,18 +56,20 @@ class ConfigManager:
             return None
 
     def validate_fcm(self, input_data):
+        return self.validate_json(input_data, {"fcm_credentials", "expo_push_token", "rustplus_auth_token"})
+    
+    def validate_server_details(self, input_data):
         return self.validate_json(input_data, {"desc", "id", "img", "ip", "logo", "name", "playerId", "playerToken", "port", "type", "url"})
-
     
     def check_fcm_credentials(self):
         if self.validate_fcm(json.dumps(self.get("fcm_credentials"))):
-            Printer.print("info", "FCM Credentials found, and I think they look valid")
+            Printer.print("info", "FCM credentials found, and I think they look valid")
             return None
         
-        Printer.print("error", "FCM Credentials weren't found in ./config/config.json (or are incorrect)\n"
+        Printer.print("error", "FCM credentials weren't found in ./config/config.json (or are incorrect)\n"
                                 "To obtain these credentials, you can use the Rustplus.py Link Companion browser extension for Google Chrome\n\n"
                                 "Available here: https://chromewebstore.google.com/detail/rustpluspy-link-companion/gojhnmnggbnflhdcpcemeahejhcimnlf \n\n"
-                                "Either input your credentials into ./config/config.json, or paste them here. Press enter once finished. \n")
+                                "Paste the topmost field. Either input your credentials into ./config/config.json, or paste them here. Press enter once finished. \n")
         while True:
             Printer.print("prompt", "Enter your FCM credentials: \n")
             fcm_credentials_json = Tools.get_user_input_json()
@@ -80,7 +82,7 @@ class ConfigManager:
             # Check if the config.json file has been updated by the user
             config_has_valid_fcm = self.validate_fcm(json.dumps(self.reload_get("fcm_credentials")))
             if config_has_valid_fcm:
-                Printer.print("info", "FCM Credentials found in config.json. Continuing")
+                Printer.print("info", "FCM credentials found in config.json. Continuing")
                 return None
             
             # Check if what the user entered are valid FCM creds. If they are, save them
@@ -90,11 +92,45 @@ class ConfigManager:
                 self.set("fcm_credentials", fcm_credentials_dict)
                 self.save_config()
                 return None
-
+            
+    def check_server_details(self):
+        if self.validate_server_details(json.dumps(self.get("server_details"))):
+            Printer.print("info", "Server details found, and I think they look valid")
+            return None
+        
+        Printer.print("error", "Server details weren't found in ./config/config.json (or are incorrect)\n"
+                                "To obtain these details, you can use the Rustplus.py Link Companion browser extension for Google Chrome\n\n"
+                                "Available here: https://chromewebstore.google.com/detail/rustpluspy-link-companion/gojhnmnggbnflhdcpcemeahejhcimnlf \n\n"
+                                "Paste the bottom-most field. Either input the details into ./config/config.json, or paste them here. Press enter once finished. \n")
+        while True:
+            Printer.print("prompt", "Enter your server details: \n")
+            server_details_json = Tools.get_user_input_json()
+            try:
+                server_details_dict = json.loads(server_details_json)
+            except json.JSONDecodeError as e:
+                Printer.print("error", f"Invalid JSON: {e}")
+                continue
+            
+            # Check if the config.json file has been updated by the user
+            config_has_valid_fcm = self.validate_fcm(json.dumps(self.reload_get("server_details")))
+            if config_has_valid_fcm:
+                Printer.print("info", "Server details found in config.json. Continuing")
+                return None
+            
+            # Check if what the user entered are valid FCM creds. If they are, save them
+            is_valid_fcm = self.validate_fcm(json.dumps(server_details_dict))
+            if is_valid_fcm:
+                Printer.print("info", "These seem like valid server details. Saving to config.json")
+                self.set("server_details", server_details_dict)
+                self.save_config()
+                return None
     
     def generate_initial_config_if_absent(self):
         default_config = {
             "fcm_credentials": {
+                
+            },
+            "server_details": {
                 
             },
             "database": {

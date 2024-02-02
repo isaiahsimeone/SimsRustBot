@@ -17,6 +17,7 @@ def main():
     
     config = ConfigManager("./config/config.json")
     config.check_fcm_credentials()
+    config.check_server_details()
    
     init_db(config)
    
