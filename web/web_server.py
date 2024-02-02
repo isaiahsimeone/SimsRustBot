@@ -7,10 +7,6 @@ from .web_routes import setup_routes
 app = Flask(__name__)
 app.secret_key = 'secret'
 
-# Only show errors
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
-
 class WebServer:
     def __init__(self, messenger):
         self.messenger = messenger

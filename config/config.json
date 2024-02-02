@@ -12,6 +12,9 @@
         "type": "server",
         "url": "https://rusticated.com/discord"
     },
+    "database": {
+        "path": "database/db.db"
+    },
     "discord": {
         "bot_token": "MTIwMTczNjQ2MTUzNjQ3NzI5NA.GUzVQg.sdkNtYHTj6jk8dztTKXfyXeD5x_s37phLW-6gw",
         "logging_enabled": "true"

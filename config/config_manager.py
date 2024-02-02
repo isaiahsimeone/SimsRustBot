@@ -97,6 +97,9 @@ class ConfigManager:
             "fcm_credentials": {
                 
             },
+            "database": {
+                "path": "database/db.db"
+            },
             "discord": {
                 "bot_token": "",
                 "logging_enabled": "true"

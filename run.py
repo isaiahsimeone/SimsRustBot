@@ -10,6 +10,7 @@ from web.web_server import WebServer
 from config.config_manager import ConfigManager
 from util.printer import Printer
 from util.tools import Tools
+from database.database import init_db
 
 def main():
     Printer.print_banner()
@@ -17,23 +18,25 @@ def main():
     config = ConfigManager("./config/config.json")
     config.check_fcm_credentials()
    
+    init_db(config)
+   
     messenger = Messenger(config)
 
     rustplus_api = RustPlusAPI(messenger)
     discord_bot = DiscordBot(messenger)
     web_server = WebServer(messenger)
 
-    # Creating threads for each service
+    # Create threads for each service
     rustplus_thread = threading.Thread(target=start_service_threaded, args=(rustplus_api,))
     discord_thread = threading.Thread(target=start_service_threaded, args=(discord_bot,))
     web_server_thread = threading.Thread(target=start_service_threaded, args=(web_server,))
 
-    # Starting threads
+    # Start threads
     rustplus_thread.start()
     discord_thread.start()
     web_server_thread.start()
 
-    # Optionally, join threads if you want the main thread to wait for them to finish
+    # Join thread
     rustplus_thread.join()
     discord_thread.join()
     web_server_thread.join()

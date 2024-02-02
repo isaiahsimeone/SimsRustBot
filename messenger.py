@@ -57,3 +57,18 @@ class Messenger:
     
     def get_config(self):
         return self.config
+
+
+    def add_message(self, user_steam_id, content):
+        session = Session()
+        user = session.query(User).filter_by(steam_id=user_steam_id).first()
+        if not user:
+            user = User(steam_id=user_steam_id)
+            session.add(user)
+            session.commit()
+
+        message = Message(user_id=user.id, content=content)
+        
+        session.add(message)
+        session.commit()
+        session.close()

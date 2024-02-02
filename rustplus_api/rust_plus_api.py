@@ -2,7 +2,7 @@ from messenger import Messenger, Service
 from rustplus import RustSocket
 import asyncio
 from .commands.send_message import send_message as rust_send_message
-import threading
+
 
 class RustPlusAPI:
     def __init__(self, messenger):
@@ -36,12 +36,6 @@ class RustPlusAPI:
         self.socket = socket
         
         await self.connect_api()
-        await self.speak()
-        await self.get_map()
-        
-    async def get_map(self):
-        with open("map.jpg", "wb") as map:
-            map.write((await self.socket.get_raw_map_data()).jpg_image)
 
         
     async def speak(self):
