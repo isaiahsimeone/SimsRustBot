@@ -46,14 +46,14 @@ class DiscordBot:
                 return token
         return bot_token
         
-    def process_message(self, message: Message, sender):
-        self.log_synchronous("Got message: " + message + " from " + str(sender))
+    async def process_message(self, message: Message, sender):
+        self.log("Got message: " + message + " from " + str(sender))
     
-    def send_message(self, message: Message, target_service_id=None):
-        self.messenger.send_message(Service.DISCORD, message, target_service_id)
+    async def send_message(self, message: Message, target_service_id=None):
+        await self.messenger.send_message(Service.DISCORD, message, target_service_id)
     
-    def log_synchronous(self, message: Message):
+    def log(self, message: Message):
         self.messenger.log(Service.DISCORD, message)
-    
-    async def log(self, message: Message):
+        
+    def log_synchronous(self, message: Message):
         self.messenger.log(Service.DISCORD, message)

@@ -29,11 +29,11 @@ class WebServer:
         
         threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
 
-    def process_message(self, message: Message, sender):
+    async def process_message(self, message: Message, sender):
         self.log("Got message: " + message + " from " + str(sender))
 
-    def send_message(self, message: Message, target_service_id=None):
-        self.messenger.send_message(Service.WEBSERVER, message, target_service_id)
+    async def send_message(self, message: Message, target_service_id=None):
+        await self.messenger.send_message(Service.WEBSERVER, message, target_service_id)
 
     def log(self, message):
         self.messenger.log(Service.WEBSERVER, message)
