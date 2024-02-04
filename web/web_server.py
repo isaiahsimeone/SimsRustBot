@@ -1,4 +1,5 @@
-from messenger import Messenger, Service
+from ipc.messenger import Messenger, Service
+from ipc.message import Message, MessageType
 from flask import Flask
 import logging
 import threading
@@ -28,10 +29,10 @@ class WebServer:
         
         threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
 
-    def process_message(self, message, sender):
+    def process_message(self, message: Message, sender):
         self.log("Got message: " + message + " from " + str(sender))
 
-    def send_message(self, message, target_service_id=None):
+    def send_message(self, message: Message, target_service_id=None):
         self.messenger.send_message(Service.WEBSERVER, message, target_service_id)
 
     def log(self, message):

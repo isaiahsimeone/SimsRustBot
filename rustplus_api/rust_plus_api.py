@@ -1,9 +1,11 @@
-from messenger import Messenger, Service
+from ipc.messenger import Messenger, Service
+from ipc.message import Message, MessageType
+
 from rustplus import RustSocket, ChatEvent, CommandOptions
 import asyncio
 from .FCM_listener import FCM
 
-from .event_listners import *
+from .event_listeners import EventListener
 
 from .commands.send_message import send_message as rust_send_message
 from .commands.get_server_info import get_server_info
@@ -18,7 +20,8 @@ class RustPlusAPI:
         self.steamID = self.config.get("server_details").get("playerId")
         self.playerToken = self.config.get("server_details").get("playerToken")
         self.socket = RustSocket(self.server, self.port, self.steamID, self.playerToken)
-
+        self.event_listener = None
+    
     # entry point
     def execute(self):
         self.messenger.subscribe(Service.RUSTAPI, self.process_message)
@@ -40,11 +43,9 @@ class RustPlusAPI:
         self.log("Downloading server map...")
         await get_server_map(self.socket)
 
-        # Register event handlers
-        self.socket.team_event(team_event_handler)
-        self.socket.chat_event(chat_event_handler)
-        self.socket.protobuf_received(proto_event_handler)
-        self.log("Event handlers setup complete")
+        # Register event listener
+        self.event_listener = EventListener(self.socket, self.messenger)
+        self.log("Event listener setup complete")
         
         await asyncio.Future() # Keep running
         
@@ -55,10 +56,10 @@ class RustPlusAPI:
         await self.socket.disconnect()
         self.log("Disconnected from Rust Server (" + self.server + ")")
 
-    def process_message(self, message, sender):
+    def process_message(self, message: Message, sender):
         self.log("Got message: " + message + " from " + str(sender))
 
-    def send_message(self, message, target_service_id=None):
+    def send_message(self, message: Message, target_service_id=None):
         self.messenger.send_message(Service.RUSTAPI, message, target_service_id)
 
     def log(self, message):

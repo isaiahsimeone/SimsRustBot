@@ -1,4 +1,5 @@
-from messenger import Messenger, Service
+from ipc.messenger import Messenger, Service
+from ipc.message import Message, MessageType
 import discord
 
 class DiscordBot:
@@ -45,14 +46,14 @@ class DiscordBot:
                 return token
         return bot_token
         
-    def process_message(self, message, sender):
+    def process_message(self, message: Message, sender):
         self.log_synchronous("Got message: " + message + " from " + str(sender))
     
-    def send_message(self, message, target_service_id=None):
+    def send_message(self, message: Message, target_service_id=None):
         self.messenger.send_message(Service.DISCORD, message, target_service_id)
     
-    def log_synchronous(self, message):
+    def log_synchronous(self, message: Message):
         self.messenger.log(Service.DISCORD, message)
     
-    async def log(self, message):
+    async def log(self, message: Message):
         self.messenger.log(Service.DISCORD, message)

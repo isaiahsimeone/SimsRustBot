@@ -3,7 +3,7 @@ import sys
 import json
 import threading
 
-from messenger import Messenger
+from ipc.messenger import Messenger
 from rustplus_api.rust_plus_api import RustPlusAPI
 from discord_bot.discord_bot import DiscordBot
 from web.web_server import WebServer

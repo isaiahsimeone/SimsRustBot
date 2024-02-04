@@ -3,6 +3,7 @@ import threading
 from enum import Enum
 from util.printer import Printer
 from termcolor import colored
+from ipc.message import Message, MessageType
 
 class Service(Enum):
     DISCORD = (1, "light_cyan")
@@ -22,13 +23,14 @@ class Messenger:
         self.message_queue = Queue()
         self.listeners = {}
 
-    def send_message(self, service_id, message, target_service_id=None):
+    def send_message(self, service_id, message: Message, target_service_id=None):
+        msg_str = message.to_json()
         # If target_service_id is specified, send only to that listener.
         # Otherwise, send to all listeners except the sender.
         if target_service_id is not None:
-            self.message_queue.put((service_id, message, target_service_id))
+            self.message_queue.put((service_id, msg_str, target_service_id))
         else:
-            self.message_queue.put((service_id, message, None))
+            self.message_queue.put((service_id, msg_str, None))
         self.notify_listeners()
 
     def subscribe(self, subscribing_service_id, listener_callback):
@@ -58,7 +60,7 @@ class Messenger:
     def get_config(self):
         return self.config
 
-
+    # for database
     def add_message(self, user_steam_id, content):
         session = Session()
         user = session.query(User).filter_by(steam_id=user_steam_id).first()

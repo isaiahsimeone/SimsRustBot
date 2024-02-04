@@ -1,5 +1,5 @@
 from flask import render_template, request
-from messenger import Service
+from ipc.messenger import Service
 def setup_routes(app, web_server):
 
     @app.route('/')

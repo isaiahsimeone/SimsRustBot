@@ -112,13 +112,13 @@ class ConfigManager:
                 continue
             
             # Check if the config.json file has been updated by the user
-            config_has_valid_fcm = self.validate_fcm(json.dumps(self.reload_get("server_details")))
+            config_has_valid_fcm = self.validate_server_details(json.dumps(self.reload_get("server_details")))
             if config_has_valid_fcm:
                 Printer.print("info", "Server details found in config.json. Continuing")
                 return None
             
-            # Check if what the user entered are valid FCM creds. If they are, save them
-            is_valid_fcm = self.validate_fcm(json.dumps(server_details_dict))
+            # Check if what the user entered are valid server details. If they are, save them
+            is_valid_fcm = self.validate_server_details(json.dumps(server_details_dict))
             if is_valid_fcm:
                 Printer.print("info", "These seem like valid server details. Saving to config.json")
                 self.set("server_details", server_details_dict)
@@ -137,8 +137,11 @@ class ConfigManager:
                 "path": "database/db.db"
             },
             "discord": {
+                "enabled": "true",
+                "logging_enabled": "true",
                 "bot_token": "",
-                "logging_enabled": "true"
+                "notification_channel": "",
+                "chat_channel": ""
             },
             "web": {
                 "host": "localhost",

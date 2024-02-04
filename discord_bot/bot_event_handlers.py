@@ -1,4 +1,4 @@
-from messenger import Service
+from ipc.messenger import Service
 
 class DiscordBotEventHandlers:
     def __init__(self, bot, discord_bot):
