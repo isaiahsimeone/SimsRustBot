@@ -47,11 +47,16 @@ class RustPlusAPI:
         self.event_listener = EventListener(self.socket, self.messenger)
         self.log("Event listener setup complete")
         
-        # Start map polling
+        frequencies = self.messenger.get_config().get("rust").get("map_polling_frequency_seconds")
         self.map_poller = MapPoller(self.socket, self.messenger)
-        asyncio.create_task(self.map_poller.start())
-        poll_frequency = self.messenger.get_config().get("rust").get("map_polling_frequency_seconds")
-        self.log("Map polling started with a frequency of " + poll_frequency + " seconds")
+        
+        # Start map marker polling
+        asyncio.create_task(self.map_poller.start_marker_polling())
+        self.log("Map marker polling started with a frequency of " + frequencies.get("marker") + " seconds")
+        
+        # Start map event polling
+        asyncio.create_task(self.map_poller.start_event_polling())
+        self.log("Map event polling started with a frequency of " + frequencies.get("event") + " seconds")
         
         await asyncio.Future() # Keep running
         
