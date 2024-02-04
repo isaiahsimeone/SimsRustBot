@@ -55,6 +55,9 @@
             <div id="map-container" class="map-container">
               <!-- The map image will be placed here -->
               <img src="static/images/map.jpg" alt="RUST_MAP" id="map-image" />
+              <!-- Overlay Images -->
+              <div class="overlay" id="overlay1"></div>
+              <div class="overlay" id="overlay2"></div>
             </div>
           </div>
         </div>
@@ -90,22 +93,35 @@
     <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
 
     <script>
-      $(document).ready(function () {
-        console.log("jQuery version:", $.fn.jquery); // Check jQuery version
-        console.log("Panzoom:", typeof Panzoom); // Check if Panzoom is loaded
+ $(document).ready(function () {
+  const panzoomElement = document.getElementById("panzoom-element");
+  if (panzoomElement) {
+    const panzoom = Panzoom(panzoomElement, {
+      maxScale: 6,
+      contain: "outside",
+      animate: true,
+    });
+    panzoomElement.parentElement.addEventListener("wheel", panzoom.zoomWithWheel);
 
-        const panzoomElement = document.getElementById("panzoom-element");
-        if (panzoomElement) {
-          const panzoom = Panzoom(panzoomElement, {
-            maxScale: 6,
-            contain: "outside",
-            animate: "true",
-          });
-          panzoomElement.parentElement.addEventListener("wheel", panzoom.zoomWithWheel);
-        } else {
-          console.error("Panzoom element not found");
-        }
-      });
+    // Set initial overlay positions and images
+    setOverlayImage("overlay1", "static/images/crate.png", 100, 200);
+    setOverlayImage("overlay2", "static/images/crate.png", 300, 400);
+
+    // Listen to Pan events
+    panzoomElement.addEventListener("panzoompan", function () {
+     // adjustOverlaysOnPan(panzoom);
+    });
+
+    // Listen to Zoom events
+    panzoomElement.addEventListener("panzoomzoom", function () {
+      adjustOverlaysOnZoom(panzoom);
+    });
+  }
+});
+
+
+
+
     </script>
 
     <script src="static/js/script.js"></script>

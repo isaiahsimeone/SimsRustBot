@@ -130,3 +130,12 @@
 .command-btn.inactive {
     background-color: #dc3545; /* Red */
 }
+
+.overlay {
+    position: absolute;
+    width: 50px;  /* Base width */
+    height: 50px; /* Base height */
+    background-size: cover;
+    display: block; /* Initially visible */
+    transform-origin: center;
+}
