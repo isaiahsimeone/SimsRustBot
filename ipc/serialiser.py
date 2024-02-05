@@ -15,13 +15,13 @@ class_mappings = {
 
 def serialise_API_object(obj):
     obj_type = type(obj)
-    print(f"Serializing object of type: {obj_type.__name__}")
+    #print(f"Serialising object of type: {obj_type.__name__}")
 
     if obj_type in class_mappings:
         serialized_data = {}
         for attr in class_mappings[obj_type]:
             attr_value = getattr(obj, attr)
-            print(f"Serializing attribute {attr} of type: {type(attr_value).__name__}")
+            #print(f"Serializing attribute {attr} of type: {type(attr_value).__name__}")
             serialized_data[attr] = serialise_API_object(attr_value)
         return serialized_data
     elif isinstance(obj, list):

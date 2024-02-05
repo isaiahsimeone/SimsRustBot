@@ -41,7 +41,9 @@ class RustPlusAPI:
         self.log("Fetching server info...")
         await get_server_info(self.socket)
         self.log("Downloading server map...")
-        await get_server_map(self.socket)
+        server_map = await get_server_map(self.socket)
+        message = Message(MessageType.RUST_SERVER_MAP, {"data": server_map})
+        await self.send_message(message)
 
         # Register event listener
         self.event_listener = EventListener(self.socket, self.messenger)

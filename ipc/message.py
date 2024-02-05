@@ -3,10 +3,11 @@ import json
 from .serialiser import serialise_API_object
 
 class MessageType(Enum):
-    RUST_IN_GAME_MSG = "rust_chat_msg",
-    RUST_TEAM_CHANGE = "rust_team_change",
+    RUST_IN_GAME_MSG = "rust_chat_msg"
+    RUST_TEAM_CHANGE = "rust_team_change"
+    RUST_SERVER_MAP = "rust_server_map"
     
-    RUST_MAP_MARKERS = "rust_map_markers",
+    RUST_MAP_MARKERS = "rust_map_markers"
     RUST_MAP_EVENTS = "rust_map_events"
 
 """

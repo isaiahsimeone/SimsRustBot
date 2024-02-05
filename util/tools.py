@@ -7,3 +7,4 @@ class Tools:
                 break
             input_lines.append(line)
         return "\n".join(input_lines)
+

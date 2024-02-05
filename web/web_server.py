@@ -1,9 +1,11 @@
 from ipc.messenger import Messenger, Service
 from ipc.message import Message, MessageType
-from flask import Flask
+from flask import Flask, url_for
 import logging
 import threading
 from .web_routes import setup_routes
+import json
+from PIL import Image 
 
 app = Flask(__name__)
 app.secret_key = 'secret'
@@ -28,9 +30,27 @@ class WebServer:
         self.log("Web Server subscribed for messages")
         
         threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
-
-    async def process_message(self, message: Message, sender):
-        self.log("Got message: " + message + " from " + str(sender))
+    
+    async def process_message(self, message, sender):
+        msg = json.loads(message)
+        
+        #print("WEBS GOT MESSAGE:", message)
+        if msg.get("type") == MessageType.RUST_SERVER_MAP.value:
+            self.log("Got server map. Moving to images root")
+            #print(msg)
+            image_data = msg.get("data").get("data")
+            
+            img_width = image_data.get("width")
+            img_height = image_data.get("height")
+            img_pixels = [tuple(pixel) for pixel in image_data.get("pixels")]
+            
+            img = Image.new(mode="RGB", size=(img_width, img_height))
+            img.putdata(img_pixels)
+            
+            img.save("web/static/images/map.jpg")
+            
+                
+        #self.log("Got message: " + message + " from " + str(sender))
 
     async def send_message(self, message: Message, target_service_id=None):
         await self.messenger.send_message(Service.WEBSERVER, message, target_service_id)

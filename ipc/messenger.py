@@ -26,11 +26,11 @@ class Messenger:
         self.listeners = {}
 
     async def send_message(self, service_id, message: Message, target_service_id=None):
-        msg_str = message.to_json()
+        msg_json = message.to_json()
         if target_service_id is not None:
-            await self.message_queue.put((service_id, msg_str, target_service_id))
+            await self.message_queue.put((service_id, msg_json, target_service_id))
         else:
-            await self.message_queue.put((service_id, msg_str, None))
+            await self.message_queue.put((service_id, msg_json, None))
         asyncio.create_task(self.notify_listeners())  # Trigger listener notification
 
     def subscribe(self, subscribing_service_id, listener_callback):

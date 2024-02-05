@@ -47,7 +47,8 @@ class DiscordBot:
         return bot_token
         
     async def process_message(self, message: Message, sender):
-        self.log("Got message: " + message + " from " + str(sender))
+        pass
+        #self.log("Got message: " + message + " from " + str(sender))
     
     async def send_message(self, message: Message, target_service_id=None):
         await self.messenger.send_message(Service.DISCORD, message, target_service_id)
