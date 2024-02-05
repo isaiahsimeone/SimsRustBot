@@ -56,8 +56,10 @@
               <!-- The map image will be placed here -->
               <img src="static/images/map.jpg" alt="RUST_MAP" id="map-image" />
               <!-- Overlay Images -->
-              <div class="overlay" id="overlay1"></div>
-              <div class="overlay" id="overlay2"></div>
+              <div class="overlay" id="overlay100"></div>
+              <div class="overlay" id="overlay200"></div>
+              <div class="overlay" id="overlay300"></div>
+              <div class="overlay" id="overlay400"></div>
             </div>
           </div>
         </div>
@@ -93,36 +95,60 @@
     <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
 
     <script>
- $(document).ready(function () {
-  const panzoomElement = document.getElementById("panzoom-element");
-  if (panzoomElement) {
-    const panzoom = Panzoom(panzoomElement, {
-      maxScale: 6,
-      contain: "outside",
-      animate: true,
-    });
-    panzoomElement.parentElement.addEventListener("wheel", panzoom.zoomWithWheel);
+      $(document).ready(function () {
+        const panzoomElement = document.getElementById("panzoom-element");
+        if (panzoomElement) {
+          const panzoom = Panzoom(panzoomElement, {
+            maxScale: 6,
+            contain: "outside",
+            animate: true,
+          });
+          panzoomElement.parentElement.addEventListener("wheel", panzoom.zoomWithWheel);
 
-    // Set initial overlay positions and images
-    setOverlayImage("overlay1", "static/images/rust/crate.png", 100, 200);
-    setOverlayImage("overlay2", "static/images/rust/crate.png", 300, 400);
+          // Set initial overlay positions and images
+          setOverlayImage("overlay100", "static/images/rust/crate.png", 0, 0);
+          setOverlayImage("overlay200", "static/images/rust/crate.png", 1000, 1000);
+          setOverlayImage("overlay300", "static/images/rust/crate.png", 0, 1000);
+          setOverlayImage("overlay400", "static/images/rust/crate.png", 1000, 0);
 
-    // Listen to Pan events
-    panzoomElement.addEventListener("panzoompan", function () {
-     // adjustOverlaysOnPan(panzoom);
-    });
+          // Listen to Pan events
+          panzoomElement.addEventListener("panzoompan", function () {
+            // adjustOverlaysOnPan(panzoom);
+          });
 
-    // Listen to Zoom events
-    panzoomElement.addEventListener("panzoomzoom", function () {
-      adjustOverlaysOnZoom(panzoom);
-    });
-  }
-});
-
+          $(window).on('resize', function() {
+              console.log(window.devicePixelRatio)
+              // Call the function to adjust overlay positions
+              adjustOverlaysOnZoom(panzoom);
+            });
 
 
+          // Listen to Zoom events
+          panzoomElement.addEventListener("panzoomzoom", function () {
+            adjustOverlaysOnZoom(panzoom);
+          });
+        }
+      });
+
+      $(document).ready(function () {
+        if (!!window.EventSource) {
+          var source = new EventSource("/stream");
+
+          source.addEventListener(
+            "message",
+            function (e) {
+              console.log("Received data: ", e.data);
+              var data = JSON.parse(e.data);
+              updateMapMarkers(data);
+            },
+            false
+          );
+        }
+      });
 
     </script>
+
+
 
     <script src="static/js/script.js"></script>
   </body>

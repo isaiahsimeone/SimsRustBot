@@ -32,7 +32,6 @@ class Message:
         serialized_data = {k: serialise_API_object(v) for k, v in self.data.items()}
         return json.dumps({"type": self.type.value, "data": serialized_data})
 
-
     @staticmethod
     def from_json(json_str):
         msg_dict = json.loads(json_str)

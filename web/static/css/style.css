@@ -12,12 +12,11 @@
     object-fit: contain; /* Show the full image without clipping */
     position: absolute;
     top: 50%; /* Center vertically */
-    left: 50%; /* Center horizontally */
     transform: translate(-50%, -50%); /* Adjust position to center */
 }
 
 .map-container {
-  background-color: #0b3a4a;
+  background-color: #ffffff; /*#0b3a4a;*/
   width: 100%; /* Adjust as necessary */
   height: 100vh; /* Adjust as necessary */
   overflow: hidden;
@@ -26,7 +25,7 @@
 
 .map-container img {
   height: 100%; /* Make the map image take full height of its container */
-  width: auto; /* Adjust width automatically */
+  width: 100%; /* Adjust width automatically */
   min-width: 100%; /* Ensure it covers the container width */
   object-fit: cover; /* This will cover the area, potentially clipping the image */
   position: absolute;
@@ -134,8 +133,8 @@
 
 .overlay {
   position: absolute;
-  width: 50px; /* Base width */
-  height: 50px; /* Base height */
+  width: 1px; /*50px; /* Base width */
+  height: 1px; /*50px; /* Base height */
   background-size: cover;
   display: block; /* Initially visible */
   transform-origin: center;

@@ -11,6 +11,8 @@ from .commands.send_message import send_message as rust_send_message
 from .commands.get_server_info import get_server_info
 from .commands.get_server_map import get_server_map
 
+import json
+
 class RustPlusAPI:
     def __init__(self, messenger):
         self.messenger = messenger
@@ -60,6 +62,9 @@ class RustPlusAPI:
         asyncio.create_task(self.map_poller.start_event_polling())
         self.log("Map event polling started with a frequency of " + frequencies.get("event") + " seconds")
         
+        #DEBUG
+        self.log("Got Server Info: " + str(await self.socket.get_info()))
+         
         await asyncio.Future() # Keep running
         
         self.log("Exiting...")

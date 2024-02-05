@@ -21,6 +21,8 @@ class WebServer:
 
         self.port = self.config.get("port")
         self.host = self.config.get("host")
+        
+        self.map_markers_queue = []
 
     def execute(self):
         setup_routes(app, self)  # Set up routes with the WebServer instance
@@ -31,6 +33,10 @@ class WebServer:
         
         threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
     
+    def update_map_markers(self, markers_data):
+        self.map_markers_queue.append(markers_data)
+        
+        
     async def process_message(self, message, sender):
         msg = json.loads(message)
         
@@ -48,6 +54,12 @@ class WebServer:
             img.putdata(img_pixels)
             
             img.save("web/static/images/map.jpg")
+            
+        if msg.get("type") == MessageType.RUST_MAP_MARKERS.value:
+            self.log("Updating map markers")
+            data = msg.get("data")
+            # MAP SHOULD BE UPDATED WITH MARKERS HERE
+            self.update_map_markers(data.get("markers"))
             
                 
         #self.log("Got message: " + message + " from " + str(sender))
