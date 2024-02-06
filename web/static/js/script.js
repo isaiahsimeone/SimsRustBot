@@ -29,16 +29,47 @@ $(document).ready(function () {
 });
 });
 
+$(document).ready(function () {
+  const mapImage = document.getElementById("map-image");
 
-function setOverlayImage(overlayId, imagePath, initialX, initialY) {
+  if (mapImage) {
+    const rect = mapImage.getBoundingClientRect();
+    console.log(`Rendered Width: ${rect.width}, Rendered Height: ${rect.height}`);
+    console.log(`Position - Top: ${rect.top}, Left: ${rect.left}`);
+  }
+});
+
+const MAP_WIDTH = 5000;
+const MAP_HEIGHT = 5000;
+
+
+function setOverlayImage(overlayId, imagePath, mapX, mapY) {
   const overlay = document.getElementById(overlayId);
-  if (overlay) {
+  const mapImage = document.getElementById("map-image");
+
+  if (overlay && mapImage) {
+    // Get the actual size and position of the map image
+    const rect = mapImage.getBoundingClientRect();
+
+    const overlay_width = overlay.offsetWidth;
+    const overlay_height = overlay.offsetHeight;
+
+    // Convert map coordinates (mapX, mapY) to image pixel coordinates
+    const imageX = mapX * (rect.height / MAP_WIDTH) + 166 - overlay_width/2;
+  
+    const flippedMapY = MAP_HEIGHT - mapY; // Flip the Y-coordinate
+    const imageY = (flippedMapY / MAP_HEIGHT) * rect.height + rect.top - overlay_height/2;
+
+    // Apply the background image and position the overlay
     overlay.style.backgroundImage = `url('${imagePath}')`;
-    overlay.style.transform = `translate(${initialX}px, ${initialY}px)`;
+    overlay.style.transform = `translate(${imageX}px, ${imageY}px)`;
     overlay.style.display = "block"; // Show the overlay
-    // Store initial positions
-    overlay.dataset.initialX = initialX;
-    overlay.dataset.initialY = initialY;
+    if (overlayId == "overlay0")
+      console.log("init x,y = + " + imageX + ", " + imageY);
+
+    // Store the initial positions
+    overlay.dataset.initialX = imageX;
+    overlay.dataset.initialY = imageY;
   }
 }
 
@@ -46,40 +77,42 @@ function adjustOverlaysOnZoom(panzoom) {
   const panzoom_scale = panzoom.getScale();
   const client_scale = window.devicePixelRatio;
 
-  const overlays = document.getElementsByClassName("overlay")
+  const overlays = document.getElementsByClassName("overlay");
   for (var i = 0; i < overlays.length; i++) {
     adjustOverlayPositionZoom(overlays[i].id, panzoom_scale, client_scale);
   }
-  //adjustOverlayPositionZoom("overlay100", scale);
-  //adjustOverlayPositionZoom("overlay200", scale);
 }
 
 function adjustOverlayPositionZoom(overlayId, panzoom_scale, client_scale) {
   const overlay = document.getElementById(overlayId);
   if (overlay) {
-    // We just have to scale by this?
-    const invertedScale = (1 / panzoom_scale) * (1 / client_scale);
-    
-    // Retrieve initial positions from dataset
-    const initialX = parseFloat(overlay.dataset.initialX * (1 / client_scale));
-    const initialY = parseFloat(overlay.dataset.initialY * (1 / client_scale));
+    const invertedScale = 1 / panzoom_scale;
 
-    overlay.style.transform = `translate(${initialX}px, ${initialY}px) scale(${invertedScale})`;
+    // Retrieve initial positions from dataset
+    const initialX = parseFloat(overlay.dataset.initialX);
+    const initialY = parseFloat(overlay.dataset.initialY);
+    
+    // Calculate the center position of the overlay
+    const centerX = initialX + overlay.offsetWidth / 2 * invertedScale;
+    const centerY = initialY + overlay.offsetHeight / 2 * invertedScale;
+
+    // Adjust the position to account for the scaling
+    const adjustedX = centerX - (overlay.offsetWidth / 2 * invertedScale);
+    const adjustedY = centerY - (overlay.offsetHeight / 2 * invertedScale);
+
+    // Apply the new transform
+    overlay.style.transform = `translate(${adjustedX}px, ${adjustedY}px) scale(${invertedScale})`;
   }
 }
 
-function updateMapMarkers(data) {
+
+function updateMapMarkers(data, panzoom) {
   // Logic to update map markers on the map
   //console.log("Update map with markers:", data);
+  invertedScale = 1 / panzoom.getScale();
 
   map_img = document.getElementById("map-image");
   console.log(map_img.width + " " + map_img.height);
-
-  const MAP_WIDTH = 1000;
-  const MAP_HEIGHT = 1000;
-
-  const scale_x = 1280 / MAP_WIDTH;
-  const scale_y = 945 / MAP_HEIGHT; 
 
   for (var i = 0; i < data.length; i++) {
     // Add new element to dom
@@ -91,10 +124,10 @@ function updateMapMarkers(data) {
     //<div class="overlay" id="overlay100"></div>
     document.getElementById("map-container").appendChild(overlay)
 
-    map_point_x = scale_x * data[i].x - data[i].x * 0.07;//1500 + 880;
-    map_point_y = 945 - (data[i].y * scale_y);//1500 - 1350;    
+    map_point_x = data[i].x * invertedScale; // this is not right, but close. FOr some reason, the Y doesn't get affected by this
+    map_point_y = data[i].y;
 
     //console.log("ADD: " + overlay.id, "static/images/rust/crate.png", data[i].x, data[i].y)
-    setOverlayImage(overlay.id, "static/images/rust/crate.png", map_point_x, map_point_y);
+    setOverlayImage(overlay.id, "static/images/rust/player.png", map_point_x, map_point_y);
   }
 }

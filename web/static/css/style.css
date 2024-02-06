@@ -133,9 +133,8 @@
 
 .overlay {
   position: absolute;
-  width: 1px; /*50px; /* Base width */
-  height: 1px; /*50px; /* Base height */
+  width: 11px; /*50px; /* Base width */
+  height: 11px; /*50px; /* Base height */
   background-size: cover;
   display: block; /* Initially visible */
-  transform-origin: center;
 }
