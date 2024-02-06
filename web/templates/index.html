@@ -97,58 +97,7 @@
 
     <script>
       $(document).ready(function () {
-        const panzoomElement = document.getElementById("panzoom-element");
-        if (panzoomElement) {
-          const panzoom = Panzoom(panzoomElement, {
-            maxScale: 6,
-            contain: "outside",
-            animate: true,
-          });
-          panzoomElement.parentElement.addEventListener("wheel", panzoom.zoomWithWheel);
-
-          // Set initial overlay positions and images
-          setOverlayImage(
-            "overlay999",
-            "static/images/rust/explosion_marker.png",
-            537.0130615234375,
-            1133.133056640625,
-            panzoom
-          );
-          setOverlayImage("overlay100", "static/images/rust/crate2.png", 0, 2500, panzoom);
-          setOverlayImage("overlay200", "static/images/rust/crate.png", 5000, 5000, panzoom);
-          setOverlayImage("overlay300", "static/images/rust/crate.png", 0, 5000, panzoom);
-          setOverlayImage("overlay400", "static/images/rust/crate.png", 5000, 0, panzoom);
-
-          // Listen to Pan events
-          panzoomElement.addEventListener("panzoompan", function () {
-            // adjustOverlaysOnPan(panzoom);
-          });
-
-          $(window).on("resize", function () {
-            console.log(window.devicePixelRatio);
-            // Call the function to adjust overlay positions
-            adjustOverlaysOnZoom(panzoom);
-          });
-
-          // Listen to Zoom events
-          panzoomElement.addEventListener("panzoomzoom", function () {
-            adjustOverlaysOnZoom(panzoom);
-          });
-
-          if (!!window.EventSource) {
-            var source = new EventSource("/stream");
-
-            source.addEventListener(
-              "message",
-              function (e) {
-                console.log("Received data: ", e.data);
-                var data = JSON.parse(e.data);
-                updateMapMarkers(data, panzoom);
-              },
-              false
-            );
-          }
-        }
+        
       });
 
     </script>

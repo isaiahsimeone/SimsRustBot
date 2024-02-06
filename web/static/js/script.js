@@ -1,149 +1,200 @@
-$(document).ready(function () {
-  $(".command-btn").click(function () {
-    if ($(this).hasClass("toggleable")) {
-      $(this).toggleClass("active inactive");
-    }
-  });
-});
 
-
-$(document).ready(function () {
-  
-  $(".command-btn").click(function () {
-    if ($(this).hasClass("modal-trigger")) {
-      $("#commandModal").modal("show");
-      // Set the title or content of the modal based on the command
-      $("#commandModalLabel").text(`Options for ${$(this).text()}`);
-    }
-  });
-  $('#map-image').click(function(e)
-{   
-    var offset_t = $(this).offset().top - $(window).scrollTop();
-    var offset_l = $(this).offset().left - $(window).scrollLeft();
-
-    var left = Math.round( (e.clientX - offset_l) );
-    var top = Math.round( (e.clientY - offset_t) );
-
-    console.log("Left: " + left + " Top: " + top);
-
-});
-});
-
-$(document).ready(function () {
-  const mapImage = document.getElementById("map-image");
-
-  if (mapImage) {
-    const rect = mapImage.getBoundingClientRect();
-    console.log(`Rendered Width: ${rect.width}, Rendered Height: ${rect.height}`);
-    console.log(`Position - Top: ${rect.top}, Left: ${rect.left}`);
-  }
-});
-
+// Global variables
 const MAP_WIDTH = 5000;
 const MAP_HEIGHT = 5000;
-
+const mapImage = document.getElementById('map-image');
 let initialMapRect = null;
+let map_image_offset_left = getMapImageWhitespace(); // This changes with client aspect I think
+let map_marker_data = null;
 
-$(document).ready(function () {
-  // Other code...
+// Document ready functions
+$(document).ready(function() {
+	// Command button functionality
+	$('.command-btn').click(function() {
+		if ($(this).hasClass('toggleable')) {
+			$(this).toggleClass('active inactive');
+		}
+		if ($(this).hasClass('modal-trigger')) {
+			$('#commandModal').modal('show');
+			$('#commandModalLabel').text(`Options for ${$(this).text()}`);
+		}
+	})
 
-  const mapImage = document.getElementById("map-image");
-  if (mapImage) {
-    // Store the initial dimensions and position of the map image
-    initialMapRect = mapImage.getBoundingClientRect();
-  }
+	// Click event on map image
+	$('#map-image').click(function(e) {
+		var offset_t = $(this).offset().top - $(window).scrollTop();
+		var offset_l = $(this).offset().left - $(window).scrollLeft();
+		var left = Math.round(e.clientX - offset_l);
+		var top = Math.round(e.clientY - offset_t);
+		console.log('Left: ' + left + ' Top: ' + top);
+		console.log("DEVICE: " + window.devicePixelRatio);
+	});
 
-  // Other code...
+	// Initialize map image rect
+	updateInitialMapRect();
+
+	const panzoomElement = document.getElementById('panzoom-element');
+	if (panzoomElement) {
+		const panzoom = Panzoom(panzoomElement, {
+			maxScale: 6,
+			contain: 'outside',
+			animate: true,
+		});
+
+		panzoomElement.parentElement.addEventListener(
+			'wheel',
+			panzoom.zoomWithWheel
+		);
+
+		$(window).on('resize', function() {
+			console.log(window.devicePixelRatio);
+			map_image_offset_left = getMapImageWhitespace();
+			updateInitialMapRect();
+			updateMapMarkers(map_marker_data, panzoom);
+			adjustOverlaysOnZoom(panzoom);
+		});
+
+		// Listen to Zoom events
+		panzoomElement.addEventListener('panzoomzoom', function() {
+			adjustOverlaysOnZoom(panzoom);
+		});
+
+		if (!!window.EventSource) {
+			var source = new EventSource('/stream');
+
+			source.addEventListener(
+				'message',
+				function(e) {
+					console.log('Received data: ', e.data);
+					map_marker_data = JSON.parse(e.data);
+					updateMapMarkers(map_marker_data, panzoom);
+				},
+				false
+			);
+		}
+	}
 });
 
-function setOverlayImage(overlayId, imagePath, mapX, mapY, panzoom) {
-  const overlay = document.getElementById(overlayId);
-
-  if (overlay && initialMapRect) {
-    // Get the actual size and position of the map image
-
-    const overlay_width = overlay.offsetWidth;
-    const overlay_height = overlay.offsetHeight;
-    console.log("X : " + initialMapRect.height + " " + initialMapRect.top); 
-
-    // Convert map coordinates (mapX, mapY) to image pixel coordinates
-    const imageX = mapX * (initialMapRect.height / MAP_WIDTH) + 166 - overlay_width/2;
-  
-    const flippedMapY = MAP_HEIGHT - mapY; // Flip the Y-coordinate
-    const imageY = (flippedMapY / MAP_HEIGHT) * initialMapRect.height + initialMapRect.top - overlay_height/2;
-    
-    const invertedScale = 1 / panzoom.getScale();
-
-    // Apply the background image and position the overlay
-    overlay.style.backgroundImage = `url('${imagePath}')`;
-    overlay.style.transform = `translate(${imageX}px, ${imageY}px) scale(${invertedScale})`;
-    overlay.style.display = "block"; // Show the overlay
-
-
-    if (overlayId == "overlay0")
-      console.log("init x,y = + " + imageX + ", " + imageY);
-
-    // Store the initial positions
-    overlay.dataset.initialX = imageX; // converts JSON coord to img coord
-    overlay.dataset.initialY = imageY;
-  }
+function updateInitialMapRect() {
+	if (mapImage) {
+		initialMapRect = mapImage.getBoundingClientRect();
+	}
 }
 
+// places an overlay image on the map given JSON coordinates
+// from the RustAPI. It will be converted to coordinates suitable
+// for the map image displayed in browser
+function setOverlayImage(overlayId, imagePath, jsonX, jsonY, panzoom) {
+	const overlay = document.getElementById(overlayId);
+
+	const bounding_parent = document.getElementById("map-image").parentElement.getBoundingClientRect();
+	console.log("A: " + document.getElementById("map-container").getBoundingClientRect().left);
+	console.log("B: " + document.getElementById("panzoom-element").x);
+
+	if (!overlay || !initialMapRect)
+		return;
+	
+	// Overlay dimensions
+	const overlay_width = overlay.offsetWidth;
+	const overlay_height = overlay.offsetHeight;
+	const overlay_width_center = overlay_width / 2;
+	const overlay_height_center = overlay_height / 2;
+
+
+	// position calculations
+	const scaleX = initialMapRect.height / MAP_WIDTH; // I have no idea why we use the image height here, but it works
+	const scaleY = initialMapRect.height / MAP_HEIGHT;
+	const jsonY_flipped = MAP_HEIGHT - jsonY // Flip the Y-coordinate
+
+	// Convert map coordinates (jsonX, jsonY) to image pixel coordinates
+	const imageX = scaleX * jsonX + map_image_offset_left - overlay_width_center;
+	const imageY = scaleY * jsonY_flipped + initialMapRect.top - overlay_height_center;
+
+	const invertedScale = 1 / panzoom.getScale();
+
+	// Apply the background image and position the overlay
+	overlay.style.backgroundImage = `url('${imagePath}')`;
+	overlay.style.transform = `translate(${imageX}px, ${imageY}px) scale(${invertedScale})`;
+	overlay.style.display = 'block'; // Show the overlay
+
+	// Store the initial positions
+	overlay.dataset.initialX = imageX;
+	overlay.dataset.initialY = imageY;
+}
+
+// Adjust overlays on zoom
 function adjustOverlaysOnZoom(panzoom) {
-  const panzoom_scale = panzoom.getScale();
-  const client_scale = window.devicePixelRatio;
+	const panzoomScale = panzoom.getScale();
+	const clientScale = window.devicePixelRatio;
+	const overlays = document.getElementsByClassName("overlay");
 
-  const overlays = document.getElementsByClassName("overlay");
-  for (var i = 0; i < overlays.length; i++) {
-    adjustOverlayPositionZoom(overlays[i].id, panzoom_scale, client_scale);
-  }
+	for (let i = 0; i < overlays.length; i++) {
+		adjustOverlayPositionZoom(overlays[i].id, panzoomScale, clientScale);
+	}
 }
 
+// Adjust individual overlay position
 function adjustOverlayPositionZoom(overlayId, panzoom_scale, client_scale) {
-  const overlay = document.getElementById(overlayId);
-  if (overlay) {
-    const invertedScale = 1 / panzoom_scale;
+	const overlay = document.getElementById(overlayId);
+	if (overlay) {
+		// Overlay size changes depending on panzoom scale
+		const invertedScale = 1 / panzoom_scale;
 
-    // Retrieve initial positions from dataset
-    const initialX = parseFloat(overlay.dataset.initialX);
-    const initialY = parseFloat(overlay.dataset.initialY);
-    
-    // Calculate the center position of the overlay
-    const centerX = initialX + overlay.offsetWidth / 2 * invertedScale;
-    const centerY = initialY + overlay.offsetHeight / 2 * invertedScale;
+		// Retrieve initial positions from dataset
+		const initialX = parseFloat(overlay.dataset.initialX);
+		const initialY = parseFloat(overlay.dataset.initialY);
 
-    // Adjust the position to account for the scaling
-    const adjustedX = centerX - (overlay.offsetWidth / 2 * invertedScale);
-    const adjustedY = centerY - (overlay.offsetHeight / 2 * invertedScale);
+		// Calculate the center position of the overlay
+		const centerX = initialX + overlay.offsetWidth / 2 * invertedScale;
+		const centerY = initialY + overlay.offsetHeight / 2 * invertedScale;
 
-    // Apply the new transform
-    overlay.style.transform = `translate(${adjustedX}px, ${adjustedY}px) scale(${invertedScale})`;
-  }
+		// Adjust the position to account for the scaling
+		const adjustedX = centerX - (overlay.offsetWidth / 2 * invertedScale);
+		const adjustedY = centerY - (overlay.offsetHeight / 2 * invertedScale);
+
+		// Apply the new transform
+		overlay.style.transform = `translate(${adjustedX}px, ${adjustedY}px) scale(${invertedScale})`;
+	}
 }
 
-
+// Update map markers
 function updateMapMarkers(data, panzoom) {
-  // Logic to update map markers on the map
-  //console.log("Update map with markers:", data);
-  invertedScale = 1 / panzoom.getScale();
+	for (let i = 0; i < data.length; i++) {
+		if (data[i].type !== 1) continue;
 
-  map_img = document.getElementById("map-image");
-  console.log(map_img.width + " " + map_img.height);
+		const overlay = document.createElement("div");
+		overlay.className = "overlay";
+		overlay.id = "overlay" + i;
+		document.getElementById("map-container").appendChild(overlay);
 
-  for (var i = 0; i < data.length; i++) {
-    // Add new element to dom
-    if (data[i].type != 1)
-      continue;
-    const overlay = document.createElement("div")
-    overlay.className = "overlay";
-    overlay.id = "overlay" + i;
-    //<div class="overlay" id="overlay100"></div>
-    document.getElementById("map-container").appendChild(overlay)
-
-    map_point_x = data[i].x; // this is not right, but close. FOr some reason, the Y doesn't get affected by
-    map_point_y = data[i].y;
-
-    //console.log("ADD: " + overlay.id, "static/images/rust/crate.png", data[i].x, data[i].y)
-    setOverlayImage(overlay.id, "static/images/rust/player.png", map_point_x, map_point_y, panzoom);
-  }
+		setOverlayImage(overlay.id, "static/images/rust/player.png", data[i].x, data[i].y, panzoom);
+	}
 }
+
+function getMapImageWhitespace() {
+	const panzoomElement = document.getElementById('panzoom-element');
+	const mapImage = document.getElementById('map-image');
+  
+	if (panzoomElement && mapImage) {
+	  // Get the aspect ratio of the panzoom container
+	  const panzoomRect = panzoomElement.getBoundingClientRect();
+	  const panzoomAspectRatio = panzoomRect.width / panzoomRect.height;
+  
+	  // Get the natural aspect ratio of the map image
+	  const mapImageAspectRatio = mapImage.naturalWidth / mapImage.naturalHeight;
+  
+	  // Check if the container's aspect ratio is wider than the image's
+	  if (panzoomAspectRatio > mapImageAspectRatio) {
+		// Calculate the width the image would have if it filled the height of the container
+		const imageWidthIfFullHeight = panzoomRect.height * mapImageAspectRatio;
+		
+		// The difference in width is the total whitespace, which we halve for one side
+		const whitespaceWidth = (panzoomRect.width - imageWidthIfFullHeight) / 2;
+  
+		return whitespaceWidth;
+	  }
+	}
+  
+	return 0; // No whitespace or elements not found
+  }
+  
