@@ -1,12 +1,35 @@
 
 // Global variables
 const mapImage = document.getElementById('map-image');
+let panzoom = null;
 let initialMapRect = null;
 let map_image_offset_left = getMapImageWhitespace();
 let map_marker_data = null;
 
 // Set the first time json data is received
 let MAP_SZ = null;
+
+const marker_type_to_img = [
+	{/* Index 0 - no image */},
+	["player.png"],
+	["explosion.png"],
+	["shop_green.png", "shop_orange.png"],
+	["chinook_map_body.png", "map_blades.png"],
+	["cargo_ship_body.png"],
+	["crate.png"],
+	[/* Radius marker, i don't know what this is? */],
+	["heli_map_body.png", "map_blades.png"]
+];
+
+PlayerMarker = 1
+ExplosionMarker = 2
+VendingMachineMarker = 3
+ChinookMarker = 4
+CargoShipMarker = 5
+CrateMarker = 6
+RadiusMarker = 7
+PatrolHelicopterMarker = 8
+
 
 // Document ready functions
 $(document).ready(function() {
@@ -36,7 +59,7 @@ $(document).ready(function() {
 
 	const panzoomElement = document.getElementById('panzoom-element');
 	if (panzoomElement) {
-		const panzoom = Panzoom(panzoomElement, {
+		panzoom = Panzoom(panzoomElement, {
 			maxScale: 6,
 			contain: 'outside',
 			animate: true,
@@ -89,7 +112,7 @@ function updateInitialMapRect() {
 // places an overlay image on the map given JSON coordinates
 // from the RustAPI. It will be converted to coordinates suitable
 // for the map image displayed in browser
-function setOverlayImage(overlayId, imagePath, jsonX, jsonY, panzoom) {
+function setOverlayImage(overlayId, imagePath, jsonX, jsonY) {
 	const overlay = document.getElementById(overlayId);
 
 	if (!overlay || !initialMapRect)
@@ -124,22 +147,20 @@ function setOverlayImage(overlayId, imagePath, jsonX, jsonY, panzoom) {
 }
 
 // Adjust overlays on zoom
-function adjustOverlaysOnZoom(panzoom) {
-	const panzoomScale = panzoom.getScale();
-	const clientScale = window.devicePixelRatio;
+function adjustOverlaysOnZoom() {
 	const overlays = document.getElementsByClassName("overlay");
 
 	for (let i = 0; i < overlays.length; i++) {
-		adjustOverlayPositionZoom(overlays[i].id, panzoomScale, clientScale);
+		adjustOverlayPositionZoom(overlays[i].id, panzoom.getScale());
 	}
 }
 
 // Adjust individual overlay position
-function adjustOverlayPositionZoom(overlayId, panzoom_scale) {
+function adjustOverlayPositionZoom(overlayId) {
 	const overlay = document.getElementById(overlayId);
 	if (overlay) {
 		// Overlay size changes depending on panzoom scale
-		const invertedScale = 1 / panzoom_scale;
+		const invertedScale = 1 / panzoom.getScale();
 
 		// Retrieve initial positions from dataset
 		const initialX = parseFloat(overlay.dataset.initialX);
@@ -159,16 +180,16 @@ function adjustOverlayPositionZoom(overlayId, panzoom_scale) {
 }
 
 // Update map markers
-function updateMapMarkers(data, panzoom) {
-	for (let i = 0; i < data.length; i++) {
-		if (data[i].type !== 1) continue;
+function updateMapMarkers() {
+	for (let i = 0; i < map_marker_data.length; i++) {
+		if (map_marker_data[i].type !== 1) continue;
 
 		const overlay = document.createElement("div");
 		overlay.className = "overlay";
 		overlay.id = "overlay" + i;
 		document.getElementById("map-container").appendChild(overlay);
 
-		setOverlayImage(overlay.id, "static/images/rust/player.png", data[i].x, data[i].y, panzoom);
+		setOverlayImage(overlay.id, "static/images/rust/player.png", map_marker_data[i].x, map_marker_data[i].y, panzoom);
 	}
 }
 
