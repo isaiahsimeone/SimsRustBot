@@ -42,33 +42,49 @@ $(document).ready(function () {
 const MAP_WIDTH = 5000;
 const MAP_HEIGHT = 5000;
 
+let initialMapRect = null;
 
-function setOverlayImage(overlayId, imagePath, mapX, mapY) {
-  const overlay = document.getElementById(overlayId);
+$(document).ready(function () {
+  // Other code...
+
   const mapImage = document.getElementById("map-image");
+  if (mapImage) {
+    // Store the initial dimensions and position of the map image
+    initialMapRect = mapImage.getBoundingClientRect();
+  }
 
-  if (overlay && mapImage) {
+  // Other code...
+});
+
+function setOverlayImage(overlayId, imagePath, mapX, mapY, panzoom) {
+  const overlay = document.getElementById(overlayId);
+
+  if (overlay && initialMapRect) {
     // Get the actual size and position of the map image
-    const rect = mapImage.getBoundingClientRect();
 
     const overlay_width = overlay.offsetWidth;
     const overlay_height = overlay.offsetHeight;
+    console.log("X : " + initialMapRect.height + " " + initialMapRect.top); 
 
     // Convert map coordinates (mapX, mapY) to image pixel coordinates
-    const imageX = mapX * (rect.height / MAP_WIDTH) + 166 - overlay_width/2;
+    const imageX = mapX * (initialMapRect.height / MAP_WIDTH) + 166 - overlay_width/2;
   
     const flippedMapY = MAP_HEIGHT - mapY; // Flip the Y-coordinate
-    const imageY = (flippedMapY / MAP_HEIGHT) * rect.height + rect.top - overlay_height/2;
+    const imageY = (flippedMapY / MAP_HEIGHT) * initialMapRect.height + initialMapRect.top - overlay_height/2;
+    
+    const invertedScale = 1 / panzoom.getScale();
 
     // Apply the background image and position the overlay
     overlay.style.backgroundImage = `url('${imagePath}')`;
-    overlay.style.transform = `translate(${imageX}px, ${imageY}px)`;
+    overlay.style.transform = `translate(${imageX}px, ${imageY}px) scale(${invertedScale})`;
     overlay.style.display = "block"; // Show the overlay
+
+
     if (overlayId == "overlay0")
       console.log("init x,y = + " + imageX + ", " + imageY);
 
     // Store the initial positions
-    overlay.dataset.initialX = imageX;
+    overlay.dataset.initialX = imageX; // converts JSON coord to img coord
     overlay.dataset.initialY = imageY;
   }
 }
@@ -124,10 +140,10 @@ function updateMapMarkers(data, panzoom) {
     //<div class="overlay" id="overlay100"></div>
     document.getElementById("map-container").appendChild(overlay)
 
-    map_point_x = data[i].x * invertedScale; // this is not right, but close. FOr some reason, the Y doesn't get affected by this
+    map_point_x = data[i].x; // this is not right, but close. FOr some reason, the Y doesn't get affected by
     map_point_y = data[i].y;
 
     //console.log("ADD: " + overlay.id, "static/images/rust/crate.png", data[i].x, data[i].y)
-    setOverlayImage(overlay.id, "static/images/rust/player.png", map_point_x, map_point_y);
+    setOverlayImage(overlay.id, "static/images/rust/player.png", map_point_x, map_point_y, panzoom);
   }
 }

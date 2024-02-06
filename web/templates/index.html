@@ -111,12 +111,13 @@
             "overlay999",
             "static/images/rust/explosion_marker.png",
             537.0130615234375,
-            1133.133056640625
+            1133.133056640625,
+            panzoom
           );
-          setOverlayImage("overlay100", "static/images/rust/crate2.png", 0, 2500);
-          setOverlayImage("overlay200", "static/images/rust/crate.png", 5000, 5000);
-          setOverlayImage("overlay300", "static/images/rust/crate.png", 0, 5000);
-          setOverlayImage("overlay400", "static/images/rust/crate.png", 5000, 0);
+          setOverlayImage("overlay100", "static/images/rust/crate2.png", 0, 2500, panzoom);
+          setOverlayImage("overlay200", "static/images/rust/crate.png", 5000, 5000, panzoom);
+          setOverlayImage("overlay300", "static/images/rust/crate.png", 0, 5000, panzoom);
+          setOverlayImage("overlay400", "static/images/rust/crate.png", 5000, 0, panzoom);
 
           // Listen to Pan events
           panzoomElement.addEventListener("panzoompan", function () {
