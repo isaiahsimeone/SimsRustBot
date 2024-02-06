@@ -1,11 +1,12 @@
 
 // Global variables
-const MAP_WIDTH = 5000;
-const MAP_HEIGHT = 5000;
 const mapImage = document.getElementById('map-image');
 let initialMapRect = null;
-let map_image_offset_left = getMapImageWhitespace(); // This changes with client aspect I think
+let map_image_offset_left = getMapImageWhitespace();
 let map_marker_data = null;
+
+// Set the first time json data is received
+let MAP_SZ = null;
 
 // Document ready functions
 $(document).ready(function() {
@@ -67,6 +68,10 @@ $(document).ready(function() {
 				function(e) {
 					console.log('Received data: ', e.data);
 					map_marker_data = JSON.parse(e.data);
+					if (MAP_SZ == null) {
+						console.log("map size = " + map_marker_data[0]);
+						MAP_SZ = map_marker_data[0];
+					}
 					updateMapMarkers(map_marker_data, panzoom);
 				},
 				false
@@ -87,10 +92,6 @@ function updateInitialMapRect() {
 function setOverlayImage(overlayId, imagePath, jsonX, jsonY, panzoom) {
 	const overlay = document.getElementById(overlayId);
 
-	const bounding_parent = document.getElementById("map-image").parentElement.getBoundingClientRect();
-	console.log("A: " + document.getElementById("map-container").getBoundingClientRect().left);
-	console.log("B: " + document.getElementById("panzoom-element").x);
-
 	if (!overlay || !initialMapRect)
 		return;
 	
@@ -102,9 +103,9 @@ function setOverlayImage(overlayId, imagePath, jsonX, jsonY, panzoom) {
 
 
 	// position calculations
-	const scaleX = initialMapRect.height / MAP_WIDTH; // I have no idea why we use the image height here, but it works
-	const scaleY = initialMapRect.height / MAP_HEIGHT;
-	const jsonY_flipped = MAP_HEIGHT - jsonY // Flip the Y-coordinate
+	const scaleX = initialMapRect.height / MAP_SZ; // I have no idea why we use the image height here, but it works
+	const scaleY = initialMapRect.height / MAP_SZ;
+	const jsonY_flipped = MAP_SZ - jsonY // Flip the Y-coordinate
 
 	// Convert map coordinates (jsonX, jsonY) to image pixel coordinates
 	const imageX = scaleX * jsonX + map_image_offset_left - overlay_width_center;
@@ -134,7 +135,7 @@ function adjustOverlaysOnZoom(panzoom) {
 }
 
 // Adjust individual overlay position
-function adjustOverlayPositionZoom(overlayId, panzoom_scale, client_scale) {
+function adjustOverlayPositionZoom(overlayId, panzoom_scale) {
 	const overlay = document.getElementById(overlayId);
 	if (overlay) {
 		// Overlay size changes depending on panzoom scale

@@ -59,6 +59,7 @@ class WebServer:
             self.log("Updating map markers")
             data = msg.get("data")
             # MAP SHOULD BE UPDATED WITH MARKERS HERE
+            data['markers'].insert(0, 3000) # TODO: Make not hardcoded
             self.update_map_markers(data.get("markers"))
             
                 
