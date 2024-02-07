@@ -5,6 +5,7 @@ let panzoom = null;
 let initialMapRect = null;
 let map_image_offset_left = getMapImageWhitespace();
 let map_marker_data = null;
+let img_path = "static/images/rust/";
 
 // Set the first time json data is received
 let MAP_SZ = null;
@@ -56,7 +57,6 @@ $(document).ready(function() {
 		var left = Math.round(e.clientX - offset_l);
 		var top = Math.round(e.clientY - offset_t);
 		console.log('Left: ' + left + ' Top: ' + top);
-		console.log("DEVICE: " + window.devicePixelRatio);
 	});
 
 	// Initialize map image rect
@@ -79,13 +79,14 @@ $(document).ready(function() {
 			console.log(window.devicePixelRatio);
 			map_image_offset_left = getMapImageWhitespace();
 			updateInitialMapRect();
-			updateMapMarkers(map_marker_data, panzoom);
-			adjustOverlaysOnZoom(panzoom);
+			updateMapMarkers(map_marker_data);
+			adjustOverlaysOnZoom();
 		});
 
 		// Listen to Zoom events
 		panzoomElement.addEventListener('panzoomzoom', function() {
-			adjustOverlaysOnZoom(panzoom);
+			updateMapMarkers(map_marker_data);
+			adjustOverlaysOnZoom();
 		});
 
 		if (!!window.EventSource) {
@@ -101,7 +102,7 @@ $(document).ready(function() {
 						console.log("map size = " + map_marker_data[0]);
 						MAP_SZ = map_marker_data[0];
 					}
-					updateMapMarkers(map_marker_data, panzoom);
+					updateMapMarkers();
 				},
 				false
 			);
@@ -118,9 +119,8 @@ function updateInitialMapRect() {
 // places an overlay image on the map given JSON coordinates
 // from the RustAPI. It will be converted to coordinates suitable
 // for the map image displayed in browser
-function setOverlayImage(overlayId, imagePath, jsonX, jsonY, rotation) {
+function setOverlayImage(overlayId, image, jsonX, jsonY, rotation) {
 	const overlay = document.getElementById(overlayId);
-	console.log("ROTATION: " + rotation);
 
 	if (!overlay || !initialMapRect)
 		return;
@@ -144,21 +144,22 @@ function setOverlayImage(overlayId, imagePath, jsonX, jsonY, rotation) {
 	const invertedScale = 1 / panzoom.getScale();
 
 	// Apply the background image and position the overlay
-	overlay.style.backgroundImage = `url('${imagePath}')`;
+	overlay.style.backgroundImage = `url('${img_path}${image}')`;
 	overlay.style.transform = `translate(${imageX}px, ${imageY}px) scale(${invertedScale}) rotate(${rotation}deg)`;
 	overlay.style.display = 'block'; // Show the overlay
 
 	// Store the initial positions
 	overlay.dataset.initialX = imageX;
 	overlay.dataset.initialY = imageY;
+	overlay.dataset.initialRotation = rotation;
 }
 
 // Adjust overlays on zoom
 function adjustOverlaysOnZoom() {
 	const overlays = document.getElementsByClassName("overlay");
-
+	
 	for (let i = 0; i < overlays.length; i++) {
-		adjustOverlayPositionZoom(overlays[i].id, panzoom.getScale());
+		adjustOverlayPositionZoom(overlays[i].id);
 	}
 }
 
@@ -168,7 +169,7 @@ function adjustOverlayPositionZoom(overlayId) {
 	if (overlay) {
 		// Overlay size changes depending on panzoom scale
 		const invertedScale = 1 / panzoom.getScale();
-
+		
 		// Retrieve initial positions from dataset
 		const initialX = parseFloat(overlay.dataset.initialX);
 		const initialY = parseFloat(overlay.dataset.initialY);
@@ -181,8 +182,11 @@ function adjustOverlayPositionZoom(overlayId) {
 		const adjustedX = centerX - (overlay.offsetWidth / 2 * invertedScale);
 		const adjustedY = centerY - (overlay.offsetHeight / 2 * invertedScale);
 
+		const rotation = overlay.dataset.initialRotation;
+
 		// Apply the new transform
-		overlay.style.transform = `translate(${adjustedX}px, ${adjustedY}px) scale(${invertedScale})`;
+		overlay.style.transform = `translate(${adjustedX}px, ${adjustedY}px) scale(${invertedScale}) rotate(${rotation}deg)`;
+
 	}
 }
 
@@ -198,16 +202,27 @@ function deleteAllMapMarkers() {
 function updateMapMarkers() {
 
 	for (let i = 1; i < map_marker_data.length; i++) {
+
+
 		let overlay_img = null;
 		let marker = map_marker_data[i];
 		let marker_type = marker.type;
+		let rotation = 360 - map_marker_data[i].rotation;
+
+		let x = map_marker_data[i].x;
+		let y = map_marker_data[i].y;
+
+
 
 		const overlay = document.createElement("div");
+		overlay.className = "overlay";
+		overlay.id = "overlay" + i;
+
 		overlay_img = marker_type_to_img[marker_type]; // May change in switch
 
 		switch (marker_type) {
 			case markers.PLAYER:
-				overlay.style.zIndex = 1; // Always on top
+				overlay.style.zIndex = 4; // Always on top
 				break;
 			case markers.SHOP:
 				overlay_img = marker.out_of_stock ? marker_type_to_img[markers.SHOP][1] : marker_type_to_img[markers.SHOP][0];
@@ -216,34 +231,56 @@ function updateMapMarkers() {
 				break;
 			case markers.CHINOOK:
 				overlay_img = marker_type_to_img[markers.CHINOOK][0];
-				// Rotate
 
-				// Draw blade
-
+				// Draw blades
+				drawBlades("overlay" + i + "blades", marker_type_to_img[markers.CHINOOK][1], x, y + 50 * Math.sin(rotation / Math.PI));
 				break;
 			case markers.CARGO:
 				overlay.style.width = "35px";
 				overlay.style.height = "35px";
-				// Rotate
 
 				break;
 			case markers.HELI:
 				overlay_img = marker_type_to_img[markers.HELI][0];
-				// Rotate
+				overlay.style.width = "40px";
+				overlay.style.height = "40px";
 
 				// Draw blades
+				
+				let theta = rotation * Math.PI/180;
+				let magnitude = parseInt(overlay.style.width.replace("px","")) * 0.7 * (1 / panzoom.getScale());
+				let blade_x = magnitude * Math.sin(theta);
+				let blade_y = magnitude * Math.cos(theta);
 
+
+
+				drawBlades("overlay" + i + "blades", marker_type_to_img[markers.HELI][1], x + blade_x, y + blade_y);
+
+				
+				console.log("HELI ROT: " + rotation);
 				break;
 		}
 	
-		let rotation = 360 - map_marker_data[i].rotation;
-
-		overlay.className = "overlay";
-		overlay.id = "overlay" + i;
 		document.getElementById("map-container").appendChild(overlay);
 
-		setOverlayImage(overlay.id, "static/images/rust/" + overlay_img, map_marker_data[i].x, map_marker_data[i].y, rotation);
+		setOverlayImage(overlay.id, overlay_img, x, y, rotation);
 	}
+
+}
+
+function drawBlades(overlayId, img, x, y) {
+
+	const blades = document.createElement("div");
+	blades.className = "overlay blades";
+	blades.id = overlayId;
+	blades.style.width = "40px";
+	blades.style.height = "40px";
+	blades.style.zIndex = 1;
+
+	document.getElementById("map-container").appendChild(blades);
+
+	applyRotation(overlayId);
+	setOverlayImage(overlayId, img, x, y, 0);
 }
 
 function getMapImageWhitespace() {
@@ -273,3 +310,21 @@ function getMapImageWhitespace() {
 	return 0; // No whitespace or elements not found
   }
   
+function applyRotation(elementId) {
+    let angle = 0; // Initial angle
+
+    // Function to update rotation
+    function update() {
+        angle = (angle + 1) % 360; // Increment angle and loop at 360
+        const element = document.getElementById(elementId);
+        if (element) {
+            // Combine rotation with existing transform, preserving position and scale
+            const transform = element.style.transform;
+            const rotateTransform = `rotate(${angle}deg)`;
+            element.style.transform = transform.replace(/rotate\([0-9]+deg\)/, '') + ' ' + rotateTransform;
+        }
+        requestAnimationFrame(update); // Continue rotation
+    }
+
+    update(); // Start rotation
+}
