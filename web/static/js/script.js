@@ -9,26 +9,31 @@ let map_marker_data = null;
 // Set the first time json data is received
 let MAP_SZ = null;
 
+const markers = {
+	PLAYER: 1,
+	EXPLOSION: 2,
+	SHOP: 3,
+	CHINOOK: 4,
+	CARGO: 5,
+	CRATE: 6,
+	RADIUS: 7,
+	HELI: 8
+};
+
 const marker_type_to_img = [
-	{/* Index 0 - no image */},
-	["player.png"],
-	["explosion.png"],
-	["shop_green.png", "shop_orange.png"],
-	["chinook_map_body.png", "map_blades.png"],
-	["cargo_ship_body.png"],
-	["crate.png"],
-	[/* Radius marker, i don't know what this is? */],
-	["heli_map_body.png", "map_blades.png"]
+	/* 0 */ [/* no image */],
+	/* 1 */ ["player.png"],
+	/* 2 */ ["explosion.png"],
+	/* 3 */ ["shop_green.png", "shop_orange.png"],
+	/* 4 */ ["chinook_map_body.png", "map_blades.png"],
+	/* 5 */ ["cargo_ship_body.png"],
+	/* 6 */ ["crate.png"],
+	/* 7 */ [/* Radius marker, i don't know what this is? */],
+	/* 8 */ ["heli_map_body.png", "map_blades.png"]
 ];
 
-PlayerMarker = 1
-ExplosionMarker = 2
-VendingMachineMarker = 3
-ChinookMarker = 4
-CargoShipMarker = 5
-CrateMarker = 6
-RadiusMarker = 7
-PatrolHelicopterMarker = 8
+
+
 
 
 // Document ready functions
@@ -90,6 +95,7 @@ $(document).ready(function() {
 				'message',
 				function(e) {
 					console.log('Received data: ', e.data);
+					deleteAllMapMarkers(); // Remove current overlays from DOM
 					map_marker_data = JSON.parse(e.data);
 					if (MAP_SZ == null) {
 						console.log("map size = " + map_marker_data[0]);
@@ -112,8 +118,9 @@ function updateInitialMapRect() {
 // places an overlay image on the map given JSON coordinates
 // from the RustAPI. It will be converted to coordinates suitable
 // for the map image displayed in browser
-function setOverlayImage(overlayId, imagePath, jsonX, jsonY) {
+function setOverlayImage(overlayId, imagePath, jsonX, jsonY, rotation) {
 	const overlay = document.getElementById(overlayId);
+	console.log("ROTATION: " + rotation);
 
 	if (!overlay || !initialMapRect)
 		return;
@@ -138,7 +145,7 @@ function setOverlayImage(overlayId, imagePath, jsonX, jsonY) {
 
 	// Apply the background image and position the overlay
 	overlay.style.backgroundImage = `url('${imagePath}')`;
-	overlay.style.transform = `translate(${imageX}px, ${imageY}px) scale(${invertedScale})`;
+	overlay.style.transform = `translate(${imageX}px, ${imageY}px) scale(${invertedScale}) rotate(${rotation}deg)`;
 	overlay.style.display = 'block'; // Show the overlay
 
 	// Store the initial positions
@@ -179,17 +186,63 @@ function adjustOverlayPositionZoom(overlayId) {
 	}
 }
 
+function deleteAllMapMarkers() {
+	var elements = document.getElementsByClassName("overlay");
+
+	Array.from(elements).forEach((element) => {
+	  element.remove(); // Removes the element from the DOM
+	});
+}
+
 // Update map markers
 function updateMapMarkers() {
-	for (let i = 0; i < map_marker_data.length; i++) {
-		if (map_marker_data[i].type !== 1) continue;
+
+	for (let i = 1; i < map_marker_data.length; i++) {
+		let overlay_img = null;
+		let marker = map_marker_data[i];
+		let marker_type = marker.type;
 
 		const overlay = document.createElement("div");
+		overlay_img = marker_type_to_img[marker_type]; // May change in switch
+
+		switch (marker_type) {
+			case markers.PLAYER:
+				overlay.style.zIndex = 1; // Always on top
+				break;
+			case markers.SHOP:
+				overlay_img = marker.out_of_stock ? marker_type_to_img[markers.SHOP][1] : marker_type_to_img[markers.SHOP][0];
+				overlay.style.width = "12px";
+				overlay.style.height = "12px";
+				break;
+			case markers.CHINOOK:
+				overlay_img = marker_type_to_img[markers.CHINOOK][0];
+				// Rotate
+
+				// Draw blade
+
+				break;
+			case markers.CARGO:
+				overlay.style.width = "35px";
+				overlay.style.height = "35px";
+				// Rotate
+
+				break;
+			case markers.HELI:
+				overlay_img = marker_type_to_img[markers.HELI][0];
+				// Rotate
+
+				// Draw blades
+
+				break;
+		}
+	
+		let rotation = 360 - map_marker_data[i].rotation;
+
 		overlay.className = "overlay";
 		overlay.id = "overlay" + i;
 		document.getElementById("map-container").appendChild(overlay);
 
-		setOverlayImage(overlay.id, "static/images/rust/player.png", map_marker_data[i].x, map_marker_data[i].y, panzoom);
+		setOverlayImage(overlay.id, "static/images/rust/" + overlay_img, map_marker_data[i].x, map_marker_data[i].y, rotation);
 	}
 }
 

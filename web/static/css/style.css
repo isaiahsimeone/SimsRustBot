@@ -16,7 +16,7 @@
 }
 
 .map-container {
-  background-color: #ffffff; /*#0b3a4a;*/
+  background-color: #0b3a4a;
   width: 100%; /* Adjust as necessary */
   height: 100vh; /* Adjust as necessary */
   overflow: hidden;
@@ -133,8 +133,8 @@
 
 .overlay {
   position: absolute;
-  width: 11px; /*50px; /* Base width */
-  height: 11px; /*50px; /* Base height */
+  width: 15px; /*50px; /* Base width */
+  height: 15px; /*50px; /* Base height */
   background-size: cover;
   display: block; /* Initially visible */
 }
