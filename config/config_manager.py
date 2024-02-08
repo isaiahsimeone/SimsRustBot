@@ -149,10 +149,7 @@ class ConfigManager:
                 "logging_enabled": "true"
             },
             "rust": {
-                "map_polling_frequency_seconds": {
-                    "marker": "60",
-                    "event": "10"
-                }
+                "map_polling_frequency_seconds": "10"
             }
         }
 

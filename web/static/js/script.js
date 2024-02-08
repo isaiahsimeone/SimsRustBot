@@ -7,6 +7,8 @@ let map_image_offset_left = getMapImageWhitespace();
 let map_marker_data = null;
 let img_path = "static/images/rust/";
 
+// TODO: when heli/cargo is coming in, specify the direction that the player can align their compass to. Just a vector
+
 // Set the first time json data is received
 let MAP_SZ = null;
 
@@ -90,25 +92,25 @@ $(document).ready(function() {
 		});
 
 		if (!!window.EventSource) {
-			var source = new EventSource('/stream');
+			var map_markers = new EventSource('/markers');
+			//var monument_names = new EventSource('/mounments');
 
-			source.addEventListener(
-				'message',
-				function(e) {
-					console.log('Received data: ', e.data);
-					deleteAllMapMarkers(); // Remove current overlays from DOM
-					map_marker_data = JSON.parse(e.data);
-					if (MAP_SZ == null) {
-						console.log("map size = " + map_marker_data[0]);
-						MAP_SZ = map_marker_data[0];
-					}
-					updateMapMarkers();
-				},
-				false
-			);
+			map_markers.addEventListener('message', getMapMarkersFromES, false);
+			//monument_names.addEventListener('monuments', getMonumentNamesFromES, false);
 		}
 	}
 });
+
+function getMapMarkersFromES(marker_data) {
+	console.log('Received data: ', marker_data.data);
+	deleteAllMapMarkers(); // Remove current overlays from DOM
+	map_marker_data = JSON.parse(marker_data.data);
+	if (MAP_SZ == null) {
+		console.log("map size = " + map_marker_data[0]);
+		MAP_SZ = map_marker_data[0];
+	}
+	updateMapMarkers();
+}
 
 function updateInitialMapRect() {
 	if (mapImage) {
@@ -247,8 +249,8 @@ function updateMapMarkers() {
 
 				// Draw blades
 				
-				let theta = rotation * Math.PI/180;
-				let magnitude = parseInt(overlay.style.width.replace("px","")) * 0.7 * (1 / panzoom.getScale());
+				let theta = rotation * Math.PI / 180;
+				let magnitude = parseInt(overlay.style.width.replace("px","")) * (1 / panzoom.getScale()) * 0.7;
 				let blade_x = magnitude * Math.sin(theta);
 				let blade_y = magnitude * Math.cos(theta);
 

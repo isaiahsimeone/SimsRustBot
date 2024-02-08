@@ -4,8 +4,10 @@ from flask import Flask, url_for
 import logging
 import threading
 from .web_routes import setup_routes
+from .web_event_streams import setup_event_streams
+from .message_executor import MessageExecutor
 import json
-from PIL import Image 
+import asyncio
 
 app = Flask(__name__)
 app.secret_key = 'secret'
@@ -22,48 +24,38 @@ class WebServer:
         self.port = self.config.get("port")
         self.host = self.config.get("host")
         
+        self.executor = MessageExecutor(self)
+        
         self.map_markers_queue = []
+        self.monuments = None
 
     def execute(self):
-        setup_routes(app, self)  # Set up routes with the WebServer instance
+        # Setup routes and event streams
+        setup_routes(app, self)
+        setup_event_streams(app, self)
         
         self.log(f"Web Server started at http://{self.host}:{self.port}")
         self.messenger.subscribe(Service.WEBSERVER, self.process_message)
         self.log("Web Server subscribed for messages")
         
         threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
+
+        asyncio.run(self.request_rust_data())
     
-    def update_map_markers(self, markers_data):
-        self.map_markers_queue.append(markers_data)
+    # get the map image, get server info, start marker polling
+    async def request_rust_data(self):
+        message = Message(None, None)
         
+        # Request map image 
+        self.log("Requesting Server Map")
+        message.set_type(MessageType.REQUEST_RUST_SERVER_MAP)
+        await self.send_message(message, target_service_id=Service.RUSTAPI)
+        
+    
         
     async def process_message(self, message, sender):
         msg = json.loads(message)
-        
-        #print("WEBS GOT MESSAGE:", message)
-        if msg.get("type") == MessageType.RUST_SERVER_MAP.value:
-            self.log("Got server map. Moving to images root")
-            #print(msg)
-            image_data = msg.get("data").get("data")
-            
-            img_width = image_data.get("width")
-            img_height = image_data.get("height")
-            img_pixels = [tuple(pixel) for pixel in image_data.get("pixels")]
-            
-            img = Image.new(mode="RGB", size=(img_width, img_height))
-            img.putdata(img_pixels)
-            
-            img.save("web/static/images/map.jpg")
-            
-        if msg.get("type") == MessageType.RUST_MAP_MARKERS.value:
-            self.log("Updating map markers")
-            data = msg.get("data")
-            # MAP SHOULD BE UPDATED WITH MARKERS HERE
-            data['markers'].insert(0, 3000) # TODO: Make not hardcoded
-            self.update_map_markers(data.get("markers"))
-            
-                
-        #self.log("Got message: " + message + " from " + str(sender))
+        await self.executor.execute_message(msg, sender)
 
     async def send_message(self, message: Message, target_service_id=None):
         await self.messenger.send_message(Service.WEBSERVER, message, target_service_id)
