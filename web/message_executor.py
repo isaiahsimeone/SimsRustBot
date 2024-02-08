@@ -1,4 +1,6 @@
 from ipc.message import MessageType as MT
+from ipc.message import Message
+from ipc.messenger import Service
 from PIL import Image 
 
 class MessageExecutor():
@@ -24,9 +26,11 @@ class MessageExecutor():
             case MT.RUST_MAP_MARKERS:
                 self.web_server.log("Updating map markers")
                 self.receive_map_markers(data)
-            case None:
-                self.web_server.messenger.print("ERROR: Unknown message type")
-
+            case MT.RUST_MAP_MONUMENTS:
+                self.web_server.log("Received map monuments")
+                self.receive_map_monuments(data)
+            case _:
+                self.web_server.log("ERROR: Unknown message type")
 
     def receive_map_image(self, data):
         image_data = data.get("data")
@@ -44,5 +48,6 @@ class MessageExecutor():
         data['markers'].insert(0, 3000) # TODO: Make not hardcoded
         self.web_server.map_markers_queue.append(data.get("markers"))
         
-        
+    def receive_map_monuments(self, data):
+        self.web_server.map_monuments = data
     

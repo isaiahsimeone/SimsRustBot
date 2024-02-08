@@ -3,7 +3,8 @@ from PIL import Image
 
 from ipc.message import Message, MessageType
 
-from .commands import get_server_map
+from .commands.get_server_map import get_server_map
+from .commands.get_monuments import get_monuments
 
 class MessageExecutor():
     def __init__(self, rust_api):
@@ -17,21 +18,31 @@ class MessageExecutor():
         return None
     
     async def execute_message(self, msg, sender):
-        print("GOT MSG: " + msg.from_json())
+        print("GOT MSG: " + str(msg))
         msg_type = self.get_message_type(msg.get("type"))
+        
+        print("is map req: " + str(msg_type == MT.REQUEST_RUST_SERVER_MAP))
+        print("is mon req: " + str(msg_type == MT.REQUEST_RUST_MAP_MONUMENTS))
         
         match msg_type:
             case MT.REQUEST_RUST_SERVER_MAP:
-                self.send_server_map_image(sender)
+                print("I AM SENDING THE MAP")
+                await self.send_server_map_image(sender)
+            case MT.REQUEST_RUST_MAP_MONUMENTS:
+                await self.send_server_map_monuments(sender)
+            case _:
+                print("******* UNKNOWN MESSAGE : messageexecutor for api: " + str(msg_type))
+                self.api.log("ERROR: Unknown message type")
 
-            case None:
-                self.api.messenger.print("ERROR: Unknown message type")
-
-    async def get_server_map_image(self, sender):
+    async def send_server_map_image(self, sender):
         print("SENDING MAP")
         server_map = await get_server_map(self.socket)
         message = Message(MessageType.RUST_SERVER_MAP, {"data": server_map})
-        await self.api.send_message(message, sender=sender)
-        
+        await self.api.send_message(message, target_service_id=sender)
+    
+    async def send_server_map_monuments(self, sender):
+        server_monuments = await get_monuments(self.socket)
+        message = Message(MessageType.RUST_MAP_MONUMENTS, {"data": server_monuments})
+        await self.api.send_message(message, target_service_id=sender)
         
     

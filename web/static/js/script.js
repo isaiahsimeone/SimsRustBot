@@ -93,16 +93,20 @@ $(document).ready(function() {
 
 		if (!!window.EventSource) {
 			var map_markers = new EventSource('/markers');
-			//var monument_names = new EventSource('/mounments');
+			var monument_names = new EventSource('/mounments');
 
 			map_markers.addEventListener('message', getMapMarkersFromES, false);
-			//monument_names.addEventListener('monuments', getMonumentNamesFromES, false);
+			monument_names.addEventListener('monuments', getMonumentNamesFromES, false);
 		}
 	}
 });
 
+function getMonumentNamesFromES(monument_data) {
+	console.log('Received data: ', monument_data.data);
+}
+
 function getMapMarkersFromES(marker_data) {
-	console.log('Received data: ', marker_data.data);
+	//console.log('Received data: ', marker_data.data);
 	deleteAllMapMarkers(); // Remove current overlays from DOM
 	map_marker_data = JSON.parse(marker_data.data);
 	if (MAP_SZ == null) {

@@ -57,7 +57,7 @@ class RustPlusAPI:
         self.map_poller = MapPoller(self.socket, self.messenger)
         
         # Start map marker polling
-        asyncio.create_task(self.map_poller.start_marker_polling())
+        #asyncio.create_task(self.map_poller.start_marker_polling())
         self.log("Map marker polling started with a frequency of " + poll_rate + " seconds")
       
         
@@ -76,7 +76,9 @@ class RustPlusAPI:
         await self.socket.disconnect()
         self.log("Disconnected from Rust Server (" + self.server + ")")
 
-    async def process_message(self, msg: Message, sender):
+    async def process_message(self, msg, sender):
+        
+        print("API GOT A MESSAGE *****")
         msg = json.loads(msg)
         await self.executor.execute_message(msg, sender)
 

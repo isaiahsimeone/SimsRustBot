@@ -27,9 +27,12 @@ class WebServer:
         self.executor = MessageExecutor(self)
         
         self.map_markers_queue = []
-        self.monuments = None
+        self.map_monuments = None
 
     def execute(self):
+        asyncio.run(self.webserver_main())
+    
+    async def webserver_main(self):
         # Setup routes and event streams
         setup_routes(app, self)
         setup_event_streams(app, self)
@@ -39,19 +42,26 @@ class WebServer:
         self.log("Web Server subscribed for messages")
         
         threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
-
-        asyncio.run(self.request_rust_data())
-    
+        
+        asyncio.create_task(self.request_rust_data())
+        
+        await asyncio.Future()
+        
+        
+        
     # get the map image, get server info, start marker polling
     async def request_rust_data(self):
-        message = Message(None, None)
+        # block until rustapi subscribed
+        asyncio.sleep(5)
         
         # Request map image 
         self.log("Requesting Server Map")
-        message.set_type(MessageType.REQUEST_RUST_SERVER_MAP)
-        await self.send_message(message, target_service_id=Service.RUSTAPI)
+        await self.send_message(Message(MessageType.REQUEST_RUST_SERVER_MAP, {}), target_service_id=Service.RUSTAPI)
         
-    
+        # Request monuments
+        self.log("Requesting Server Monuments")
+        await self.send_message(Message(MessageType.REQUEST_RUST_MAP_MONUMENTS, {}), target_service_id=Service.RUSTAPI)
+
         
     async def process_message(self, message, sender):
         msg = json.loads(message)

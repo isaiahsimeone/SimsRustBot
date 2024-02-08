@@ -3,6 +3,7 @@ from enum import Enum, auto
 from rustplus.api.structures.rust_team_info import RustTeamMember, RustTeamNote, RustTeamInfo
 from rustplus.api.structures.rust_marker import RustColour, RustSellOrder, RustMarker
 from rustplus.api.structures.rust_info import RustInfo
+from rustplus.api.structures.rust_map import RustMonument, RustMap
 
 class_mappings = {
     RustTeamMember: ['steam_id', 'name', 'x', 'y', 'is_online', 'spawn_time', 'is_alive', 'death_time'],
@@ -11,7 +12,9 @@ class_mappings = {
     RustColour: ['x', 'y', 'z', 'w'],
     RustSellOrder: ['item_id', 'quantity', 'currency_id', 'cost_per_item', 'item_is_blueprint', 'currency_is_blueprint', 'amount_in_stock'],
     RustMarker: ['id', 'type', 'x', 'y', 'steam_id', 'rotation', 'radius', 'colour1', 'colour2', 'alpha', 'name', 'sell_orders', 'out_of_stock'],
-    RustInfo: ['url', 'name', 'map', 'size', 'players', 'max_players', 'queued_players', 'seed', 'wipe_time', 'header_image', 'logo_image']
+    RustInfo: ['url', 'name', 'map', 'size', 'players', 'max_players', 'queued_players', 'seed', 'wipe_time', 'header_image', 'logo_image'],
+    RustMap: ['width', 'height', 'margin', 'monuments', 'background'], #TODO: what is background? - omits jpg_image bc bytes not serialisable
+    RustMonument: ['token', 'x', 'y']
 }
 
 
