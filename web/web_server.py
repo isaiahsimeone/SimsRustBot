@@ -54,6 +54,10 @@ class WebServer:
         # block until rustapi subscribed
         asyncio.sleep(5)
         
+        # Request map info
+        self.log("Requesting Map Info")
+        await self.send_message(Message(MessageType.REQUEST_RUST_MAP_INFO, {}), target_service_id=Service.RUSTAPI)
+        
         # Request map image 
         self.log("Requesting Server Map")
         await self.send_message(Message(MessageType.REQUEST_RUST_SERVER_MAP, {}), target_service_id=Service.RUSTAPI)

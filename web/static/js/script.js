@@ -1,15 +1,16 @@
 
 // Global variables
-const mapImage = document.getElementById('map-image');
+const mapImage = document.getElementById("map-image");
+const mapContainer = document.getElementById("map-container")
 let panzoom = null;
 let initialMapRect = null;
 let map_image_offset_left = getMapImageWhitespace();
 let map_marker_data = null;
+let map_monument_data = null;
 let img_path = "static/images/rust/";
 
 // TODO: when heli/cargo is coming in, specify the direction that the player can align their compass to. Just a vector
 
-// Set the first time json data is received
 let MAP_SZ = null;
 
 const markers = {
@@ -36,6 +37,43 @@ const marker_type_to_img = [
 ];
 
 
+const MonumentNames = {
+    "airfield_display_name": "AIRFIELD",
+    "bandit_camp": "BANDIT CAMP",
+    "dome_monument_name": "THE DOME",
+    "excavator": "GIANT EXCAVATOR PIT",
+    "fishing_village_display_name": "FISHING VILLAGE",
+    "gas_station": "OXUM'S GAS STATION",
+    "harbor_2_display_name": "HARBOR",
+    "harbor_display_name": "HARBOR",
+    "junkyard_display_name": "JUNKYARD",
+    "large_fishing_village_display_name": "LARGE FISHING VILLAGE",
+    "large_oil_rig": "LARGE OIL RIG",
+    "launchsite": "LAUNCH SITE",
+    "lighthouse_display_name": "LIGHTHOUSE",
+    "military_tunnels_display_name": "MILITARY TUNNEL",
+    "mining_outpost_display_name": "MINING OUTPOST",
+    "mining_quarry_hqm_display_name": "HQM QUARRY",
+    "mining_quarry_stone_display_name": "STONE QUARRY",
+    "mining_quarry_sulfur_display_name": "SULFUR QUARRY",
+    "oil_rig_small": "OIL RIG",
+    "outpost": "OUTPOST",
+    "power_plant_display_name": "POWER PLANT",
+    "satellite_dish_display_name": "SATELLITE DISH",
+    "sewer_display_name": "SEWER BRANCH",
+    "stables_a": "RANCH",
+    "stables_b": "LARGE BARN",
+    "supermarket": "ABANDONED SUPERMARKET",
+    "swamp_c": "ABANDONED CABINS",
+    "train_tunnel_display_name": "",
+    "train_yard_display_name": "TRAIN YARD",
+    "underwater_lab": "UNDERWATER LAB",
+    "water_treatment_plant_display_name": "WATER TREATMENT PLANT",
+	"ferryterminal": "FERRY TERMINAL",
+	"arctic_base_a": "ARCTIC RESEARCH BASE",
+	"missile_silo_monument": "MISSILE SILO",
+	"AbandonedMilitaryBase": "ABANDONED MILITARY BASE"
+}
 
 
 
@@ -82,6 +120,7 @@ $(document).ready(function() {
 			map_image_offset_left = getMapImageWhitespace();
 			updateInitialMapRect();
 			updateMapMarkers(map_marker_data);
+			redrawMonuments();
 			adjustOverlaysOnZoom();
 		});
 
@@ -91,28 +130,67 @@ $(document).ready(function() {
 			adjustOverlaysOnZoom();
 		});
 
+		// This part runs once - we need map_sz set first
+		$.getJSON(window.location.href + 'monuments', function(data) {
+			getMapMonumentsBackgroundAndSize(data.data);
+		});
+
 		if (!!window.EventSource) {
 			var map_markers = new EventSource('/markers');
-			var monument_names = new EventSource('/mounments');
 
 			map_markers.addEventListener('message', getMapMarkersFromES, false);
-			monument_names.addEventListener('monuments', getMonumentNamesFromES, false);
 		}
 	}
+
 });
 
-function getMonumentNamesFromES(monument_data) {
-	console.log('Received data: ', monument_data.data);
+function getMapMonumentsBackgroundAndSize(data) {
+	// This function gives the map size
+	
+	let map_size = data.width + data.margin;
+	MAP_SZ = map_size;
+	console.log("Map size is " + MAP_SZ);
+
+	// This gives the background colour
+	mapContainer.style.backgroundColor = data.background;
+	
+	map_monument_data = data.monuments;
+
+	redrawMonuments();
+	console.log(monuments);
+
+}
+
+function redrawMonuments() {
+	// delete current monument text
+	deleteAllMapText();
+
+	for (let i = 0; i < Object.keys(map_monument_data).length; i++) {
+		let text = MonumentNames[map_monument_data[i].token];
+		if (text)
+			createMapText(i, map_monument_data[i].x, map_monument_data[i].y, text);
+	}
+}
+
+function createMapText(id, x, y, text) {
+	let text_overlay = document.createElement("div");
+	text_overlay.className = "overlay map_text";
+	text_overlay.id = "overlay_text" + id;
+
+	text_overlay.style.fontSize = "9px";
+	text_overlay.innerHTML = text;
+
+	mapContainer.appendChild(text_overlay);
+
+	setOverlay(text_overlay.id, x, y, 0);
 }
 
 function getMapMarkersFromES(marker_data) {
+	
 	//console.log('Received data: ', marker_data.data);
 	deleteAllMapMarkers(); // Remove current overlays from DOM
 	map_marker_data = JSON.parse(marker_data.data);
-	if (MAP_SZ == null) {
-		console.log("map size = " + map_marker_data[0]);
-		MAP_SZ = map_marker_data[0];
-	}
+
 	updateMapMarkers();
 }
 
@@ -122,15 +200,13 @@ function updateInitialMapRect() {
 	}
 }
 
-// places an overlay image on the map given JSON coordinates
-// from the RustAPI. It will be converted to coordinates suitable
-// for the map image displayed in browser
-function setOverlayImage(overlayId, image, jsonX, jsonY, rotation) {
+function setOverlay(overlayId, jsonX, jsonY, rotation) {
+	
 	const overlay = document.getElementById(overlayId);
 
 	if (!overlay || !initialMapRect)
 		return;
-	
+
 	// Overlay dimensions
 	const overlay_width = overlay.offsetWidth;
 	const overlay_height = overlay.offsetHeight;
@@ -146,11 +222,10 @@ function setOverlayImage(overlayId, image, jsonX, jsonY, rotation) {
 	// Convert map coordinates (jsonX, jsonY) to image pixel coordinates
 	const imageX = scaleX * jsonX + map_image_offset_left - overlay_width_center;
 	const imageY = scaleY * jsonY_flipped + initialMapRect.top - overlay_height_center;
-
+	
 	const invertedScale = 1 / panzoom.getScale();
 
 	// Apply the background image and position the overlay
-	overlay.style.backgroundImage = `url('${img_path}${image}')`;
 	overlay.style.transform = `translate(${imageX}px, ${imageY}px) scale(${invertedScale}) rotate(${rotation}deg)`;
 	overlay.style.display = 'block'; // Show the overlay
 
@@ -158,6 +233,19 @@ function setOverlayImage(overlayId, image, jsonX, jsonY, rotation) {
 	overlay.dataset.initialX = imageX;
 	overlay.dataset.initialY = imageY;
 	overlay.dataset.initialRotation = rotation;
+
+}
+
+// places an overlay image on the map given JSON coordinates
+// from the RustAPI. It will be converted to coordinates suitable
+// for the map image displayed in browser
+function setOverlayImage(overlayId, image) {
+	const overlay = document.getElementById(overlayId);
+
+	if (!overlay)
+		return;
+	
+	overlay.style.backgroundImage = `url('${img_path}${image}')`;
 }
 
 // Adjust overlays on zoom
@@ -172,6 +260,7 @@ function adjustOverlaysOnZoom() {
 // Adjust individual overlay position
 function adjustOverlayPositionZoom(overlayId) {
 	const overlay = document.getElementById(overlayId);
+	
 	if (overlay) {
 		// Overlay size changes depending on panzoom scale
 		const invertedScale = 1 / panzoom.getScale();
@@ -200,14 +289,25 @@ function deleteAllMapMarkers() {
 	var elements = document.getElementsByClassName("overlay");
 
 	Array.from(elements).forEach((element) => {
-	  element.remove(); // Removes the element from the DOM
+		if (!element.classList.contains("map_text")) // Don't delete text
+			element.remove(); // Removes the element from the DOM
+	});
+}
+
+function deleteAllMapText() {
+	var elements = document.getElementsByClassName("map_text");
+
+	Array.from(elements).forEach((element) => {
+		element.remove(); // Removes the element from the DOM
 	});
 }
 
 // Update map markers
 function updateMapMarkers() {
+	if (!map_marker_data)
+		return;
 
-	for (let i = 1; i < map_marker_data.length; i++) {
+	for (let i = 0; i < map_marker_data.length; i++) {
 
 
 		let overlay_img = null;
@@ -263,13 +363,13 @@ function updateMapMarkers() {
 				drawBlades("overlay" + i + "blades", marker_type_to_img[markers.HELI][1], x + blade_x, y + blade_y);
 
 				
-				console.log("HELI ROT: " + rotation);
+				//console.log("HELI ROT: " + rotation);
 				break;
 		}
 	
 		document.getElementById("map-container").appendChild(overlay);
-
-		setOverlayImage(overlay.id, overlay_img, x, y, rotation);
+		setOverlayImage(overlay.id, overlay_img);
+		setOverlay(overlay.id, x, y, rotation);
 	}
 
 }
@@ -286,7 +386,8 @@ function drawBlades(overlayId, img, x, y) {
 	document.getElementById("map-container").appendChild(blades);
 
 	applyRotation(overlayId);
-	setOverlayImage(overlayId, img, x, y, 0);
+	setOverlayImage(overlayId, img);
+	setOverlay(overlayId, x, y, 0);
 }
 
 function getMapImageWhitespace() {

@@ -23,3 +23,9 @@ def setup_routes(app, web_server):
         while not web_server.map_monuments:
             pass
         return web_server.map_monuments
+    
+    @app.route('/mapinfo')
+    def get_map_info():
+        while not web_server.map_info:
+            pass
+        return web_server.map_info

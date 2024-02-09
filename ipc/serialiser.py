@@ -13,7 +13,7 @@ class_mappings = {
     RustSellOrder: ['item_id', 'quantity', 'currency_id', 'cost_per_item', 'item_is_blueprint', 'currency_is_blueprint', 'amount_in_stock'],
     RustMarker: ['id', 'type', 'x', 'y', 'steam_id', 'rotation', 'radius', 'colour1', 'colour2', 'alpha', 'name', 'sell_orders', 'out_of_stock'],
     RustInfo: ['url', 'name', 'map', 'size', 'players', 'max_players', 'queued_players', 'seed', 'wipe_time', 'header_image', 'logo_image'],
-    RustMap: ['width', 'height', 'margin', 'monuments', 'background'], #TODO: what is background? - omits jpg_image bc bytes not serialisable
+    RustMap: ['width', 'height', 'margin', 'monuments', 'background'], #TODO: what is background? - omitted jpg_image bc bytes not serialisable
     RustMonument: ['token', 'x', 'y']
 }
 

@@ -45,7 +45,6 @@ class MessageExecutor():
         img.save("web/static/images/map.jpg")
         
     def receive_map_markers(self, data):
-        data['markers'].insert(0, 3000) # TODO: Make not hardcoded
         self.web_server.map_markers_queue.append(data.get("markers"))
         
     def receive_map_monuments(self, data):

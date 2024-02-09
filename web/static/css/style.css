@@ -16,7 +16,7 @@
 }
 
 .map-container {
-  background-color: #0b3a4a;
+  /* background-color: #0b3a4a; */
   width: 100%; /* Adjust as necessary */
   height: 100vh; /* Adjust as necessary */
   overflow: hidden;
@@ -139,3 +139,14 @@
   display: block; /* Initially visible */
 }
 
+@font-face {
+  font-family: permanentMarker;
+  src: url("../fonts/PermanentMarker-Regular.ttf")
+}
+
+.map_text {
+  font-family: permanentMarker;
+  white-space: nowrap;
+  text-align: center;
+	width: fit-content;
+}

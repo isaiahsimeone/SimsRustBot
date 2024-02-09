@@ -10,12 +10,14 @@ class MessageType(Enum):
     RUST_MAP_MARKERS = "rust_map_markers"
     RUST_MAP_EVENTS = "rust_map_events"
     RUST_MAP_MONUMENTS = "rust_map_monuments"
+    RUST_MAP_INFO = "rust_map_info"
     
     # Request
     REQUEST_RUST_SERVER_MAP = "request_rust_server_map"
     REQUEST_RUST_MAP_MARKERS = "request_rust_map_markers"
     REQUEST_RUST_MAP_EVENTS = "request_rust_map_events"
     REQUEST_RUST_MAP_MONUMENTS = "request_rust_map_monuments"
+    REQUEST_RUST_MAP_INFO = "request_rust_map_info"
 
 """
     PlayerMarker = 1
