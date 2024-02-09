@@ -15,6 +15,7 @@ Next:
 - grouping vending machines on map
 - browser shop search - snap to shop
 - browser map control - snap to player
+- map grid
 - refactor
 
 Soon/maybe
