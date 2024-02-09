@@ -48,6 +48,10 @@ class TeamPoller:
                     print(member["name"] + " is " + change_type)
                     
                 if change_type:
+                    # SteamID as an integer makes JS play up, convert to string
+                    steam_id_int_rep = member_prev.get("steam_id")
+                    member_prev["steam_id"] = str(steam_id_int_rep)
+                
                     msg_data = {change_type: member_prev} # Send the old entry, so we know where they died approximately
                     message = Message(MessageType.RUST_PLAYER_STATE_CHANGE, msg_data)
                     await self.send_message(message)

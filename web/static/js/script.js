@@ -7,7 +7,7 @@ let initialMapRect = null;
 let map_image_offset_left = getMapImageWhitespace();
 let map_marker_data = null;
 let map_monument_data = null;
-let img_path = "static/images/rust/";
+let img_path = "static/images";
 
 let map_markers_ES = null;
 let team_updates_ES = null;
@@ -215,9 +215,9 @@ function getMapMarkersFromES(marker_data) {
 	//console.log('Received data: ', marker_data.data);
 	deleteAllMapMarkers(); // Remove current overlays from DOM
 	map_marker_data = JSON.parse(marker_data.data);
-
+	console.log(map_marker_data);
 	updateMapMarkers();
-	
+
 	if (ES_reset_count++ > 200)
 		resetEventSource();
 }
@@ -227,6 +227,7 @@ function updateInitialMapRect() {
 		initialMapRect = mapImage.getBoundingClientRect();
 	}
 }
+
 
 function setOverlay(overlayId, jsonX, jsonY, rotation) {
 	
@@ -267,13 +268,15 @@ function setOverlay(overlayId, jsonX, jsonY, rotation) {
 // places an overlay image on the map given JSON coordinates
 // from the RustAPI. It will be converted to coordinates suitable
 // for the map image displayed in browser
-function setOverlayImage(overlayId, image) {
+function setOverlayImage(overlayId, image, is_player=false) {
 	const overlay = document.getElementById(overlayId);
 
 	if (!overlay)
 		return;
-	
-	overlay.style.backgroundImage = `url('${img_path}${image}')`;
+	if (!is_player)
+		overlay.style.backgroundImage = `url('${img_path}/rust/${image}')`;
+	else
+		overlay.style.backgroundImage = `url('${img_path}/steam_pics/${image}.png')`;
 }
 
 // Adjust overlays on zoom
@@ -346,7 +349,7 @@ function updateMapMarkers() {
 		let x = map_marker_data[i].x;
 		let y = map_marker_data[i].y;
 
-
+		let is_player = false;
 
 		const overlay = document.createElement("div");
 		overlay.className = "overlay";
@@ -356,7 +359,10 @@ function updateMapMarkers() {
 
 		switch (marker_type) {
 			case markers.PLAYER:
+				is_player = true;
 				overlay.style.zIndex = 4; // Always on top
+				overlay_img = marker.steam_id;
+				console.log("plotting player with steam id: " + overlay_img);
 				break;
 			case markers.SHOP:
 				overlay_img = marker.out_of_stock ? marker_type_to_img[markers.SHOP][1] : marker_type_to_img[markers.SHOP][0];
@@ -396,7 +402,7 @@ function updateMapMarkers() {
 		}
 	
 		document.getElementById("map-container").appendChild(overlay);
-		setOverlayImage(overlay.id, overlay_img);
+		setOverlayImage(overlay.id, overlay_img, is_player);
 		setOverlay(overlay.id, x, y, rotation);
 	}
 

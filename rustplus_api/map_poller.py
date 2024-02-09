@@ -30,6 +30,10 @@ class MapPoller:
             if marker.get("id") not in marker_ids:
                 markers.add(marker)
         
+        # SteamID as an integer makes JS play up, convert to string
+        for marker in markers:
+            steam_id_int_rep = marker.get("steam_id")
+            marker["steam_id"] = str(steam_id_int_rep)
         
         msg_data = {"markers": markers}
         message = Message(MessageType.RUST_MAP_MARKERS, msg_data)
