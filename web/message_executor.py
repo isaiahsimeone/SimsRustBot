@@ -48,7 +48,6 @@ class MessageExecutor():
         img.save("web/static/images/map.jpg")
         
     def receive_map_markers(self, data):
-        print("TYPE OF RECV MAP MARKERS: " + str(type(data.get("markers"))))
         self.web_server.map_markers_queue.append(data.get("markers"))
         
     def receive_map_monuments(self, data):

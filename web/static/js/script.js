@@ -360,7 +360,9 @@ function updateMapMarkers() {
 		switch (marker_type) {
 			case markers.PLAYER:
 				is_player = true;
-				overlay.style.zIndex = 4; // Always on top
+				overlay.style.zIndex = 4; // Always on top				
+				overlay.style.width = "20px";
+				overlay.style.height = "20px";
 				overlay_img = marker.steam_id;
 				console.log("plotting player with steam id: " + overlay_img);
 				break;
