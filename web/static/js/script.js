@@ -9,6 +9,10 @@ let map_marker_data = null;
 let map_monument_data = null;
 let img_path = "static/images/rust/";
 
+let map_markers_ES = null;
+let team_updates_ES = null;
+let ES_reset_count = 0;
+
 // TODO: when heli/cargo is coming in, specify the direction that the player can align their compass to. Just a vector
 
 let MAP_SZ = null;
@@ -136,14 +140,31 @@ $(document).ready(function() {
 		});
 
 		if (!!window.EventSource) {
-			var map_markers = new EventSource('/markers');
-			var team_updates = new EventSource('/teammemberupdates')
-			map_markers.addEventListener('message', getMapMarkersFromES, false);
-			team_updates.addEventListener('message', getTeamUpdateFromES, false);
+			resetEventSource();			
 		}
 	}
 
 });
+
+
+function resetEventSource() {
+    if (map_markers_ES) {
+		console.log("reset marker ES");
+        map_markers_ES.close();
+    }
+    if (team_updates_ES) {
+		console.log("reset update ES");
+        team_updates_ES.close();
+    }
+    
+    // Reinitialize the EventSource
+    map_markers_ES = new EventSource('/markers');
+    team_updates_ES = new EventSource('/teammemberupdates');
+    map_markers_ES.addEventListener('message', getMapMarkersFromES, false);
+    team_updates_ES.addEventListener('message', getTeamUpdateFromES, false);
+
+	ES_reset_count = 0;
+}
 
 function getTeamUpdateFromES(data) {
 	console.log(data.data);
@@ -163,7 +184,6 @@ function getMapMonumentsBackgroundAndSize(data) {
 	map_monument_data = data.monuments;
 
 	redrawMonuments();
-
 }
 
 function redrawMonuments() {
@@ -197,6 +217,9 @@ function getMapMarkersFromES(marker_data) {
 	map_marker_data = JSON.parse(marker_data.data);
 
 	updateMapMarkers();
+	
+	if (ES_reset_count++ > 200)
+		resetEventSource();
 }
 
 function updateInitialMapRect() {
