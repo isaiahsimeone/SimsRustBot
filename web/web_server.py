@@ -31,6 +31,7 @@ class WebServer:
         self.map_markers_queue = []
         self.team_update_queue = []
         self.map_monuments = None
+        self.map_info = None
 
     def execute(self):
         asyncio.run(self.webserver_main())
@@ -40,11 +41,15 @@ class WebServer:
         setup_routes(app, self)
         setup_event_streams(app, self)
         
-        self.log(f"Web Server started at http://{self.host}:{self.port}")
+        
         self.messenger.subscribe(Service.WEBSERVER, self.process_message)
         self.log("Web Server subscribed for messages")
         
+        await self.messenger.block_until_subscribed(service_id=Service.WEBSERVER, wait_for=Service.RUSTAPI)
+        
         threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
+        
+        self.log(f"Web Server started at http://{self.host}:{self.port}")
         
         asyncio.create_task(self.request_rust_data())
         
@@ -54,8 +59,6 @@ class WebServer:
         
     # get the map image, get server info, start marker polling
     async def request_rust_data(self):
-        # block until rustapi subscribed
-        asyncio.sleep(5)
         
         # Request map info
         self.log("Requesting Map Info")

@@ -48,7 +48,12 @@ class Messenger:
                         asyncio.create_task(listener_callback(message, sending_service_id))
         except asyncio.QueueEmpty:
             pass  # No action needed if queue is empty
-
+    
+    async def block_until_subscribed(self, service_id, wait_for):
+        self.log(service_id, Service.get_name(service_id) + " is blocking until " + Service.get_name(wait_for) + " is subscribed")
+        while wait_for not in self.listeners:
+            pass
+        self.log(service_id, Service.get_name(service_id) + " is now unblocked")
 
     def log(self, service_id, message):
         service_name = service_id.get_name()[0:4]

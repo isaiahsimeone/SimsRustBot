@@ -1,6 +1,7 @@
 from ipc.messenger import Messenger, Service
 from ipc.message import Message, MessageType
 import discord
+import asyncio
 
 class DiscordBot:
     def __init__(self, messenger):
@@ -10,14 +11,20 @@ class DiscordBot:
     
     # entry point
     def execute(self):
+        asyncio.run(self.main())
+        
+        
+    async def main(self):
         self.discord_bot_token = self.get_bot_token()
-        self.log_synchronous("No token was entered, so no discord bot will be started" if self.discord_bot_token is None else "Bot token found. Attempting to start Discord bot")
+        self.log("No token was entered, so no discord bot will be started" if self.discord_bot_token is None else "Bot token found. Attempting to start Discord bot")
         
         self.messenger.subscribe(Service.DISCORD, self.process_message)
-        self.log_synchronous("Discord Bot subscribed for messages")
+        self.log("Discord Bot subscribed for messages")
+        
+        await self.messenger.block_until_subscribed(service_id=Service.DISCORD, wait_for=Service.RUSTAPI)
         
         self.start_bot(self.discord_bot_token)
-    
+        
     def start_bot(self, token):
         intents = discord.Intents.all()
         intents.message_content = True

@@ -6,14 +6,17 @@ todo
 
 Next:
 - Chinook blades
+- set min marker size for zoom in - they get too small
 - Team chat -> web interface
 - Player list in web interface
 - Shop UI browser in web interface
+- grouping vending machines on map
 - browser shop search - snap to shop
 - browser map control - snap to player
 - refactor
 
 Soon/maybe
+- Marker extrapolation (player, chinook, cargo, heli)
 - When heli/cargo comes in, give player compass bearing to its entry point
 - Consider takig the map image, and expanding thhe sides to make it the same as game map, math is already workig, but we i don't thhhik we can curretly plot oil etc
 - alert new shops? option

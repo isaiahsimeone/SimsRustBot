@@ -133,6 +133,8 @@
 
 .overlay {
   position: absolute;
+  min-width:20px;
+  min-height:20px;
   width: 15px; /*50px; /* Base width */
   height: 15px; /*50px; /* Base height */
   background-size: cover;

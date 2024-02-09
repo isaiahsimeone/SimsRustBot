@@ -27,6 +27,8 @@ class MessageExecutor():
                 await self.send_server_map_image(sender)
             case MT.REQUEST_RUST_MAP_MONUMENTS:
                 await self.send_server_map_monuments(sender)
+            case MT.REQUEST_RUST_MAP_INFO:
+                await self.send_server_map_info(sender)
             case _:
                 self.api.log("ERROR: Unknown message type")
 
@@ -38,6 +40,11 @@ class MessageExecutor():
     async def send_server_map_monuments(self, sender):
         server_monuments = await get_monuments(self.socket)
         message = Message(MessageType.RUST_MAP_MONUMENTS, {"data": server_monuments})
+        await self.api.send_message(message, target_service_id=sender)
+        
+    async def send_server_map_info(self, sender):
+        map_info = await get_monuments(self.socket.get_info())
+        message = Message(MessageType.RUST_MAP_INFO, {"data": map_info})
         await self.api.send_message(message, target_service_id=sender)
 
     

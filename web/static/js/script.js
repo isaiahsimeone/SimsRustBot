@@ -4,14 +4,20 @@ const mapImage = document.getElementById("map-image");
 const mapContainer = document.getElementById("map-container")
 let panzoom = null;
 let initialMapRect = null;
+let img_path = "static/images";
+
 let map_image_offset_left = getMapImageWhitespace();
+
 let map_marker_data = null;
 let map_monument_data = null;
-let img_path = "static/images";
+let map_info_data = null
 
 let map_markers_ES = null;
 let team_updates_ES = null;
 let ES_reset_count = 0;
+
+
+// RustInfo[url=, name=Sims Server, map=Procedural Map, size=4000, players=0, max_players=5, queued_players=0, seed=793197, wipe_time=1707127438, header_image=, logo_image=]
 
 // TODO: when heli/cargo is coming in, specify the direction that the player can align their compass to. Just a vector
 
@@ -133,10 +139,14 @@ $(document).ready(function() {
 			updateMapMarkers(map_marker_data);
 			adjustOverlaysOnZoom();
 		});
-
 		// This part runs once - we need map_sz set first
+		$.getJSON(window.location.href + 'getinfo', function(data) {
+			getMapInfo(data.data);
+		});
+
+		
 		$.getJSON(window.location.href + 'monuments', function(data) {
-			getMapMonumentsBackgroundAndSize(data.data);
+			getMapMonuments(data.data);
 		});
 
 		if (!!window.EventSource) {
@@ -170,14 +180,20 @@ function getTeamUpdateFromES(data) {
 	console.log(data.data);
 }
 
-function getMapMonumentsBackgroundAndSize(data) {
+function getMapInfo() {
 
 	// Get map size
-	let map_size = data.width + data.margin;
+	console.log(data);
+	let map_size = data.size
 	MAP_SZ = map_size;
-	console.log("Map size is " + MAP_SZ);
+	console.log("Map size is " + MAP_SZ);	
+}
 
-	// Set background colour
+// Also sets the background colour
+function getMapMonuments(data) {
+
+
+	// Also sets background colour
 	mapContainer.style.backgroundColor = data.background;
 	
 	// Receive monument data
@@ -373,9 +389,18 @@ function updateMapMarkers() {
 				break;
 			case markers.CHINOOK:
 				overlay_img = marker_type_to_img[markers.CHINOOK][0];
+				overlay.style.width = "40px";
+				overlay.style.height = "40px";
 
+				var theta = rotation * Math.PI / 180;
+				var magnitude = parseInt(overlay.style.width.replace("px","")) * (1 / panzoom.getScale()) * 0.7;
+				var blade_x = magnitude * Math.sin(theta);
+				var blade_y = magnitude * Math.cos(theta);
+				
 				// Draw blades
-				drawBlades("overlay" + i + "blades", marker_type_to_img[markers.CHINOOK][1], x, y + 50 * Math.sin(rotation / Math.PI));
+				drawBlades("overlay" + i + "blades", marker_type_to_img[markers.CHINOOK][1], x + blade_x, y + blade_y);
+
+				drawBlades("overlay" + i + "blades2", marker_type_to_img[markers.CHINOOK][1], x - blade_x, y - blade_y);
 				break;
 			case markers.CARGO:
 				overlay.style.width = "35px";
@@ -389,10 +414,10 @@ function updateMapMarkers() {
 
 				// Draw blades
 				
-				let theta = rotation * Math.PI / 180;
-				let magnitude = parseInt(overlay.style.width.replace("px","")) * (1 / panzoom.getScale()) * 0.7;
-				let blade_x = magnitude * Math.sin(theta);
-				let blade_y = magnitude * Math.cos(theta);
+				var theta = rotation * Math.PI / 180;
+				var magnitude = parseInt(overlay.style.width.replace("px","")) * (1 / panzoom.getScale()) * 0.7;
+				var blade_x = magnitude * Math.sin(theta);
+				var blade_y = magnitude * Math.cos(theta);
 
 
 
@@ -415,8 +440,8 @@ function drawBlades(overlayId, img, x, y) {
 	const blades = document.createElement("div");
 	blades.className = "overlay blades";
 	blades.id = overlayId;
-	blades.style.width = "40px";
-	blades.style.height = "40px";
+	blades.style.width = "30px";
+	blades.style.height = "30px";
 	blades.style.zIndex = 1;
 
 	document.getElementById("map-container").appendChild(blades);
@@ -454,7 +479,7 @@ function getMapImageWhitespace() {
   }
   
 function applyRotation(elementId) {
-    let angle = 0; // Initial angle
+    let angle = Math.ceil(Math.random() * 360); // Initial angle
 
     // Function to update rotation
     function update() {
