@@ -5,7 +5,9 @@
 todo
 
 Next:
-- Chinook blades
+- ~~Chinook blades~~
+- Death markers
+- GetSteamPic() function. Call from JS
 - set min marker size for zoom in - they get too small
 - Team chat -> web interface
 - Player list in web interface
