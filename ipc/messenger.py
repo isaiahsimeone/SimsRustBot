@@ -50,7 +50,9 @@ class Messenger:
             pass  # No action needed if queue is empty
     
     async def block_until_subscribed(self, service_id, wait_for):
-        self.log(service_id, Service.get_name(service_id) + " is blocking until " + Service.get_name(wait_for) + " is subscribed")
+        if wait_for in self.listeners:
+            return None
+        self.log(service_id, Service.get_name(service_id) + " is blocked until " + Service.get_name(wait_for) + " is subscribed")
         while wait_for not in self.listeners:
             pass
         self.log(service_id, Service.get_name(service_id) + " is now unblocked")

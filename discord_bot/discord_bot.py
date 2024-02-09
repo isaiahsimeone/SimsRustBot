@@ -10,18 +10,13 @@ class DiscordBot:
         self.bot = None
     
     # entry point
+
     def execute(self):
-        asyncio.run(self.main())
-        
-        
-    async def main(self):
         self.discord_bot_token = self.get_bot_token()
         self.log("No token was entered, so no discord bot will be started" if self.discord_bot_token is None else "Bot token found. Attempting to start Discord bot")
         
         self.messenger.subscribe(Service.DISCORD, self.process_message)
         self.log("Discord Bot subscribed for messages")
-        
-        await self.messenger.block_until_subscribed(service_id=Service.DISCORD, wait_for=Service.RUSTAPI)
         
         self.start_bot(self.discord_bot_token)
         
@@ -35,7 +30,7 @@ class DiscordBot:
         setup_event_handlers(self.bot, self)
         
         if self.config.get("logging_enabled") == "true":
-            self.log_synchronous("Discord library logging is disabled")
+            self.log("Discord library logging is disabled")
             self.bot.run(token, log_handler=None)
         else:
             self.bot.run(token)
