@@ -5,6 +5,7 @@ from rustplus import RustSocket, ChatEvent, CommandOptions
 import asyncio
 from .FCM_listener import FCM
 from .map_poller import MapPoller
+from .team_poller import TeamPoller
 from .event_listener import EventListener
 
 from .commands.send_message import send_message as rust_send_message
@@ -53,13 +54,17 @@ class RustPlusAPI:
         self.event_listener = EventListener(self.socket, self.messenger)
         self.log("Event listener setup complete")
         
-        poll_rate = self.messenger.get_config().get("rust").get("map_polling_frequency_seconds")
+        poll_rate = self.messenger.get_config().get("rust").get("polling_frequency_seconds")
         self.map_poller = MapPoller(self.socket, self.messenger)
+        self.team_poller = TeamPoller(self.socket, self.messenger)
         
         # Start map marker polling
         asyncio.create_task(self.map_poller.start_marker_polling())
-        self.log("Map marker polling started with a frequency of " + poll_rate + " seconds")
-      
+    
+        # Start team polling
+        asyncio.create_task(self.team_poller.start_team_polling())
+        
+        self.log("Map marker and team polling started with a frequency of " + poll_rate + " seconds")
         
         #DEBUG
         self.log("Got Server Info: " + str(await self.socket.get_info()))

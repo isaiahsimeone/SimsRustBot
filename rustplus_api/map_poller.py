@@ -11,12 +11,11 @@ class MapPoller:
         self.socket = socket
         self.messenger = messenger
         
-        self.poll_rate = int(messenger.get_config().get("rust").get("map_polling_frequency_seconds"))
+        self.poll_rate = int(messenger.get_config().get("rust").get("polling_frequency_seconds"))
     
     
     async def start_marker_polling(self):
         while True:
-            print("poll map")
             await self.poll_markers()
             await asyncio.sleep(self.poll_rate)
     

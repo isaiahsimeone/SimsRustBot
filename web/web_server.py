@@ -27,6 +27,7 @@ class WebServer:
         self.executor = MessageExecutor(self)
         
         self.map_markers_queue = []
+        self.team_update_queue = []
         self.map_monuments = None
 
     def execute(self):
@@ -66,6 +67,11 @@ class WebServer:
         self.log("Requesting Server Monuments")
         await self.send_message(Message(MessageType.REQUEST_RUST_MAP_MONUMENTS, {}), target_service_id=Service.RUSTAPI)
 
+    def get_host(self):
+        return self.host
+    
+    def get_port(self):
+        return self.port
         
     async def process_message(self, message, sender):
         msg = json.loads(message)

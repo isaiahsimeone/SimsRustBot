@@ -137,27 +137,32 @@ $(document).ready(function() {
 
 		if (!!window.EventSource) {
 			var map_markers = new EventSource('/markers');
-
+			var team_updates = new EventSource('/teammemberupdates')
 			map_markers.addEventListener('message', getMapMarkersFromES, false);
+			team_updates.addEventListener('message', getTeamUpdateFromES, false);
 		}
 	}
 
 });
 
+function getTeamUpdateFromES(data) {
+	console.log(data.data);
+}
+
 function getMapMonumentsBackgroundAndSize(data) {
-	// This function gives the map size
-	
+
+	// Get map size
 	let map_size = data.width + data.margin;
 	MAP_SZ = map_size;
 	console.log("Map size is " + MAP_SZ);
 
-	// This gives the background colour
+	// Set background colour
 	mapContainer.style.backgroundColor = data.background;
 	
+	// Receive monument data
 	map_monument_data = data.monuments;
 
 	redrawMonuments();
-	console.log(monuments);
 
 }
 

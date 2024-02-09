@@ -12,6 +12,8 @@ class MessageType(Enum):
     RUST_MAP_MONUMENTS = "rust_map_monuments"
     RUST_MAP_INFO = "rust_map_info"
     
+    RUST_PLAYER_STATE_CHANGE = "rust_player_state_change"
+    
     # Request
     REQUEST_RUST_SERVER_MAP = "request_rust_server_map"
     REQUEST_RUST_MAP_MARKERS = "request_rust_map_markers"

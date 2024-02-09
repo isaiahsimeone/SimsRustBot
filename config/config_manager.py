@@ -149,7 +149,7 @@ class ConfigManager:
                 "logging_enabled": "true"
             },
             "rust": {
-                "map_polling_frequency_seconds": "10"
+                "polling_frequency_seconds": "10"
             }
         }
 

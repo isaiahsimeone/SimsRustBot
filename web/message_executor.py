@@ -29,6 +29,9 @@ class MessageExecutor():
             case MT.RUST_MAP_MONUMENTS:
                 self.web_server.log("Received map monuments")
                 self.receive_map_monuments(data)
+            case MT.RUST_PLAYER_STATE_CHANGE:
+                self.web_server.log("Got a player state change")
+                self.receive_player_state_change(data)
             case _:
                 self.web_server.log("ERROR: Unknown message type")
 
@@ -50,3 +53,5 @@ class MessageExecutor():
     def receive_map_monuments(self, data):
         self.web_server.map_monuments = data
     
+    def receive_player_state_change(self, data):
+        self.web_server.team_update_queue.append(data)
