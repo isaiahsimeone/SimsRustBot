@@ -11,6 +11,7 @@ Next:
 - Shop UI browser in web interface
 - browser shop search - snap to shop
 - browser map control - snap to player
+- refactor
 
 Soon/maybe
 - When heli/cargo comes in, give player compass bearing to its entry point
