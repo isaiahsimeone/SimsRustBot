@@ -11,6 +11,7 @@ let map_image_offset_left = getMapImageWhitespace();
 let map_marker_data = null;
 let map_monument_data = null;
 let server_info_data = null
+let team_info = null;
 
 let map_markers_ES = null;
 let team_updates_ES = null;
@@ -144,9 +145,14 @@ $(document).ready(function() {
 			getServerInfo(data.data);
 		});
 
-		
 		$.getJSON(window.location.href + 'monuments', function(data) {
 			getMapMonuments(data.data);
+		});
+		
+		$.getJSON(window.location.href + 'teaminfo', function(data) {
+			team_info = data.data;
+			console.log("got team info: " + Object.keys(team_info));
+			console.log(team_info.map_notes);
 		});
 
 		if (!!window.EventSource) {
@@ -181,7 +187,7 @@ function getTeamUpdateFromES(data) {
 }
 
 function getServerInfo(data) {
-
+	console.log("SERVER INFO keys: " + Object.keys(data));
 	server_info_data = data;
 	// Get map size
 	let map_size = data.size
@@ -358,7 +364,6 @@ function updateMapMarkers() {
 
 	for (let i = 0; i < map_marker_data.length; i++) {
 
-
 		let overlay_img = null;
 		let marker = map_marker_data[i];
 		let marker_type = marker.type;
@@ -379,8 +384,9 @@ function updateMapMarkers() {
 			case markers.PLAYER:
 				is_player = true;
 				overlay.style.zIndex = 4; // Always on top				
-				overlay.style.width = scaledDim(20);
-				overlay.style.height = scaledDim(20);
+				overlay.style.width = scaledDim(21);
+				overlay.style.height = scaledDim(21);
+				overlay.classList.add("circle-image");
 				overlay_img = marker.steam_id;
 				break;
 			case markers.SHOP:
@@ -394,13 +400,12 @@ function updateMapMarkers() {
 				overlay.style.height = scaledDim(40);
 
 				var theta = rotation * Math.PI / 180;
-				var magnitude = parseInt(overlay.style.width.replace("px","")) * (1 / panzoom.getScale()) * 0.7;
+				var magnitude = parseInt(overlay.style.width.replace("px","")) * (1 / panzoom.getScale()) * 1.3;
 				var blade_x = magnitude * Math.sin(theta);
 				var blade_y = magnitude * Math.cos(theta);
 				
 				// Draw blades
 				drawBlades("overlay" + i + "blades", marker_type_to_img[markers.CHINOOK][1], x + blade_x, y + blade_y);
-
 				drawBlades("overlay" + i + "blades2", marker_type_to_img[markers.CHINOOK][1], x - blade_x, y - blade_y);
 				break;
 			case markers.CARGO:

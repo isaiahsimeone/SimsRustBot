@@ -153,3 +153,10 @@
 	width: fit-content;
 }
 
+.circle-image {
+  width: 100px; /* or any size you want */
+  height: 100px; /* should be the same as width to create a circle */
+  border-radius: 50%; /* this creates the circle */
+  background-size: cover; /* this ensures your image covers the circle */
+  background-position: center; /* this ensures your image is centered in the circle */
+}

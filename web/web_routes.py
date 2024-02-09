@@ -93,3 +93,10 @@ def setup_routes(app, web_server):
             pass
         print(web_server.server_info)
         return web_server.server_info
+    
+    @app.route('/teaminfo')
+    def get_team_info():
+        while not web_server.team_info:
+            pass
+        print(web_server.team_info)
+        return web_server.team_info

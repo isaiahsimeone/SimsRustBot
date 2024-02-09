@@ -29,6 +29,7 @@ class WebServer:
         self.executor = MessageExecutor(self)
         
         self.server_info = None
+        self.team_info = None
         
         self.map_markers_queue = []
         self.team_update_queue = []
@@ -65,6 +66,10 @@ class WebServer:
         self.log("Requesting Server Info")
         await self.send_message(Message(MessageType.REQUEST_RUST_SERVER_INFO, {}), target_service_id=Service.RUSTAPI)
         
+        # Request team info
+        self.log("Requesting Team Info")
+        await self.send_message(Message(MessageType.REQUEST_RUST_TEAM_INFO, {}), target_service_id=Service.RUSTAPI)
+        
         # Request map image 
         self.log("Requesting Server Map")
         await self.send_message(Message(MessageType.REQUEST_RUST_SERVER_MAP, {}), target_service_id=Service.RUSTAPI)
@@ -72,6 +77,7 @@ class WebServer:
         # Request monuments
         self.log("Requesting Server Monuments")
         await self.send_message(Message(MessageType.REQUEST_RUST_MAP_MONUMENTS, {}), target_service_id=Service.RUSTAPI)
+        
 
     def get_host(self):
         return self.host

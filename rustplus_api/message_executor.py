@@ -6,6 +6,7 @@ from ipc.message import Message, MessageType
 from .commands.get_server_map import get_server_map
 from .commands.get_monuments import get_monuments
 from .commands.get_server_info import get_server_info
+from .commands.get_team_info import get_team_info
 
 class MessageExecutor():
     def __init__(self, rust_api):
@@ -29,6 +30,8 @@ class MessageExecutor():
                 await self.send_server_map_monuments(sender)
             case MT.REQUEST_RUST_SERVER_INFO:
                 await self.send_server_info(sender)
+            case MT.REQUEST_RUST_TEAM_INFO:
+                await self.send_team_info(sender)
             case _:
                 self.api.log("ERROR: Unknown message type")
 
@@ -46,5 +49,12 @@ class MessageExecutor():
         server_info = await get_server_info(self.socket)
         message = Message(MessageType.RUST_SERVER_INFO, {"data": server_info})
         await self.api.send_message(message, target_service_id=sender)
+        
+    async def send_team_info(self, sender):
+        team_info = await get_team_info(self.socket)
+        message = Message(MessageType.RUST_TEAM_INFO, {"data": team_info})
+        await self.api.send_message(message, target_service_id=sender)
+        
+    
 
     

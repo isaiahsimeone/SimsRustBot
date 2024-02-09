@@ -35,6 +35,9 @@ class MessageExecutor():
             case MT.RUST_SERVER_INFO:
                 self.web_server.log("Got Server Info")
                 self.receive_server_info(data)
+            case MT.RUST_TEAM_INFO:
+                self.web_server.log("Got team info")
+                self.receive_team_info(data)
             case _:
                 self.web_server.log("ERROR: Unknown message type")
 
@@ -61,3 +64,6 @@ class MessageExecutor():
         
     def receive_server_info(self, data):
         self.web_server.server_info = data
+        
+    def receive_team_info(self, data):
+        self.web_server.team_info = data
