@@ -231,7 +231,7 @@ function getMapMarkersFromES(marker_data) {
 	//console.log('Received data: ', marker_data.data);
 	deleteAllMapMarkers(); // Remove current overlays from DOM
 	map_marker_data = JSON.parse(marker_data.data);
-	console.log(map_marker_data);
+	//console.log(map_marker_data);
 	updateMapMarkers();
 
 	if (ES_reset_count++ > 200)
@@ -382,7 +382,6 @@ function updateMapMarkers() {
 				overlay.style.width = scaledDim(20);
 				overlay.style.height = scaledDim(20);
 				overlay_img = marker.steam_id;
-				console.log("plotting player with steam id: " + overlay_img);
 				break;
 			case markers.SHOP:
 				overlay_img = marker.out_of_stock ? marker_type_to_img[markers.SHOP][1] : marker_type_to_img[markers.SHOP][0];
@@ -426,7 +425,6 @@ function updateMapMarkers() {
 				drawBlades("overlay" + i + "blades", marker_type_to_img[markers.HELI][1], x + blade_x, y + blade_y);
 
 				
-				//console.log("HELI ROT: " + rotation);
 				break;
 		}
 	
