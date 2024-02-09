@@ -10,7 +10,7 @@ let map_image_offset_left = getMapImageWhitespace();
 
 let map_marker_data = null;
 let map_monument_data = null;
-let map_info_data = null
+let server_info_data = null
 
 let map_markers_ES = null;
 let team_updates_ES = null;
@@ -140,8 +140,8 @@ $(document).ready(function() {
 			adjustOverlaysOnZoom();
 		});
 		// This part runs once - we need map_sz set first
-		$.getJSON(window.location.href + 'getinfo', function(data) {
-			getMapInfo(data.data);
+		$.getJSON(window.location.href + 'serverinfo', function(data) {
+			getServerInfo(data.data);
 		});
 
 		
@@ -180,10 +180,10 @@ function getTeamUpdateFromES(data) {
 	console.log(data.data);
 }
 
-function getMapInfo() {
+function getServerInfo(data) {
 
+	server_info_data = data;
 	// Get map size
-	console.log(data);
 	let map_size = data.size
 	MAP_SZ = map_size;
 	console.log("Map size is " + MAP_SZ);	
@@ -218,7 +218,7 @@ function createMapText(id, x, y, text) {
 	text_overlay.className = "overlay map_text";
 	text_overlay.id = "overlay_text" + id;
 
-	text_overlay.style.fontSize = "9px";
+	text_overlay.style.fontSize = "10px";
 	text_overlay.innerHTML = text;
 
 	mapContainer.appendChild(text_overlay);
@@ -293,6 +293,8 @@ function setOverlayImage(overlayId, image, is_player=false) {
 		overlay.style.backgroundImage = `url('${img_path}/rust/${image}')`;
 	else
 		overlay.style.backgroundImage = `url('${img_path}/steam_pics/${image}.png')`;
+
+
 }
 
 // Adjust overlays on zoom
@@ -377,20 +379,20 @@ function updateMapMarkers() {
 			case markers.PLAYER:
 				is_player = true;
 				overlay.style.zIndex = 4; // Always on top				
-				overlay.style.width = "20px";
-				overlay.style.height = "20px";
+				overlay.style.width = scaledDim(20);
+				overlay.style.height = scaledDim(20);
 				overlay_img = marker.steam_id;
 				console.log("plotting player with steam id: " + overlay_img);
 				break;
 			case markers.SHOP:
 				overlay_img = marker.out_of_stock ? marker_type_to_img[markers.SHOP][1] : marker_type_to_img[markers.SHOP][0];
-				overlay.style.width = "12px";
-				overlay.style.height = "12px";
+				overlay.style.width = scaledDim(12);
+				overlay.style.height = scaledDim(12);
 				break;
 			case markers.CHINOOK:
 				overlay_img = marker_type_to_img[markers.CHINOOK][0];
-				overlay.style.width = "40px";
-				overlay.style.height = "40px";
+				overlay.style.width = scaledDim(40);
+				overlay.style.height = scaledDim(40);
 
 				var theta = rotation * Math.PI / 180;
 				var magnitude = parseInt(overlay.style.width.replace("px","")) * (1 / panzoom.getScale()) * 0.7;
@@ -403,14 +405,14 @@ function updateMapMarkers() {
 				drawBlades("overlay" + i + "blades2", marker_type_to_img[markers.CHINOOK][1], x - blade_x, y - blade_y);
 				break;
 			case markers.CARGO:
-				overlay.style.width = "35px";
-				overlay.style.height = "35px";
+				overlay.style.width = scaledDim(35);
+				overlay.style.height = scaledDim(35);
 
 				break;
 			case markers.HELI:
 				overlay_img = marker_type_to_img[markers.HELI][0];
-				overlay.style.width = "40px";
-				overlay.style.height = "40px";
+				overlay.style.width = scaledDim(40);
+				overlay.style.height = scaledDim(40);
 
 				// Draw blades
 				
@@ -440,8 +442,8 @@ function drawBlades(overlayId, img, x, y) {
 	const blades = document.createElement("div");
 	blades.className = "overlay blades";
 	blades.id = overlayId;
-	blades.style.width = "30px";
-	blades.style.height = "30px";
+	blades.style.width = scaledDim(30);
+	blades.style.height = scaledDim(30);
 	blades.style.zIndex = 1;
 
 	document.getElementById("map-container").appendChild(blades);
@@ -477,6 +479,12 @@ function getMapImageWhitespace() {
   
 	return 0; // No whitespace or elements not found
   }
+
+function scaledDim(num) {
+	return String(num * (MAP_SZ / 3000)) + "px"
+}
+
+
   
 function applyRotation(elementId) {
     let angle = Math.ceil(Math.random() * 360); // Initial angle

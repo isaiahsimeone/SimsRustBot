@@ -87,8 +87,9 @@ def setup_routes(app, web_server):
             pass
         return web_server.map_monuments
     
-    @app.route('/mapinfo')
-    def get_map_info():
-        while not web_server.map_info:
+    @app.route('/serverinfo')
+    def get_server_info():
+        while not web_server.server_info:
             pass
-        return web_server.map_info
+        print(web_server.server_info)
+        return web_server.server_info

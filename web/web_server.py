@@ -28,10 +28,11 @@ class WebServer:
         
         self.executor = MessageExecutor(self)
         
+        self.server_info = None
+        
         self.map_markers_queue = []
         self.team_update_queue = []
         self.map_monuments = None
-        self.map_info = None
 
     def execute(self):
         asyncio.run(self.webserver_main())
@@ -61,8 +62,8 @@ class WebServer:
     async def request_rust_data(self):
         
         # Request map info
-        self.log("Requesting Map Info")
-        await self.send_message(Message(MessageType.REQUEST_RUST_MAP_INFO, {}), target_service_id=Service.RUSTAPI)
+        self.log("Requesting Server Info")
+        await self.send_message(Message(MessageType.REQUEST_RUST_SERVER_INFO, {}), target_service_id=Service.RUSTAPI)
         
         # Request map image 
         self.log("Requesting Server Map")
