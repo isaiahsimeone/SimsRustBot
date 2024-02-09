@@ -144,13 +144,18 @@ class ConfigManager:
                 "chat_channel": ""
             },
             "web": {
+                "enabled": "true",
                 "host": "localhost",
                 "port": "5000",
+                "steam_api_key": "",        
                 "logging_enabled": "true"
             },
             "rust": {
                 "polling_frequency_seconds": "10"
-            }
+            },
+            "steam": {
+                "steam_api_key": ""
+            },
         }
 
         config_needs_update = False

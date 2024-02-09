@@ -24,6 +24,8 @@ class WebServer:
         self.port = self.config.get("port")
         self.host = self.config.get("host")
         
+        self.steam_api_key = self.config.get("steam_api_key")
+        
         self.executor = MessageExecutor(self)
         
         self.map_markers_queue = []
@@ -72,6 +74,9 @@ class WebServer:
     
     def get_port(self):
         return self.port
+    
+    def get_steam_api_key(self):
+        return self.steam_api_key
         
     async def process_message(self, message, sender):
         msg = json.loads(message)
