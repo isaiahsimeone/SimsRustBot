@@ -5,7 +5,9 @@
 todo
 
 Next:
-- Chinook blades
+- ~~Chinook blades~~
+- Death markers
+- GetSteamPic() function. Call from JS
 - set min marker size for zoom in - they get too small
 - Team chat -> web interface
 - Player list in web interface
@@ -13,6 +15,7 @@ Next:
 - grouping vending machines on map
 - browser shop search - snap to shop
 - browser map control - snap to player
+- map grid
 - refactor
 
 Soon/maybe
