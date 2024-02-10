@@ -1,12 +1,16 @@
 import re
-from flask import render_template, request, session, redirect, url_for, make_response
+from flask import render_template, request, session, redirect, url_for, make_response, jsonify
 import requests
 from ipc.messenger import Service
 import json
 import time
 import asyncio
+import os
 from ipc.message import Message, MessageType
 import urllib.request
+
+from util.tools import Tools
+
 STEAM_OPENID_URL = 'https://steamcommunity.com/openid/login'
 
 
@@ -53,23 +57,9 @@ def setup_routes(app, web_server):
                 
                 #TODO: check if this person is in the rust UI team, if they aren't, don't forward them
                 
-                # Use SteamID to fetch the user's profile picture from Steam's Web API
-                steam_info_url = f"http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
-                params = {
-                    'key': web_server.get_steam_api_key(),
-                    'steamids': steam_id
-                }
-                steam_info_response = requests.get(steam_info_url, params=params)
-                if steam_info_response.status_code == 200:
-                    steam_data = steam_info_response.json()
-                    players = steam_data.get('response', {}).get('players', [])
-                    if players:
-                        profile_url = players[0].get('avatarfull')  # Get the full-sized avatar
+                
                         
-                        # Download this users steam pic
-                        urllib.request.urlretrieve(profile_url, "web/static/images/steam_pics/" + steam_id + ".png")
-                        
-                        return redirect(url_for('index'))
+                return redirect(url_for('index'))
                 
         return 'Failed to log in with Steam', 400
     
@@ -92,11 +82,58 @@ def setup_routes(app, web_server):
         while not web_server.server_info:
             pass
         print(web_server.server_info)
-        return web_server.server_info
+        return Tools.stringify_steam_ids(web_server.server_info)
     
     @app.route('/teaminfo')
     def get_team_info():
         while not web_server.team_info:
             pass
+
         print(web_server.team_info)
-        return web_server.team_info
+        return Tools.stringify_steam_ids(web_server.team_info)
+    
+    @app.route('/downloadsteamimage/<steam_id>', methods=['POST'])
+    def download_steam_pic(steam_id):
+        # Define the path where the image will be saved
+        save_path = "web/static/images/steam_pics/" + steam_id + ".png"
+
+        # Check if the file already exists
+        if os.path.exists(save_path):
+            return jsonify({"success": True, "message": "Image already downloaded."})
+
+        if not web_server.get_steam_api_key():
+            return jsonify({"success": False, "message": "No Steam API key available."}), 400
+
+        print("REQUESTING DOWNLOAD OF STEAM PIC FOR STEAMID:", steam_id)
+        steam_info_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
+        params = {
+            'key': web_server.get_steam_api_key(),
+            'steamids': steam_id
+        }
+
+        try:
+            steam_info_response = requests.get(steam_info_url, params=params)
+            steam_info_response.raise_for_status()  # Raises a HTTPError for bad responses
+        except requests.exceptions.RequestException as e:
+            return jsonify({"success": False, "message": str(e)}), 500
+
+        steam_data = steam_info_response.json()
+        players = steam_data.get('response', {}).get('players', [])
+        
+        if not players:
+            return jsonify({"success": False, "message": "Player data not found."}), 404
+
+        profile_url = players[0].get('avatarfull')  # Get the full-sized avatar
+        if not profile_url:
+            return jsonify({"success": False, "message": "Profile picture URL not found."}), 404
+
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+        try:
+            # Download the user's Steam pic
+            urllib.request.urlretrieve(profile_url, save_path)
+        except Exception as e:
+            return jsonify({"success": False, "message": "Failed to download or save image: " + str(e)}), 500
+
+        return jsonify({"success": True, "message": "Image downloaded successfully"})

@@ -13,6 +13,8 @@ let map_monument_data = null;
 let server_info_data = null
 let team_info = null;
 
+let steam_images_available = [];
+
 let map_markers_ES = null;
 let team_updates_ES = null;
 let ES_reset_count = 0;
@@ -151,6 +153,11 @@ $(document).ready(function() {
 		
 		$.getJSON(window.location.href + 'teaminfo', function(data) {
 			team_info = data.data;
+			
+			for (let i = 0; i < team_info.members.length; i++) {
+				downloadSteamImage(String(team_info.members[i].steam_id));
+				console.log(team_info.members[i]);
+			}
 			console.log("got team info: " + Object.keys(team_info));
 			console.log(team_info.map_notes);
 		});
@@ -192,8 +199,42 @@ function getServerInfo(data) {
 	// Get map size
 	let map_size = data.size
 	MAP_SZ = map_size;
-	console.log("Map size is " + MAP_SZ);	
+	console.log("Map size is " + MAP_SZ);
 }
+
+function steamPictureOrDefault(steam_id) {
+	if (steamImageExists(steam_id))
+		return steam_id;
+	return "default";
+}
+
+function steamImageExists(steam_id) {
+	console.log(steam_images_available.includes(steam_id));
+	return steam_images_available.includes(steam_id);
+}
+
+function downloadSteamImage(steamId) {
+	console.log("downloading " + String(steamId));
+	const url = `${window.location.href}downloadsteamimage/${steamId}`;
+	
+	fetch(url, {
+	  method: 'POST',
+	})
+	  .then(response => response.json()) // Assuming JSON response
+	  .then(data => {
+		if (data.success) {
+		  // Image processing started, now poll for availability or proceed as necessary
+		  console.log(data.message);
+		  steam_images_available.push(steamId);
+		  // Optionally, implement polling mechanism here if you need to wait for the image to be available
+		} else {
+		  // Handle failure
+		  console.error("Failed to download image for", steamId, ":", data.message);
+		  // Create default image for their ID.
+		}
+	  })
+	  .catch(error => console.error('Error during fetch operation:', error));
+  }
 
 // Also sets the background colour
 function getMapMonuments(data) {
@@ -387,7 +428,7 @@ function updateMapMarkers() {
 				overlay.style.width = scaledDim(21);
 				overlay.style.height = scaledDim(21);
 				overlay.classList.add("circle-image");
-				overlay_img = marker.steam_id;
+				overlay_img = steamPictureOrDefault(marker.steam_id)
 				break;
 			case markers.SHOP:
 				overlay_img = marker.out_of_stock ? marker_type_to_img[markers.SHOP][1] : marker_type_to_img[markers.SHOP][0];
