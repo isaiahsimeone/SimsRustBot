@@ -14,6 +14,7 @@ let server_info_data = null
 let team_info = null;
 
 let steam_images_available = [];
+let steam_id_to_name = [];
 
 let map_markers_ES = null;
 let team_updates_ES = null;
@@ -153,8 +154,9 @@ $(document).ready(function() {
 		
 		$.getJSON(window.location.href + 'teaminfo', function(data) {
 			team_info = data.data;
-			
+			// Download team steam images
 			for (let i = 0; i < team_info.members.length; i++) {
+				steam_id_to_name.push({"steam_id": team_info.members[i].steam_id, "name": team_info.members[i].name});
 				downloadSteamImage(String(team_info.members[i].steam_id));
 				console.log(team_info.members[i]);
 			}
@@ -169,6 +171,12 @@ $(document).ready(function() {
 
 });
 
+function nameFromSteamId(steamId) {
+	for (let i = 0; i < steam_id_to_name.length; i++)
+		if (steam_id_to_name[i].steam_id === steamId)
+			return steam_id_to_name[i].name;
+	return "Unknown";
+}
 
 function resetEventSource() {
     if (map_markers_ES) {
@@ -428,7 +436,10 @@ function updateMapMarkers() {
 				overlay.style.width = scaledDim(21);
 				overlay.style.height = scaledDim(21);
 				overlay.classList.add("circle-image");
-				overlay_img = steamPictureOrDefault(marker.steam_id)
+				overlay_img = steamPictureOrDefault(marker.steam_id);
+				console.log(map_marker_data[i]);
+				console.log("ABA " + marker.steam_id);
+				createMapText(overlay.id + "steamname", x, y-20, nameFromSteamId(marker.steam_id).toUpperCase());
 				break;
 			case markers.SHOP:
 				overlay_img = marker.out_of_stock ? marker_type_to_img[markers.SHOP][1] : marker_type_to_img[markers.SHOP][0];
