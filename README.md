@@ -19,6 +19,7 @@ Next:
 - refactor
 - we can tell when heli goes down if it vanishes within the map
 - we can get oil crate by chinook?
+- make map bigger to fit oil - we can add img of rig to map before saivg as map.jpg
 
 Soon/maybe
 - Marker extrapolation (player, chinook, cargo, heli)
