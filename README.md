@@ -17,6 +17,8 @@ Next:
 - browser map control - snap to player
 - map grid
 - refactor
+- we can tell when heli goes down if it vanishes within the map
+- we can get oil crate by chinook?
 
 Soon/maybe
 - Marker extrapolation (player, chinook, cargo, heli)
