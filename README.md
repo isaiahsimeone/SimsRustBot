@@ -21,6 +21,8 @@ Next:
 - we can get oil crate by chinook?
 - make map bigger to fit oil - we can add img of rig to map before saivg as map.jpg
 - map grid toggleable
+- track player logins/logouts/positions/deaths in DB -> EOW summary -> heatmap
+- END OF WIPE SUMMARY
 
 Soon/maybe
 - Marker extrapolation (player, chinook, cargo, heli)
