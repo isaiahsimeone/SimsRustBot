@@ -54,12 +54,16 @@ class MessageExecutor():
         img.save("web/static/images/map.jpg")
         
     def receive_map_markers(self, data):
+        if len(self.web_server.map_markers_queue) > 2:
+            self.web_server.map_markers_queue.pop(0) # It's stale
         self.web_server.map_markers_queue.append(data.get("markers"))
         
     def receive_map_monuments(self, data):
         self.web_server.map_monuments = data
     
     def receive_player_state_change(self, data):
+        if len(self.web_server.team_update_queue) > 2:
+            self.web_server.team_update_queue.pop(0) # It's stale
         self.web_server.team_update_queue.append(data)
         
     def receive_server_info(self, data):
