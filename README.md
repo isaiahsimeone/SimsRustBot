@@ -6,6 +6,7 @@ todo
 
 Next:
 - ~~Chinook blades~~
+- methods should specify return type with arrow notstion in function signature
 - add method add_team_chat to web_server. maybe include a verbosity setting so the bot doesn't yap too much on the chat
 - Death markers
 - GetSteamPic() function. Call from JS
