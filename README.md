@@ -6,6 +6,7 @@ todo
 
 Next:
 - ~~Chinook blades~~
+- add method add_team_chat to web_server. maybe include a verbosity setting so the bot doesn't yap too much on the chat
 - Death markers
 - GetSteamPic() function. Call from JS
 - set min marker size for zoom in - they get too small
