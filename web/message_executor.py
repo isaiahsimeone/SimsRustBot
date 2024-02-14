@@ -18,8 +18,12 @@ class MessageExecutor():
         msg_type = self.get_message_type(msg.get("type"))
         
         match msg_type:
+            case MT.RUST_TEAM_CHAT_INIT:
+                self.web_server.log("Got initial team chat")
+                self.receive_team_chat_init(data)
             case MT.RUST_IN_GAME_MSG:
-                print("In game message handler")
+                self.web_server.log("Got A team chat")
+                self.receive_team_chat(data)
             case MT.RUST_SERVER_MAP:
                 self.web_server.log("Got server map. Moving to images root")
                 self.receive_map_image(data)
@@ -62,8 +66,6 @@ class MessageExecutor():
         self.web_server.map_monuments = data
     
     def receive_player_state_change(self, data):
-        if len(self.web_server.team_update_queue) > 2:
-            self.web_server.team_update_queue.pop(0) # It's stale
         self.web_server.team_update_queue.append(data)
         
     def receive_server_info(self, data):
@@ -71,3 +73,14 @@ class MessageExecutor():
         
     def receive_team_info(self, data):
         self.web_server.team_info = data
+        
+    def receive_team_chat_init(self, data):
+        print("GOT: " + str(data))
+        for message in data['data']:
+            print("-", str(message))
+            self.web_server.team_chat_log.append(message)
+        
+    def receive_team_chat(self, data):
+        print("GOTTC: " + str(data))
+        self.web_server.team_chat_log.append(data)
+        #self.web_server.team_chat_log.add(data)

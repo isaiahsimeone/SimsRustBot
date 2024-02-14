@@ -11,6 +11,7 @@ from .event_listener import EventListener
 from .commands.send_message import send_message as rust_send_message
 from .commands.get_server_info import get_server_info
 from .commands.get_server_map import get_server_map
+from .commands.get_team_chat import get_team_chat
 
 from .message_executor import MessageExecutor
 

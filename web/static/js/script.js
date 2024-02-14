@@ -18,6 +18,7 @@ let steam_id_to_name = [];
 
 let map_markers_ES = null;
 let team_updates_ES = null;
+let team_chat_ES = null;
 let ES_reset_count = 0;
 
 
@@ -187,14 +188,23 @@ function resetEventSource() {
 		console.log("reset update ES");
         team_updates_ES.close();
     }
+	if (team_chat_ES) {
+		console.log("reset teamchat ES");
+		team_chat_ES.close();
+	}
     
     // Reinitialize the EventSource
     map_markers_ES = new EventSource('/markers');
     team_updates_ES = new EventSource('/teammemberupdates');
+    team_chat_ES = new EventSource('/teamchat');
     map_markers_ES.addEventListener('message', getMapMarkersFromES, false);
     team_updates_ES.addEventListener('message', getTeamUpdateFromES, false);
-
+	team_chat_ES.addEventListener('message', getTeamMessagesFromES, false);
 	ES_reset_count = 0;
+}
+
+function getTeamMessagesFromES(data) {
+	console.log("GOT CHAT DATA: " + data.data);
 }
 
 function getTeamUpdateFromES(data) {

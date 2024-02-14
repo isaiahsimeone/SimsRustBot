@@ -33,6 +33,7 @@ class WebServer:
         
         self.map_markers_queue = []
         self.team_update_queue = []
+        self.team_chat_log = []
         self.map_monuments = None
 
     def execute(self):
@@ -77,6 +78,10 @@ class WebServer:
         # Request monuments
         self.log("Requesting Server Monuments")
         await self.send_message(Message(MessageType.REQUEST_RUST_MAP_MONUMENTS, {}), target_service_id=Service.RUSTAPI)
+        
+        # Request initial team chat
+        self.log("Requesting Team Chat")
+        await self.send_message(Message(MessageType.REQUEST_RUST_TEAM_CHAT_INIT, {}), target_service_id=Service.RUSTAPI)
         
 
     def get_host(self):

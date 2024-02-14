@@ -33,7 +33,11 @@ class EventListener:
         #print(f"The team leader's steamId is: {event.team_info.leader_steam_id}")
 
     async def chat_event_handler(self, event: ChatEvent):
-        msg_data = {"name": event.message.name, "msg": event.message.message}
+        msg_data = {"steam_id": event.message.steam_id, 
+                    "name": event.message.name, 
+                    "msg": event.message.message,
+                    "colour": event.message.colour,
+                    "time": event.message.time}
         message = Message(MessageType.RUST_IN_GAME_MSG, msg_data)
         await self.send_message(message)
         

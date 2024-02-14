@@ -4,6 +4,7 @@ from rustplus.api.structures.rust_team_info import RustTeamMember, RustTeamNote,
 from rustplus.api.structures.rust_marker import RustColour, RustSellOrder, RustMarker
 from rustplus.api.structures.rust_info import RustInfo
 from rustplus.api.structures.rust_map import RustMonument, RustMap
+from rustplus.api.structures.rust_chat_message import RustChatMessage
 
 class_mappings = {
     RustTeamMember: ['steam_id', 'name', 'x', 'y', 'is_online', 'spawn_time', 'is_alive', 'death_time'],
@@ -14,7 +15,8 @@ class_mappings = {
     RustMarker: ['id', 'type', 'x', 'y', 'steam_id', 'rotation', 'radius', 'colour1', 'colour2', 'alpha', 'name', 'sell_orders', 'out_of_stock'],
     RustInfo: ['url', 'name', 'map', 'size', 'players', 'max_players', 'queued_players', 'seed', 'wipe_time', 'header_image', 'logo_image'],
     RustMap: ['width', 'height', 'margin', 'monuments', 'background'], #TODO: what is background? - omitted jpg_image bc bytes not serialisable
-    RustMonument: ['token', 'x', 'y']
+    RustMonument: ['token', 'x', 'y'],
+    RustChatMessage: ['steam_id', 'name', 'message', 'colour', 'time']
 }
 
 
