@@ -35,7 +35,7 @@ class EventListener:
     async def chat_event_handler(self, event: ChatEvent):
         msg_data = {"steam_id": event.message.steam_id, 
                     "name": event.message.name, 
-                    "msg": event.message.message,
+                    "message": event.message.message,
                     "colour": event.message.colour,
                     "time": event.message.time}
         message = Message(MessageType.RUST_IN_GAME_MSG, msg_data)
