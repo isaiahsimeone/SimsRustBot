@@ -147,7 +147,7 @@ $(document).ready(function() {
 			// reload chat messages
 			console.log("realoading chat from var");			
 			for (let i = 0; i < team_chat_messages.length; i++)
-				addMessageToChat(team_chat_messages[i][0], team_chat_messages[i][1]);
+				addMessageToChat(team_chat_messages[i][0], team_chat_messages[i][1]); 
 		});
 
 		// Listen to Zoom events
