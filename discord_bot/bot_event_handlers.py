@@ -1,4 +1,4 @@
-from ipc.messenger import Service
+from ipc.bus import Service
 
 class DiscordBotEventHandlers:
     def __init__(self, bot, discord_bot):
@@ -6,7 +6,7 @@ class DiscordBotEventHandlers:
         self.discord_bot = discord_bot
 
     async def on_ready(self):
-        await self.discord_bot.messenger.block_until_subscribed(service_id=Service.DISCORD, wait_for=Service.RUSTAPI)
+        await self.discord_bot.BUS.block_until_subscribed(service_id=Service.DISCORD, wait_for=Service.RUSTAPI)
         await self.discord_bot.log(f"{self.bot.user} is ready.")
 
     async def on_connect(self):

@@ -1,12 +1,12 @@
 import asyncio
 from rustplus import RustSocket, ChatEvent, TeamEvent, EntityEvent, entity_type_to_string
-from ipc.messenger import Service
+from ipc.bus import Service
 from ipc.message import Message, MessageType
 
 class EventListener: 
-    def __init__(self, socket, messenger):
+    def __init__(self, socket, BUS):
         self.socket = socket
-        self.messenger = messenger
+        self.BUS = BUS
         
         # Register handlers
         self.socket.team_event(self.team_event_handler)
@@ -45,5 +45,5 @@ class EventListener:
         pass
         
     async def send_message(self, message: Message, target_service_id=None):
-        await self.messenger.send_message(Service.RUSTAPI, message, target_service_id)
+        await self.BUS.send_message(Service.RUSTAPI, message, target_service_id)
     

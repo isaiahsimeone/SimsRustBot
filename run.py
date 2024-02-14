@@ -3,7 +3,7 @@ import sys
 import json
 import threading
 
-from ipc.messenger import Messenger
+from ipc.bus import BUS
 from rustplus_api.rust_plus_api import RustPlusAPI
 from discord_bot.discord_bot import DiscordBot
 from web.web_server import WebServer
@@ -21,11 +21,11 @@ def main():
    
     init_db(config)
    
-    messenger = Messenger(config)
+    bus = BUS(config)
 
-    rustplus_api = RustPlusAPI(messenger)
-    discord_bot = DiscordBot(messenger)
-    web_server = WebServer(messenger)
+    rustplus_api = RustPlusAPI(bus)
+    discord_bot = DiscordBot(bus)
+    web_server = WebServer(bus)
 
     # Create threads for each service
     rustplus_thread = threading.Thread(target=start_service_threaded, args=(rustplus_api,))

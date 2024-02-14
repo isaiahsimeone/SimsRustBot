@@ -1,4 +1,4 @@
-from ipc.messenger import Messenger, Service
+from ipc.bus import BUS, Service
 from ipc.message import Message, MessageType
 from flask import Flask, url_for
 import logging
@@ -13,9 +13,9 @@ app = Flask(__name__)
 app.secret_key = 'secret'
 
 class WebServer:
-    def __init__(self, messenger):
-        self.messenger = messenger
-        self.config = self.messenger.get_config().get("web")
+    def __init__(self, BUS):
+        self.BUS = BUS
+        self.config = self.BUS.get_config().get("web")
         if self.config.get("logging_enabled") != "true":
             self.log("Werkzeug logging is disabled")
             logger = logging.getLogger('werkzeug')
@@ -45,10 +45,10 @@ class WebServer:
         setup_event_streams(app, self)
         
         
-        self.messenger.subscribe(Service.WEBSERVER, self.process_message)
+        self.BUS.subscribe(Service.WEBSERVER, self.process_message)
         self.log("Web Server subscribed for messages")
         
-        await self.messenger.block_until_subscribed(service_id=Service.WEBSERVER, wait_for=Service.RUSTAPI)
+        await self.BUS.block_until_subscribed(service_id=Service.WEBSERVER, wait_for=Service.RUSTAPI)
         
         threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
         
@@ -98,7 +98,7 @@ class WebServer:
         await self.executor.execute_message(msg, sender)
 
     async def send_message(self, message: Message, target_service_id=None):
-        await self.messenger.send_message(Service.WEBSERVER, message, target_service_id)
+        await self.BUS.send_message(Service.WEBSERVER, message, target_service_id)
 
     def log(self, message):
-        self.messenger.log(Service.WEBSERVER, message)
+        self.BUS.log(Service.WEBSERVER, message)

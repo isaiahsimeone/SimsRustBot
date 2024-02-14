@@ -1,12 +1,12 @@
-from ipc.messenger import Messenger, Service
+from ipc.bus import BUS, Service
 from ipc.message import Message, MessageType
 import discord
 import asyncio
 
 class DiscordBot:
-    def __init__(self, messenger):
-        self.messenger = messenger
-        self.config = self.messenger.get_config().get("discord")
+    def __init__(self, BUS):
+        self.BUS = BUS
+        self.config = self.BUS.get_config().get("discord")
         self.bot = None
     
     # entry point
@@ -15,7 +15,7 @@ class DiscordBot:
         self.discord_bot_token = self.get_bot_token()
         self.log("No token was entered, so no discord bot will be started" if self.discord_bot_token is None else "Bot token found. Attempting to start Discord bot")
         
-        self.messenger.subscribe(Service.DISCORD, self.process_message)
+        self.BUS.subscribe(Service.DISCORD, self.process_message)
         self.log("Discord Bot subscribed for messages")
         
         self.start_bot(self.discord_bot_token)
@@ -53,10 +53,10 @@ class DiscordBot:
         #self.log("Got message: " + message + " from " + str(sender))
     
     async def send_message(self, message: Message, target_service_id=None):
-        await self.messenger.send_message(Service.DISCORD, message, target_service_id)
+        await self.BUS.send_message(Service.DISCORD, message, target_service_id)
     
     def log(self, message: Message):
-        self.messenger.log(Service.DISCORD, message)
+        self.BUS.log(Service.DISCORD, message)
         
     def log_synchronous(self, message: Message):
-        self.messenger.log(Service.DISCORD, message)
+        self.BUS.log(Service.DISCORD, message)

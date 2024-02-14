@@ -1,6 +1,6 @@
 from ipc.message import MessageType as MT
 from ipc.message import Message
-from ipc.messenger import Service
+from ipc.bus import Service
 from PIL import Image 
 
 class MessageExecutor():

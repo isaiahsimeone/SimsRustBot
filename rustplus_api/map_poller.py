@@ -1,17 +1,17 @@
 import asyncio
 import rustplus
 #from rustplus import RustSocket, ChatEvent, TeamEvent, EntityEvent, entity_type_to_string
-from ipc.messenger import Service
+from ipc.bus import Service
 from ipc.message import Message, MessageType
 from ipc.serialiser import serialise_API_object
 from util.tools import Tools
 
 class MapPoller:
-    def __init__(self, socket, messenger):
+    def __init__(self, socket, BUS):
         self.socket = socket
-        self.messenger = messenger
+        self.BUS = BUS
         
-        self.poll_rate = int(messenger.get_config().get("rust").get("polling_frequency_seconds"))
+        self.poll_rate = int(BUS.get_config().get("rust").get("polling_frequency_seconds"))
     
     
     async def start_marker_polling(self):
@@ -41,4 +41,4 @@ class MapPoller:
         
         
     async def send_message(self, message: Message, target_service_id=None):
-        await self.messenger.send_message(Service.RUSTAPI, message, target_service_id)
+        await self.BUS.send_message(Service.RUSTAPI, message, target_service_id)

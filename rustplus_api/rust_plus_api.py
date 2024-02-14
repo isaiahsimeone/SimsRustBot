@@ -1,4 +1,4 @@
-from ipc.messenger import Messenger, Service
+from ipc.bus import BUS, Service
 from ipc.message import Message, MessageType
 
 from rustplus import RustSocket, ChatEvent, CommandOptions
@@ -18,9 +18,9 @@ from .message_executor import MessageExecutor
 import json
 
 class RustPlusAPI:
-    def __init__(self, messenger):
-        self.messenger = messenger
-        self.config = messenger.get_config()
+    def __init__(self, BUS):
+        self.BUS = BUS
+        self.config = BUS.get_config()
         self.server = self.config.get("server_details").get("ip")
         self.port = self.config.get("server_details").get("port")
         self.steamID = self.config.get("server_details").get("playerId")
@@ -39,7 +39,7 @@ class RustPlusAPI:
         self.log("Connected to Rust Server! (" + self.server + ")")
 
         self.executor = MessageExecutor(self)
-        self.messenger.subscribe(Service.RUSTAPI, self.process_message)
+        self.BUS.subscribe(Service.RUSTAPI, self.process_message)
         self.log("Rust Service subscribed for messages")
         
         self.log("Starting FCM listener...")
@@ -52,12 +52,12 @@ class RustPlusAPI:
 
 
         # Register event listener
-        self.event_listener = EventListener(self.socket, self.messenger)
+        self.event_listener = EventListener(self.socket, self.BUS)
         self.log("Event listener setup complete")
         
-        poll_rate = self.messenger.get_config().get("rust").get("polling_frequency_seconds")
-        self.map_poller = MapPoller(self.socket, self.messenger)
-        self.team_poller = TeamPoller(self.socket, self.messenger)
+        poll_rate = self.BUS.get_config().get("rust").get("polling_frequency_seconds")
+        self.map_poller = MapPoller(self.socket, self.BUS)
+        self.team_poller = TeamPoller(self.socket, self.BUS)
         
         # Start map marker polling
         asyncio.create_task(self.map_poller.start_marker_polling())
@@ -87,7 +87,7 @@ class RustPlusAPI:
         await self.executor.execute_message(msg, sender)
 
     async def send_message(self, message: Message, target_service_id=None):
-        await self.messenger.send_message(Service.RUSTAPI, message, target_service_id)
+        await self.BUS.send_message(Service.RUSTAPI, message, target_service_id)
 
     def log(self, message):
-        self.messenger.log(Service.RUSTAPI, message)
+        self.BUS.log(Service.RUSTAPI, message)
