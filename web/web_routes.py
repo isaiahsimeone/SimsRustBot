@@ -25,7 +25,7 @@ def setup_routes(app, web_server):
             response = make_response(render_template("index.html"))
             response.set_cookie("steam_id", steam_id)
             return response
-        return render_template("steam_login.html")
+        return render_template("steam_login.html", steam_id)
     
     @app.route('/auth')
     def auth():
@@ -70,6 +70,19 @@ def setup_routes(app, web_server):
         web_server.log(f"Got cmd '{command}'")
         web_server.send_message(command)
         return f"Command '{command}' received"
+    
+    @app.route('/sendteammessage', methods=['POST'])
+    def send_team_message():
+        
+        if request.method == "POST":
+            data = request.form
+            print("GOT MESdSAGE:" + "(" + str(data) + ")")
+            
+            web_server.log("Someone sent a team chat from the web server")
+
+
+        return "RESPONSE"
+
 
     @app.route('/monuments')
     def get_monuments():

@@ -6,6 +6,7 @@
     <title>Rust Server Interface</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" href="static/css/style.css" />
+
   </head>
   <body>
     <!-- Command Modal -->
@@ -77,8 +78,8 @@
               <!-- Repeat for other messages -->
             </div>
             <div class="chat-input p-3">
-              <input type="text" class="form-control" placeholder="Send message..." />
-              <button class="btn btn-primary mt-2">Send</button>
+                <input type="text" id="chatMessage" class="form-control" placeholder="Send message..." />
+                <button id="sendMessage" class="btn btn-primary mt-2" type="button">Send</button>
             </div>
           </div>
         </div>
@@ -92,11 +93,35 @@
 
     <script>
       $(document).ready(function () {
-        
+        // move this to a chat.js file, and include sender_steam_id. This is also ugly as shit
+    document.getElementById('sendMessage').addEventListener('click', function() {
+      console.log("CLICKED");
+        const message = document.getElementById('chatMessage').value;
+        if (message) { // Check if message is not empty
+            fetch('/sendteammessage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `message=${encodeURIComponent(message)}`,
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                // Optionally clear the input field after sending
+                document.getElementById('chatMessage').value = '';
+                // Optionally append the message to the chat area as a 'sent' message
+            })
+            .catch(error => console.error('Error:', error));
+        } else {
+            console.log("Message is empty.");
+        }
+    });
       });
 
     </script>
 
     <script src="static/js/script.js"></script>
+
   </body>
 </html>
