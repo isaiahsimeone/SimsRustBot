@@ -5,9 +5,12 @@ import logging
 import threading
 from .web_routes import setup_routes
 from .web_event_streams import setup_event_streams
+from .web_routes_steam import setup_steam_routes
 from .message_executor import MessageExecutor
 import json
 import asyncio
+import time
+
 
 app = Flask(__name__)
 app.secret_key = 'secret'
@@ -31,9 +34,15 @@ class WebServer:
         self.server_info = None
         self.team_info = None
         
-        self.map_markers_queue = []
-        self.team_update_queue = []
+        self.page_ready = False
+        self.map_image_available = False
+
+        self.map_poll_frequency = int(self.BUS.get_config().get("rust").get("polling_frequency_seconds"))
+        self.map_marker_data = None
+        
         self.team_chat_log = []
+        
+        self.team_update_queue = []
         self.map_monuments = None
 
     def execute(self):
@@ -42,6 +51,7 @@ class WebServer:
     async def webserver_main(self):
         # Setup routes and event streams
         setup_routes(app, self)
+        setup_steam_routes(app, self)
         setup_event_streams(app, self)
         
         
@@ -83,7 +93,17 @@ class WebServer:
         self.log("Requesting Team Chat")
         await self.send_message(Message(MessageType.REQUEST_RUST_TEAM_CHAT_INIT, {}), target_service_id=Service.RUSTAPI)
         
-
+        # Mark index as ready once we get responses to the above requests (i.e. variables set)
+        await self.set_page_ready()
+        self.log("Page is ready for display")
+        
+    async def set_page_ready(self):
+        while True:
+            if self.map_marker_data and self.map_image_available and self.map_monuments:
+                self.page_ready = True
+                return None
+            time.sleep(1)
+            
     def get_host(self):
         return self.host
     

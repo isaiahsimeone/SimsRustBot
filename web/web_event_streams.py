@@ -8,15 +8,14 @@ def setup_event_streams(app, web_server):
     def get_markers():
         def marker_stream():
             while True:
-                # Check for new data in the queue
-                if web_server.map_markers_queue:
-                    marker_data = web_server.map_markers_queue.pop(0)
+                # Check to see if map marker data has been updated
+                if web_server.map_marker_data:
                     #print("Sending marker data:", marker_data)  # Debug print
-                    yield f"data: {json.dumps(marker_data)}\n\n"
+                    yield f"data: {json.dumps(web_server.map_marker_data)}\n\n"
                 else:
                     # If no data, send a comment to keep the connection alive
                     yield ": keep-alive\n\n"
-                time.sleep(1)
+                time.sleep(abs(web_server.map_poll_frequency - 1))
 
         return Response(stream_with_context(marker_stream()), mimetype='text/event-stream')
     
@@ -36,16 +35,19 @@ def setup_event_streams(app, web_server):
 
         return Response(stream_with_context(team_info_stream()), mimetype='text/event-stream') 
     
-    @app.route('/teamchat')
+    @app.route('/teamchat')   
     def get_team_chat():
         def team_chat_stream():
+            last_len = 0
             while True:
                 # Check for new data in the queue
-                if web_server.team_chat_log:
+                if web_server.team_chat_log and len(web_server.team_chat_log) > last_len:
+                    print("SEND")
                     chats = []
-                    for message in web_server.team_chat_log:
-                        chats.append(web_server.team_chat_log.pop(0))
+                    for i in range(last_len, len(web_server.team_chat_log)):
+                        chats.append(web_server.team_chat_log[i])
                     #print("Sending team chat:", chats)  # Debug print
+                    last_len = len(web_server.team_chat_log)
                     yield f"data: {json.dumps(chats)}\n\n"
                 else:
                     # If no data, send a comment to keep the connection alive

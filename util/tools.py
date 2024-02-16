@@ -1,4 +1,4 @@
-
+import time
 
 class Tools:
     def get_user_input_json():
@@ -27,3 +27,9 @@ class Tools:
                 Tools.stringify_steam_ids(item)  # Recurse into each item
         # Base case: if data is neither a dict nor a list, do nothing
         return data
+    
+    """
+    Seconds since unix epoch (1970)
+    """
+    def epoch():
+        return int(time.time())

@@ -11,65 +11,30 @@ import urllib.request
 
 from util.tools import Tools
 
-STEAM_OPENID_URL = 'https://steamcommunity.com/openid/login'
-
-
 def setup_routes(app, web_server):
     
     @app.route('/')
     def index():
         steam_id = session.get('steam_id')
         if steam_id:
+            # User is logged in
             print("Got steamID: " + steam_id)
-            # User is logged in fetch more details if needed
+            
+            # Check if the server is ready
+            print("Waiting for page to be ready...")
+            if not web_server.page_ready:
+                return render_template("wait.html")    
+            time.sleep(1)
+            print("Page is ready")
+            
             response = make_response(render_template("index.html"))
             response.set_cookie("steam_id", steam_id)
             return response
-        return render_template("steam_login.html", steam_id)
+        return render_template("steam_login.html", steam_id=steam_id)
     
-    @app.route('/auth')
-    def auth():
-        host_port = web_server.get_host() + ":" + web_server.get_port()
-        params = {
-            'openid.ns': 'http://specs.openid.net/auth/2.0',
-            'openid.mode': 'checkid_setup',
-            'openid.return_to': f'http://{host_port}/auth/response',
-            'openid.realm': f'http://{host_port}/',
-            'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
-            'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
-        }
-        return redirect(STEAM_OPENID_URL + '?' + requests.compat.urlencode(params))
-
-    @app.route('/auth/response')
-    def auth_response():
-        # Validate response
-        args = {key: val for key, val in request.args.items()}
-        args['openid.mode'] = 'check_authentication'
-        response = requests.post(STEAM_OPENID_URL, args)
-        
-        
-        if 'is_valid:true' in response.text:
-            # Extract Steam ID from the `openid.claimed_id` returned by Steam
-            match = re.search(r'https://steamcommunity.com/openid/id/(.*?)$', args['openid.claimed_id'])
-            if match:
-                steam_id = match.group(1)
-                session['steam_id'] = steam_id
-                
-                #TODO: check if this person is in the rust UI team, if they aren't, don't forward them
-                
-                
-                        
-                return redirect(url_for('index'))
-                
-        return 'Failed to log in with Steam', 400
-    
-
-    @app.route('/submit_command')
-    def submit_command():
-        command = request.args.get('command')
-        web_server.log(f"Got cmd '{command}'")
-        web_server.send_message(command)
-        return f"Command '{command}' received"
+    @app.route('/check_page_ready')
+    def check_page_ready():
+        return jsonify({"pageReady": web_server.page_ready})
     
     @app.route('/sendteammessage', methods=['POST'])
     def send_team_message():
@@ -80,73 +45,24 @@ def setup_routes(app, web_server):
             
             web_server.log("Someone sent a team chat from the web server")
 
-
         return "RESPONSE"
 
+    @app.route('/get/<what>')
+    def get_data(what):
+        data = None
+        match what:
+            case "monuments":
+                data = web_server.map_monuments
+            case "serverinfo":
+                data = web_server.server_info
+            case "teaminfo":
+                data = web_server.team_info
+            case "teamchat":
+                data = web_server.team_chat_log
+            case "mapmarkers":
+                data = web_server.map_marker_data
+            case _:
+                return "Unknown request type: " + what, 400
+        return Tools.stringify_steam_ids(data), 200
 
-    @app.route('/monuments')
-    def get_monuments():
-        while not web_server.map_monuments:
-            pass
-        return web_server.map_monuments
-    
-    @app.route('/serverinfo')
-    def get_server_info():
-        while not web_server.server_info:
-            pass
-        print(web_server.server_info)
-        return Tools.stringify_steam_ids(web_server.server_info)
-    
-    @app.route('/teaminfo')
-    def get_team_info():
-        while not web_server.team_info:
-            pass
-
-        print(web_server.team_info)
-        return Tools.stringify_steam_ids(web_server.team_info)
-    
-    @app.route('/downloadsteamimage/<steam_id>', methods=['POST'])
-    def download_steam_pic(steam_id):
-        # Define the path where the image will be saved
-        save_path = "web/static/images/steam_pics/" + steam_id + ".png"
-
-        # Check if the file already exists
-        if os.path.exists(save_path):
-            return jsonify({"success": True, "message": "Image already downloaded."})
-
-        if not web_server.get_steam_api_key():
-            return jsonify({"success": False, "message": "No Steam API key available."}), 400
-
-        print("REQUESTING DOWNLOAD OF STEAM PIC FOR STEAMID:", steam_id)
-        steam_info_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
-        params = {
-            'key': web_server.get_steam_api_key(),
-            'steamids': steam_id
-        }
-
-        try:
-            steam_info_response = requests.get(steam_info_url, params=params)
-            steam_info_response.raise_for_status()  # Raises a HTTPError for bad responses
-        except requests.exceptions.RequestException as e:
-            return jsonify({"success": False, "message": str(e)}), 500
-
-        steam_data = steam_info_response.json()
-        players = steam_data.get('response', {}).get('players', [])
-        
-        if not players:
-            return jsonify({"success": False, "message": "Player data not found."}), 404
-
-        profile_url = players[0].get('avatarfull')  # Get the full-sized avatar
-        if not profile_url:
-            return jsonify({"success": False, "message": "Profile picture URL not found."}), 404
-
-        # Ensure the directory exists
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
-        try:
-            # Download the user's Steam pic
-            urllib.request.urlretrieve(profile_url, save_path)
-        except Exception as e:
-            return jsonify({"success": False, "message": "Failed to download or save image: " + str(e)}), 500
-
-        return jsonify({"success": True, "message": "Image downloaded successfully"})
+   

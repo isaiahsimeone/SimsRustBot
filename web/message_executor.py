@@ -56,11 +56,10 @@ class MessageExecutor():
         img.putdata(img_pixels)
         
         img.save("web/static/images/map.jpg")
+        self.web_server.map_image_available = True
         
     def receive_map_markers(self, data):
-        if len(self.web_server.map_markers_queue) > 2:
-            self.web_server.map_markers_queue.pop(0) # It's stale
-        self.web_server.map_markers_queue.append(data.get("markers"))
+        self.web_server.map_marker_data = data.get("markers")
         
     def receive_map_monuments(self, data):
         self.web_server.map_monuments = data

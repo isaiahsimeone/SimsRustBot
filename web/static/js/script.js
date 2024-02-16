@@ -8,7 +8,6 @@ let img_path = "static/images";
 
 let map_image_offset_left = getMapImageWhitespace();
 
-let map_marker_data = null;
 let map_monument_data = null;
 let server_info_data = null
 let team_info = null;
@@ -18,13 +17,12 @@ let steam_id_to_name = [];
 
 let map_markers_ES = null;
 let team_updates_ES = null;
-let team_chat_ES = null;
 let ES_reset_count = 0;
 
-let my_steam_id = getCookie("steam_id");
+export let my_steam_id = getCookie("steam_id");
 
-let team_chat_messages = [];
 
+let map_marker_data = JSON.parse(sessionStorage.getItem('mapMarkerData')) || null;
 
 // RustInfo[url=, name=Sims Server, map=Procedural Map, size=4000, players=0, max_players=5, queued_players=0, seed=793197, wipe_time=1707127438, header_image=, logo_image=]
 
@@ -143,12 +141,7 @@ $(document).ready(function() {
 			adjustOverlaysOnZoom();
 		});
 
-		$(window).on('refresh', function() {
-			// reload chat messages
-			console.log("realoading chat from var");			
-			for (let i = 0; i < team_chat_messages.length; i++)
-				addMessageToChat(team_chat_messages[i][0], team_chat_messages[i][1]); 
-		});
+
 
 		// Listen to Zoom events
 		panzoomElement.addEventListener('panzoomzoom', function() {
@@ -156,15 +149,15 @@ $(document).ready(function() {
 			adjustOverlaysOnZoom();
 		});
 		// This part runs once - we need map_sz set first
-		$.getJSON(window.location.href + 'serverinfo', function(data) {
+		$.getJSON(window.location.href + 'get/serverinfo', function(data) {
 			getServerInfo(data.data);
 		});
 
-		$.getJSON(window.location.href + 'monuments', function(data) {
+		$.getJSON(window.location.href + 'get/monuments', function(data) {
 			getMapMonuments(data.data);
 		});
-		
-		$.getJSON(window.location.href + 'teaminfo', function(data) {
+
+		$.getJSON(window.location.href + 'get/teaminfo', function(data) {
 			team_info = data.data;
 			// Download team steam images
 			for (let i = 0; i < team_info.members.length; i++) {
@@ -183,30 +176,6 @@ $(document).ready(function() {
 
 });
 
-function addMessageToChat(sender_steam_id, message_txt) {
-	messages_container = document.getElementById("messages_container");
-
-	if (!messages_container)
-		return ;
-	
-	// TODO: add player name to message
-
-	const message = document.createElement("div");
-	message.className = "chat-message";
-	message.innerHTML = message_txt;
-
-	if (sender_steam_id == my_steam_id)
-		message.classList.add("me");
-	else
-		message.classList.add("other");
-
-	messages_container.appendChild(message);
-
-		//<div class="chat-message other">This is a chat message from someone else</div>
-		//<div class="chat-message me">This is a chat message from me</div>
-
-
-}
 
 function nameFromSteamId(steamId) {
 	for (let i = 0; i < steam_id_to_name.length; i++)
@@ -224,31 +193,18 @@ function resetEventSource() {
 		console.log("reset update ES");
         team_updates_ES.close();
     }
-	if (team_chat_ES) {
-		console.log("reset teamchat ES");
-		team_chat_ES.close();
-	}
+
     
     // Reinitialize the EventSource
     map_markers_ES = new EventSource('/markers');
     team_updates_ES = new EventSource('/teammemberupdates');
-    team_chat_ES = new EventSource('/teamchat');
+
     map_markers_ES.addEventListener('message', getMapMarkersFromES, false);
     team_updates_ES.addEventListener('message', getTeamUpdateFromES, false);
-	team_chat_ES.addEventListener('message', getTeamMessagesFromES, false);
 	ES_reset_count = 0;
 }
 
-function getTeamMessagesFromES(data) {
-	messages = JSON.parse(data.data);
-	for (let i = 0; i < messages.length; i++) {
-		if (messages[i]) {
-			team_chat_messages.push([messages[i].steam_id, messages[i].message]);
-			console.log("ADDMSG(" + messages[i].steam_id + " " + messages[i].message + ")")
-			addMessageToChat(messages[i].steam_id, messages[i].message);
-		}
-	}
-}
+
 
 function getTeamUpdateFromES(data) {
 	console.log(data.data);
@@ -339,6 +295,7 @@ function getMapMarkersFromES(marker_data) {
 	//console.log('Received data: ', marker_data.data);
 	deleteAllMapMarkers(); // Remove current overlays from DOM
 	map_marker_data = JSON.parse(marker_data.data);
+	localStorage.setItem('mapMarkerData', JSON.stringify(map_marker_data));
 	//console.log(map_marker_data);
 	updateMapMarkers();
 
