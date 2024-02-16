@@ -36,7 +36,7 @@ def setup_event_streams(app, web_server):
 
         return Response(stream_with_context(team_info_stream()), mimetype='text/event-stream') 
     
-    @app.route('/teamchat')   
+    @app.route('/teamchat')
     def get_team_chat():
         def team_chat_stream():
             while True:
