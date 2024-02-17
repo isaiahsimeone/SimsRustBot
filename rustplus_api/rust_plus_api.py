@@ -83,6 +83,7 @@ class RustPlusAPI:
         self.log("Disconnected from Rust Server (" + self.server + ")")
 
     async def process_message(self, msg, sender):
+        print("RUST SERVICE GOT A MESSAGE --- ")
         msg = json.loads(msg)
         await self.executor.execute_message(msg, sender)
 

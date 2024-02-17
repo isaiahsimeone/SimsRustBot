@@ -1,12 +1,22 @@
 
-import { my_steam_id } from "./steam.js";
+import { my_steam_id, nameFromSteamId } from "./steam.js";
 import * as socketio from "./socketio.js";
 
-const DEBUG = false;
+const DEBUG = true;
 
 export function initialiseChat() {
+	// Listen for a click on the send message button
+	document.getElementById("sendMessage").addEventListener("click", sendTeamMessage);
+
+	// Listen for enter pressed on text box
+	document.getElementById("chatMessage").addEventListener("keyup", ({key}) => {
+		if (key === "Enter")
+			sendTeamMessage();
+	});
+
 	// Request the chat
 	socketio.make_request("teamchat");
+
 }
 
 export function receiveTeamChatData(data) {
@@ -47,6 +57,16 @@ function addMessageToChat(sender_steam_id, message_txt) {
 	container.scrollTop = container.scrollHeight;
 }
 
+function sendTeamMessage() {
+	let message = document.getElementById("chatMessage").value;
+	if (!message)
+		return ;
+	document.getElementById("chatMessage").value = "";
+	let data = {message: message, sender: nameFromSteamId(my_steam_id)}
+	socketio.send_to_server("teamchat", data);
+	
+	log("Sent teamchat (" + message + ") to server");
+}
 
 function log(...args) {
 	if (DEBUG)

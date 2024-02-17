@@ -38,7 +38,6 @@ class WebServer:
         self.page_ready = False
         self.map_image_available = False
 
-        self.map_poll_frequency = int(self.BUS.get_config().get("rust").get("polling_frequency_seconds"))
         self.map_marker_data = None
         
         self.team_chat_log = []
@@ -72,7 +71,7 @@ class WebServer:
     def broadcast_to_web(self, type, data):
         socketio.emit("broadcast", {"type": type, "data": data})
     
-    # get the map image, get server info, start marker polling
+    # Get server info, map image, monuments, etc
     async def request_rust_data(self):
         
         # Request map info
@@ -120,7 +119,9 @@ class WebServer:
         await self.executor.execute_message(msg, sender)
 
     async def send_message(self, message: Message, target_service_id=None):
+        self.log("SENDING MESSAGE  " + str(message))
         await self.BUS.send_message(Service.WEBSERVER, message, target_service_id)
+        self.log("FINISHED SENDING MESSAGE")
 
     def log(self, message):
         self.BUS.log(Service.WEBSERVER, message)

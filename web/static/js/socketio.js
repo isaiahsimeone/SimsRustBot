@@ -9,7 +9,7 @@ export var socket = io.connect('http://' + location.host);
 socket.on('connect', function() {
     log('Connected to the server');
     // Optionally, request the latest data after connecting
-    socket.emit('request_update');
+    
 });
 
 //socket.on('map_marker_update', function(data) {
@@ -63,6 +63,10 @@ socket.on("data_response", function(response) {
             log("Unknown response type");
     }
 });
+
+export function send_to_server(what, data) {
+    socket.emit("client_send", {type: what, data: data});
+}
 
 export function make_request(what) {
 	socket.emit("request", {type: what});

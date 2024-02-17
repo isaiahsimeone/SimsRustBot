@@ -79,7 +79,7 @@
             </div>
             <div class="chat-input p-3">
                 <input type="text" id="chatMessage" class="form-control" placeholder="Send message..." />
-                <button id="sendMessage" class="btn btn-primary mt-2" type="button">Send</button>
+                <input type="button" id="sendMessage" value="Send" class="btn btn-primary mt-2" />
             </div>
           </div>
         </div>
@@ -95,7 +95,7 @@
     <script>
       $(document).ready(function () {
         // move this to a chat.js file, and include sender_steam_id. This is also ugly as shit
-    document.getElementById('sendMessage').addEventListener('click', function() {
+ /*   document.getElementById('sendMessage').addEventListener('click', function() {
       console.log("CLICKED");
         const message = document.getElementById('chatMessage').value;
         if (message) { // Check if message is not empty
@@ -117,7 +117,7 @@
         } else {
             console.log("Message is empty.");
         }
-    });
+    });*/
       });
 
     </script>

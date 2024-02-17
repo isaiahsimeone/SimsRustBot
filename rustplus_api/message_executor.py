@@ -8,6 +8,7 @@ from .commands.get_monuments import get_monuments
 from .commands.get_server_info import get_server_info
 from .commands.get_team_info import get_team_info
 from .commands.get_team_chat import get_team_chat
+from .commands.send_message import send_message as rust_api_send_message
 
 class MessageExecutor():
     def __init__(self, rust_api):
@@ -35,8 +36,14 @@ class MessageExecutor():
                 await self.send_team_info(sender)
             case MT.REQUEST_RUST_TEAM_CHAT_INIT:
                 await self.send_team_chat_init(sender)
+            case MT.SEND_TEAM_MESSAGE:
+                print("Sending message to rust server")
+                await self.send_rust_message(sender, msg["data"]["message"], msg["data"]["sender"])
             case _:
                 self.api.log("ERROR: Unknown message type")
+                
+    async def send_rust_message(self, sending_service, message, sender):
+        await rust_api_send_message(self.socket, message, sender)
 
     async def send_server_map_image(self, sender):
         server_map = await get_server_map(self.socket)

@@ -25,6 +25,9 @@ class MessageType(Enum):
     REQUEST_RUST_TEAM_INFO = "request_rust_team_info"
     REQUEST_RUST_TEAM_CHAT_INIT = "request_team_chat_init"
 
+    # For the API to do
+    SEND_TEAM_MESSAGE = "send_team_message"
+
 """
     PlayerMarker = 1
     ExplosionMarker = 2

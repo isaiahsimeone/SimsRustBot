@@ -1,5 +1,5 @@
 import { server } from "./server.js";
-import { } from "./util.js";
+import { applyRotation } from "./util.js";
 import { img_path } from "./main.js";
 import { steamPictureOrDefault, nameFromSteamId } from "./steam.js";
 import * as socketio from "./socketio.js";
@@ -87,7 +87,7 @@ export function receiveMapMarkerData(markers) {
 
 export function receiveMapMonuments(data) {
     let monuments_data = data.data
-    
+
     mapContainer.style.backgroundColor = monuments_data.background; // Also gives us the background
     map_monuments = monuments_data.monuments;
     redrawMonuments();
