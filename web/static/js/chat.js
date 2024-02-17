@@ -1,27 +1,30 @@
 
-import { my_steam_id } from "./script.js";
+import { my_steam_id } from "./steam.js";
+import * as socketio from "./socketio.js";
 
-let team_chat_stream = null;
-$(document).ready(function() {
+const DEBUG = false;
 
+export function initialiseChat() {
+	// Request the chat
+	socketio.make_request("teamchat");
+}
 
-
-        team_chat_stream = new EventSource('/teamchat');
-        team_chat_stream.addEventListener('message', getTeamMessagesFromES, false);
-});
+export function receiveTeamChatData(data) {
+	log('Received team chat update:', data);
+	processTeamChatData(data);
+}
 
 function processTeamChatData(data) {
-    console.log(data);
     let messages = data;
-	for (let i = 0; i < messages.length; i++) {
-		if (messages[i]) {
-            console.log("ADDMSG(" + messages[i].steam_id + " " + messages[i].message + ")")
+
+	for (let i = 0; i < messages.length; i++)
+		if (messages[i])
             addMessageToChat(messages[i].steam_id, messages[i].message);
-        }
-	}
 }
 
 function addMessageToChat(sender_steam_id, message_txt) {
+	log("Adding Message: (" + sender_steam_id + " " + message_txt + ")")
+
 	let messages_container = document.getElementById("messages_container");
 
 	if (!messages_container)
@@ -39,16 +42,10 @@ function addMessageToChat(sender_steam_id, message_txt) {
 		message.classList.add("other");
 
 	messages_container.appendChild(message);
-
-		//<div class="chat-message other">This is a chat message from someone else</div>
-		//<div class="chat-message me">This is a chat message from me</div>
-
-
 }
 
 
-
-
-function getTeamMessagesFromES(data) {
-	processTeamChatData(JSON.parse(data.data));
+function log(...args) {
+	if (DEBUG)
+		console.log("[chat.js] ", ...args);
 }

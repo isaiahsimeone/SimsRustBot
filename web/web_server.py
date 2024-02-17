@@ -10,10 +10,11 @@ from .message_executor import MessageExecutor
 import json
 import asyncio
 import time
-
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.secret_key = 'secret'
+socketio = SocketIO(app)
 
 class WebServer:
     def __init__(self, BUS):
@@ -52,7 +53,7 @@ class WebServer:
         # Setup routes and event streams
         setup_routes(app, self)
         setup_steam_routes(app, self)
-        setup_event_streams(app, self)
+        setup_event_streams(socketio, self)
         
         
         self.BUS.subscribe(Service.WEBSERVER, self.process_message)
@@ -60,7 +61,7 @@ class WebServer:
         
         await self.BUS.block_until_subscribed(service_id=Service.WEBSERVER, wait_for=Service.RUSTAPI)
         
-        threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False)).start()
+        threading.Thread(target=lambda: app.run(host=self.host, port=self.port, debug=True, use_reloader=False, threaded=True)).start()
         
         self.log(f"Web Server started at http://{self.host}:{self.port}")
         
@@ -68,8 +69,9 @@ class WebServer:
         
         await asyncio.Future()
         
-        
-        
+    def broadcast_to_web(self, type, data):
+        socketio.emit("broadcast", {"type": type, "data": data})
+    
     # get the map image, get server info, start marker polling
     async def request_rust_data(self):
         

@@ -1,56 +1,43 @@
+import { server } from "./server.js";
+import { } from "./util.js";
+import { img_path } from "./main.js";
+import { steamPictureOrDefault, nameFromSteamId } from "./steam.js";
+import * as socketio from "./socketio.js";
 
-// Global variables
+const DEBUG = true;
+
 const mapImage = document.getElementById("map-image");
 const mapContainer = document.getElementById("map-container")
+
 let panzoom = null;
-let initialMapRect = null;
-let img_path = "static/images";
+let map_image_offset_left = 0;
+let initial_map_rect = null;
+let server_to_browser_scale = null;
 
-let map_image_offset_left = getMapImageWhitespace();
-
-let map_monument_data = null;
-let server_info_data = null
-let team_info = null;
-
-let steam_images_available = [];
-let steam_id_to_name = [];
-
-let map_markers_ES = null;
-let team_updates_ES = null;
-let ES_reset_count = 0;
-
-export let my_steam_id = getCookie("steam_id");
-
-
-let map_marker_data = JSON.parse(sessionStorage.getItem('mapMarkerData')) || null;
-
-// RustInfo[url=, name=Sims Server, map=Procedural Map, size=4000, players=0, max_players=5, queued_players=0, seed=793197, wipe_time=1707127438, header_image=, logo_image=]
-
-// TODO: when heli/cargo is coming in, specify the direction that the player can align their compass to. Just a vector
-
-let MAP_SZ = null;
+let map_markers = null;
+let map_monuments = null;
 
 const markers = {
-	PLAYER: 1,
-	EXPLOSION: 2,
-	SHOP: 3,
-	CHINOOK: 4,
-	CARGO: 5,
-	CRATE: 6,
-	RADIUS: 7,
-	HELI: 8
+    PLAYER: 1,
+    EXPLOSION: 2,
+    SHOP: 3,
+    CHINOOK: 4,
+    CARGO: 5,
+    CRATE: 6,
+    RADIUS: 7,
+    HELI: 8
 };
 
 const marker_type_to_img = [
-	/* 0 */ [/* no image */],
-	/* 1 */ ["player.png"],
-	/* 2 */ ["explosion.png"],
-	/* 3 */ ["shop_green.png", "shop_orange.png"],
-	/* 4 */ ["chinook_map_body.png", "map_blades.png"],
-	/* 5 */ ["cargo_ship_body.png"],
-	/* 6 */ ["crate.png"],
-	/* 7 */ [/* Radius marker, i don't know what this is? */],
-	/* 8 */ ["heli_map_body.png", "map_blades.png"]
+	/* 0 */[/* no image */],
+	/* 1 */["player.png"],
+	/* 2 */["explosion.png"],
+	/* 3 */["shop_green.png", "shop_orange.png"],
+	/* 4 */["chinook_map_body.png", "map_blades.png"],
+	/* 5 */["cargo_ship_body.png"],
+	/* 6 */["crate.png"],
+	/* 7 */[/* Radius marker, i don't know what this is? */],
+	/* 8 */["heli_map_body.png", "map_blades.png"]
 ];
 
 
@@ -86,194 +73,69 @@ const MonumentNames = {
     "train_yard_display_name": "TRAIN YARD",
     "underwater_lab": "UNDERWATER LAB",
     "water_treatment_plant_display_name": "WATER TREATMENT PLANT",
-	"ferryterminal": "FERRY TERMINAL",
-	"arctic_base_a": "ARCTIC RESEARCH BASE",
-	"missile_silo_monument": "MISSILE SILO",
-	"AbandonedMilitaryBase": "ABANDONED MILITARY BASE"
+    "ferryterminal": "FERRY TERMINAL",
+    "arctic_base_a": "ARCTIC RESEARCH BASE",
+    "missile_silo_monument": "MISSILE SILO",
+    "AbandonedMilitaryBase": "ABANDONED MILITARY BASE"
 }
 
-
-
-// Document ready functions
-$(document).ready(function() {
-	// Command button functionality
-	$('.command-btn').click(function() {
-		if ($(this).hasClass('toggleable')) {
-			$(this).toggleClass('active inactive');
-		}
-		if ($(this).hasClass('modal-trigger')) {
-			$('#commandModal').modal('show');
-			$('#commandModalLabel').text(`Options for ${$(this).text()}`);
-		}
-	})
-
-	// Click event on map image
-	$('#map-image').click(function(e) {
-		var offset_t = $(this).offset().top - $(window).scrollTop();
-		var offset_l = $(this).offset().left - $(window).scrollLeft();
-		var left = Math.round(e.clientX - offset_l);
-		var top = Math.round(e.clientY - offset_t);
-		console.log('Left: ' + left + ' Top: ' + top);
-	});
-
-	// Initialize map image rect
-	updateInitialMapRect();
-
-	const panzoomElement = document.getElementById('panzoom-element');
-	if (panzoomElement) {
-		panzoom = Panzoom(panzoomElement, {
-			maxScale: 6,
-			contain: 'outside',
-			animate: true,
-		});
-
-		panzoomElement.parentElement.addEventListener(
-			'wheel',
-			panzoom.zoomWithWheel
-		);
-
-		$(window).on('resize', function() {
-			console.log(window.devicePixelRatio);
-			map_image_offset_left = getMapImageWhitespace();
-			updateInitialMapRect();
-			updateMapMarkers(map_marker_data);
-			redrawMonuments();
-			adjustOverlaysOnZoom();
-		});
-
-
-
-		// Listen to Zoom events
-		panzoomElement.addEventListener('panzoomzoom', function() {
-			updateMapMarkers(map_marker_data);
-			adjustOverlaysOnZoom();
-		});
-		// This part runs once - we need map_sz set first
-		$.getJSON(window.location.href + 'get/serverinfo', function(data) {
-			getServerInfo(data.data);
-		});
-
-		$.getJSON(window.location.href + 'get/monuments', function(data) {
-			getMapMonuments(data.data);
-		});
-
-		$.getJSON(window.location.href + 'get/teaminfo', function(data) {
-			team_info = data.data;
-			// Download team steam images
-			for (let i = 0; i < team_info.members.length; i++) {
-				steam_id_to_name.push({"steam_id": team_info.members[i].steam_id, "name": team_info.members[i].name});
-				downloadSteamImage(String(team_info.members[i].steam_id));
-				console.log(team_info.members[i]);
-			}
-			console.log("got team info: " + Object.keys(team_info));
-			console.log(team_info.map_notes);
-		});
-
-		if (!!window.EventSource) {
-			resetEventSource();			
-		}
-	}
-
-});
-
-
-function nameFromSteamId(steamId) {
-	for (let i = 0; i < steam_id_to_name.length; i++)
-		if (steam_id_to_name[i].steam_id === steamId)
-			return steam_id_to_name[i].name;
-	return "Unknown";
+export function receiveMapMarkerData(markers) {
+    map_markers = markers;
+    deleteAllMapMarkers();
+    updateMapMarkers();
 }
 
-function resetEventSource() {
-    if (map_markers_ES) {
-		console.log("reset marker ES");
-        map_markers_ES.close();
-    }
-    if (team_updates_ES) {
-		console.log("reset update ES");
-        team_updates_ES.close();
-    }
-
+export function receiveMapMonuments(data) {
+    let monuments_data = data.data
     
-    // Reinitialize the EventSource
-    map_markers_ES = new EventSource('/markers');
-    team_updates_ES = new EventSource('/teammemberupdates');
-
-    map_markers_ES.addEventListener('message', getMapMarkersFromES, false);
-    team_updates_ES.addEventListener('message', getTeamUpdateFromES, false);
-	ES_reset_count = 0;
+    mapContainer.style.backgroundColor = monuments_data.background; // Also gives us the background
+    map_monuments = monuments_data.monuments;
+    redrawMonuments();
 }
 
+export function initialiseMap() {
+    socketio.make_request("markers");
+    socketio.make_request("monuments");
 
+    updateInitialMapRect();
 
-function getTeamUpdateFromES(data) {
-	console.log(data.data);
-}
+    const panzoomElement = document.getElementById('panzoom-element');
+    if (panzoomElement) {
+        panzoom = Panzoom(panzoomElement, {
+            maxScale: 6,
+            contain: 'outside',
+            animate: true,
+        });
 
-function getServerInfo(data) {
-	console.log("SERVER INFO keys: " + Object.keys(data));
-	server_info_data = data;
-	// Get map size
-	let map_size = data.size
-	MAP_SZ = map_size;
-	console.log("Map size is " + MAP_SZ);
-}
+        panzoomElement.parentElement.addEventListener(
+            'wheel',
+            panzoom.zoomWithWheel
+        );
 
-function steamPictureOrDefault(steam_id) {
-	if (steamImageExists(steam_id))
-		return steam_id;
-	return "default";
-}
+        $(window).on('resize', function () {
+            log(window.devicePixelRatio);
+            map_image_offset_left = getMapImageWhitespace();
+            updateInitialMapRect();
+            updateMapMarkers();
+            redrawMonuments();
+            adjustOverlaysOnZoom();
+        });
 
-function steamImageExists(steam_id) {
-	console.log(steam_images_available.includes(steam_id));
-	return steam_images_available.includes(steam_id);
-}
-
-function downloadSteamImage(steamId) {
-	console.log("downloading " + String(steamId));
-	const url = `${window.location.href}downloadsteamimage/${steamId}`;
-	
-	fetch(url, {
-	  method: 'POST',
-	})
-	  .then(response => response.json()) // Assuming JSON response
-	  .then(data => {
-		if (data.success) {
-		  // Image processing started, now poll for availability or proceed as necessary
-		  console.log(data.message);
-		  steam_images_available.push(steamId);
-		  // Optionally, implement polling mechanism here if you need to wait for the image to be available
-		} else {
-		  // Handle failure
-		  console.error("Failed to download image for", steamId, ":", data.message);
-		  // Create default image for their ID.
-		}
-	  })
-	  .catch(error => console.error('Error during fetch operation:', error));
-  }
-
-// Also sets the background colour
-function getMapMonuments(data) {
-
-
-	// Also sets background colour
-	mapContainer.style.backgroundColor = data.background;
-	
-	// Receive monument data
-	map_monument_data = data.monuments;
-
-	redrawMonuments();
+        // Listen to Zoom events
+        panzoomElement.addEventListener('panzoomzoom', function () {
+            updateMapMarkers();
+            adjustOverlaysOnZoom();
+        });
+    }
+    map_image_offset_left = getMapImageWhitespace();
 }
 
 function redrawMonuments() {
-	// delete current monument text
-	deleteAllMapText();
-
-	for (let i = 0; i < Object.keys(map_monument_data).length; i++) {
-		let text = MonumentNames[map_monument_data[i].token];
+    deleteAllMapText();
+	for (let i = 0; i < Object.keys(map_monuments).length; i++) {
+		let text = MonumentNames[map_monuments[i].token];
 		if (text)
-			createMapText(i, map_monument_data[i].x, map_monument_data[i].y, text);
+			createMapText(i, map_monuments[i].x, map_monuments[i].y, text);
 	}
 }
 
@@ -290,22 +152,10 @@ function createMapText(id, x, y, text) {
 	setOverlay(text_overlay.id, x, y, 0);
 }
 
-function getMapMarkersFromES(marker_data) {
-	
-	//console.log('Received data: ', marker_data.data);
-	deleteAllMapMarkers(); // Remove current overlays from DOM
-	map_marker_data = JSON.parse(marker_data.data);
-	localStorage.setItem('mapMarkerData', JSON.stringify(map_marker_data));
-	//console.log(map_marker_data);
-	updateMapMarkers();
-
-	if (ES_reset_count++ > 200)
-		resetEventSource();
-}
 
 function updateInitialMapRect() {
 	if (mapImage) {
-		initialMapRect = mapImage.getBoundingClientRect();
+		initial_map_rect = mapImage.getBoundingClientRect();
 	}
 }
 
@@ -314,7 +164,7 @@ function setOverlay(overlayId, jsonX, jsonY, rotation) {
 	
 	const overlay = document.getElementById(overlayId);
 
-	if (!overlay || !initialMapRect)
+	if (!overlay || !initial_map_rect)
 		return;
 
 	// Overlay dimensions
@@ -325,13 +175,13 @@ function setOverlay(overlayId, jsonX, jsonY, rotation) {
 
 
 	// position calculations
-	const scaleX = initialMapRect.height / MAP_SZ; // I have no idea why we use the image height here, but it works
-	const scaleY = initialMapRect.height / MAP_SZ;
-	const jsonY_flipped = MAP_SZ - jsonY // Flip the Y-coordinate
+	const scaleX = initial_map_rect.height / server.size; // I have no idea why we use the image height here, but it works
+	const scaleY = initial_map_rect.height / server.size;
+	const jsonY_flipped = server.size - jsonY // Flip the Y-coordinate
 
 	// Convert map coordinates (jsonX, jsonY) to image pixel coordinates
 	const imageX = scaleX * jsonX + map_image_offset_left - overlay_width_center;
-	const imageY = scaleY * jsonY_flipped + initialMapRect.top - overlay_height_center;
+	const imageY = scaleY * jsonY_flipped + initial_map_rect.top - overlay_height_center;
 	
 	const invertedScale = 1 / panzoom.getScale();
 
@@ -403,7 +253,7 @@ function deleteAllMapMarkers() {
 	var elements = document.getElementsByClassName("overlay");
 
 	Array.from(elements).forEach((element) => {
-		if (!element.classList.contains("map_text")) // Don't delete text
+        if (!element.classList.contains("map_text")) // Don't delete text
 			element.remove(); // Removes the element from the DOM
 	});
 }
@@ -418,18 +268,18 @@ function deleteAllMapText() {
 
 // Update map markers
 function updateMapMarkers() {
-	if (!map_marker_data)
+	if (!map_markers)
 		return;
 
-	for (let i = 0; i < map_marker_data.length; i++) {
+	for (let i = 0; i < map_markers.length; i++) {
 
 		let overlay_img = null;
-		let marker = map_marker_data[i];
+		let marker = map_markers[i];
 		let marker_type = marker.type;
-		let rotation = 360 - map_marker_data[i].rotation;
+		let rotation = 360 - map_markers[i].rotation;
 
-		let x = map_marker_data[i].x;
-		let y = map_marker_data[i].y;
+		let x = map_markers[i].x;
+		let y = map_markers[i].y;
 
 		let is_player = false;
 
@@ -447,9 +297,7 @@ function updateMapMarkers() {
 				overlay.style.height = scaledDim(21);
 				overlay.classList.add("circle-image");
 				overlay_img = steamPictureOrDefault(marker.steam_id);
-				console.log(map_marker_data[i]);
-				console.log("ABA " + marker.steam_id);
-				createMapText(overlay.id + "steamname", x, y-20, nameFromSteamId(marker.steam_id).toUpperCase());
+				log(map_markers[i]);
 				break;
 			case markers.SHOP:
 				overlay_img = marker.out_of_stock ? marker_type_to_img[markers.SHOP][1] : marker_type_to_img[markers.SHOP][0];
@@ -546,42 +394,11 @@ function getMapImageWhitespace() {
   }
 
 function scaledDim(num) {
-	return String(num * (MAP_SZ / 3000)) + "px"
+	return String(num * (server.size / 3000)) + "px"
 }
 
 
-  
-function applyRotation(elementId) {
-    let angle = Math.ceil(Math.random() * 360); // Initial angle
-
-    // Function to update rotation
-    function update() {
-        angle = (angle + 1) % 360; // Increment angle and loop at 360
-        const element = document.getElementById(elementId);
-        if (element) {
-            // Combine rotation with existing transform, preserving position and scale
-            const transform = element.style.transform;
-            const rotateTransform = `rotate(${angle}deg)`;
-            element.style.transform = transform.replace(/rotate\([0-9]+deg\)/, '') + ' ' + rotateTransform;
-        }
-        requestAnimationFrame(update); // Continue rotation
-    }
-
-    update(); // Start rotation
+function log(...args) {
+    if (DEBUG)
+        console.log("[map.js] ", ...args);
 }
-
-function getCookie(cname) {
-	let name = cname + "=";
-	let decodedCookie = decodeURIComponent(document.cookie);
-	let ca = decodedCookie.split(';');
-	for(let i = 0; i <ca.length; i++) {
-	  let c = ca[i];
-	  while (c.charAt(0) == ' ') {
-		c = c.substring(1);
-	  }
-	  if (c.indexOf(name) == 0) {
-		return c.substring(name.length, c.length);
-	  }
-	}
-	return "";
-  }

@@ -60,20 +60,27 @@ class MessageExecutor():
         
     def receive_map_markers(self, data):
         self.web_server.map_marker_data = data.get("markers")
+        self.web_server.broadcast_to_web("markers", data.get("markers"))
         
     def receive_map_monuments(self, data):
         self.web_server.map_monuments = data
+        self.web_server.broadcast_to_web("monuments", data)
     
     def receive_player_state_change(self, data):
         self.web_server.team_update_queue.append(data)
+        #??????
         
     def receive_server_info(self, data):
         self.web_server.server_info = data
+        self.web_server.broadcast_to_web("serverinfo", data)
         
     def receive_team_info(self, data):
         self.web_server.team_info = data
+        self.web_server.broadcast_to_web("teaminfo", data)
         
     def receive_team_chat_init(self, data):
+        if not data or not data['data']:
+            return None # Probably isn't in a team
         print("GOT: " + str(data))
         for message in data['data']:
             print("-", str(message))
@@ -82,4 +89,4 @@ class MessageExecutor():
     def receive_team_chat(self, data):
         print("GOTTC: " + str(data))
         self.web_server.team_chat_log.append(data)
-        #self.web_server.team_chat_log.add(data)
+        self.web_server.broadcast_to_web("teamchat", data)
