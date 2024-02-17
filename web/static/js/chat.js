@@ -42,6 +42,9 @@ function addMessageToChat(sender_steam_id, message_txt) {
 		message.classList.add("other");
 
 	messages_container.appendChild(message);
+	// adjust scroll bar of messages field
+	const container = document.getElementById("messages_container")
+	container.scrollTop = container.scrollHeight;
 }
 
 
