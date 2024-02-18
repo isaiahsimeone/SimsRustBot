@@ -19,5 +19,5 @@ export function receiveServerInfo(data) {
 
 function log(...args) {
 	if (DEBUG)
-		console.log("[server.js] ", ...args);
+        console.log("%c[server.js] ", "color: #28B463", ...args);
 }

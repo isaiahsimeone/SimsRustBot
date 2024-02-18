@@ -69,5 +69,5 @@ export function make_request(what) {
 
 function log(...args) {
 	if (DEBUG)
-		console.log("%c[socketio.js] ", "color: #bada55", ...args);
+		console.log("%c[socketio.js] ", "color: #FF00FF", ...args);
 }

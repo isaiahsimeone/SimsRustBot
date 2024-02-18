@@ -19,5 +19,5 @@ export function receiveTeamInfo(data) {
 
 function log(...args) {
 	if (DEBUG)
-		console.log("[team.js] ", ...args);
+        console.log("%c[team.js] ", "color: #FFA500", ...args);
 }

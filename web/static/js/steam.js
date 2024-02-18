@@ -50,5 +50,5 @@ export function downloadSteamImage(steamId) {
 
 function log(...args) {
 	if (DEBUG)
-		console.log("[steam.js] ", ...args);
+        console.log("%c[steam.js] ", "color: #3498DB", ...args);
 }

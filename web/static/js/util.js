@@ -53,5 +53,5 @@ export function awaitVariableSet(checkVariable, interval = 100, timeout = 30000)
 
 function log(...args) {
     if (DEBUG)
-        console.log("[util.js] ", ...args);
+        console.log("%c[team.js] ", "color: #FFC0CB", ...args);
 }

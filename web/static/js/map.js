@@ -400,5 +400,5 @@ function scaledDim(num) {
 
 function log(...args) {
     if (DEBUG)
-        console.log("[map.js] ", ...args);
+		console.log("%c[map.js] ", "color: #E74C3C", ...args);
 }

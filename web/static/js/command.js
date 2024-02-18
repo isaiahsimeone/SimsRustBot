@@ -15,5 +15,5 @@ export function initialiseCommands() {
 
 function log(...args) {
 	if (DEBUG)
-		console.log("[commands.js] ", ...args);
+		console.log("%c[commands.js] ", "color: #FFC300", ...args);
 }

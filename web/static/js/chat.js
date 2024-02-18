@@ -70,5 +70,5 @@ function sendTeamMessage() {
 
 function log(...args) {
 	if (DEBUG)
-		console.log("[chat.js] ", ...args);
+		console.log("%c[chat.js] ", "color: #DAF7A6", ...args);
 }

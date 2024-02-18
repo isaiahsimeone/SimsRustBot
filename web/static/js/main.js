@@ -35,5 +35,5 @@ async function init() {
 
 function log(...args) {
 	if (DEBUG)
-		console.log("[main.js] ", ...args);
+		console.log("%c[main.js] ", "color: #C70039", ...args);
 }
