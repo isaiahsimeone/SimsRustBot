@@ -41,7 +41,6 @@ def setup_routes(app, web_server):
         
         if request.method == "POST":
             data = request.form
-            print("GOT MESdSAGE:" + "(" + str(data) + ")")
             
             web_server.log("Someone sent a team chat from the web server")
 
@@ -59,7 +58,7 @@ def setup_routes(app, web_server):
                 data = web_server.team_info
             case "teamchat":
                 data = web_server.team_chat_log
-            case "mapmarkers":
+            case "markers":
                 data = web_server.map_marker_data
             case _:
                 return "Unknown request type: " + what, 400

@@ -26,14 +26,14 @@ def setup_event_streams(socketio, web_server):
                 data = web_server.team_chat_log
             case "monuments":
                 data = web_server.map_monuments
-            case "mapmarkers":
+            case "markers":
                 data = web_server.map_marker_data
             case "serverinfo":
                 data = web_server.server_info
             case "teaminfo":
                 data = web_server.team_info
             case _:
-                web_server.log("Client requested unknown data: " + message, "error")
+                web_server.log("Client requested unknown data: " + str(message), "error")
                 
         emit("data_response", {"type": request_what, "data": data})
   

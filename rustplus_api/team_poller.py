@@ -5,6 +5,7 @@ from ipc.bus import Service
 from ipc.message import Message, MessageType
 from ipc.serialiser import serialise_API_object
 from util.tools import Tools
+import json
 
 class TeamPoller:
     def __init__(self, socket, BUS):
@@ -13,7 +14,7 @@ class TeamPoller:
         
         self.poll_rate = int(BUS.get_config().get("rust").get("polling_frequency_seconds"))
         
-        self.last_team_members_info = None
+        self.last_team_info_hash = None
     
     
     async def start_team_polling(self):
@@ -24,8 +25,30 @@ class TeamPoller:
     
     # Check for changes to team - sends message only if is_online, is_alive, spawn_time, or death_time has changed
     async def poll_team(self):
-        team_members_info = serialise_API_object((await self.socket.get_team_info()).members)
+        team_info = serialise_API_object((await self.socket.get_team_info()))
         
+        new_hash = self.hash_team_info(team_info)
+        
+        if self.last_team_info_hash is not None:
+            if self.last_team_info_hash != new_hash:
+                # The team has changed (excluding a team members coordinates, spawn, or death time)
+                print("Team changed")
+                message = Message(MessageType.RUST_TEAM_INFO, {"data": team_info})
+                await self.send_message(message)
+            
+        self.last_team_info_hash = new_hash
+        
+    def hash_team_info(self, team_info):
+        # We don't care about these things changing
+        for i in range(0, len(team_info['members'])):
+            del team_info['members'][i]['x']    
+            del team_info['members'][i]['y']    
+            del team_info['members'][i]['spawn_time']    
+            del team_info['members'][i]['death_time']
+        
+        return hash(json.dumps(team_info))
+    
+        """
         if self.last_team_members_info is not None:
             for member in team_members_info:
                 steam_id = member["steam_id"]
@@ -36,7 +59,7 @@ class TeamPoller:
                 
                 if not member_prev:
                     change_type = "new_team_member"
-                    print("SOMEONE JOINED THE TEAM!")
+                    print("Someone joined the team")
                     return None
                 
                 if member["is_alive"] != member_prev["is_alive"]:
@@ -48,16 +71,11 @@ class TeamPoller:
                     print(member["name"] + " is " + change_type)
                     
                 if change_type:
-                    # SteamID as an integer makes JS play up, convert to string
-                    steam_id_int_rep = member_prev.get("steam_id")
-                    member_prev["steam_id"] = str(steam_id_int_rep)
-                
-                    msg_data = {change_type: member_prev} # Send the old entry, so we know where they died approximately
-                    message = Message(MessageType.RUST_PLAYER_STATE_CHANGE, msg_data)
+                    message = Message(MessageType.RUST_TEAM_INFO, {"data": self.team_members_info})
                     await self.send_message(message)
                     
         self.last_team_members_info = team_members_info
-
+        """
         
         
     async def send_message(self, message: Message, target_service_id=None):
