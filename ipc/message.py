@@ -28,17 +28,6 @@ class MessageType(Enum):
     # For the API to do
     SEND_TEAM_MESSAGE = "send_team_message"
 
-"""
-    PlayerMarker = 1
-    ExplosionMarker = 2
-    VendingMachineMarker = 3
-    ChinookMarker = 4
-    CargoShipMarker = 5
-    CrateMarker = 6
-    RadiusMarker = 7
-    PatrolHelicopterMarker = 8
-
-"""    
 
 class Message:
     def __init__(self, message_type: MessageType, data: dict):

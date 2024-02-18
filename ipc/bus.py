@@ -57,10 +57,10 @@ class BUS:
             pass
         self.log(service_id, Service.get_name(service_id) + " is now unblocked")
 
-    def log(self, service_id, message):
+    def log(self, service_id, message, type="info"):
         service_name = service_id.get_name()[0:4]
         colour = service_id.colour;
-        Printer.print("info", colored(f"[{service_name}] {message}", colour))
+        Printer.print(type, colored(f"[{service_name}] {message}", colour))
     
     def get_config(self):
         return self.config

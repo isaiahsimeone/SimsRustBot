@@ -37,10 +37,9 @@ class MessageExecutor():
             case MT.REQUEST_RUST_TEAM_CHAT_INIT:
                 await self.send_team_chat_init(sender)
             case MT.SEND_TEAM_MESSAGE:
-                print("Sending message to rust server")
                 await self.send_rust_message(sender, msg["data"]["message"], msg["data"]["sender"])
             case _:
-                self.api.log("ERROR: Unknown message type")
+                self.api.log("MessageExecutor received an unknown message: " + str(msg), type="error")
                 
     async def send_rust_message(self, sending_service, message, sender):
         await rust_api_send_message(self.socket, message, sender)

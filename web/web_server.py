@@ -96,7 +96,7 @@ class WebServer:
         
         # Mark index as ready once we get responses to the above requests (i.e. variables set)
         await self.set_page_ready()
-        self.log("Page is ready for display")
+        self.log("Web Page is ready")
         
     async def set_page_ready(self):
         while True:
@@ -119,9 +119,7 @@ class WebServer:
         await self.executor.execute_message(msg, sender)
 
     async def send_message(self, message: Message, target_service_id=None):
-        self.log("SENDING MESSAGE  " + str(message))
         await self.BUS.send_message(Service.WEBSERVER, message, target_service_id)
-        self.log("FINISHED SENDING MESSAGE")
 
-    def log(self, message):
-        self.BUS.log(Service.WEBSERVER, message)
+    def log(self, message, type="info"):
+        self.BUS.log(Service.WEBSERVER, message, type)

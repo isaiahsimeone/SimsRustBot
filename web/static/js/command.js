@@ -1,6 +1,6 @@
 const DEBUG = true;
 
-function initialise_commands() {
+export function initialiseCommands() {
     $('.command-btn').click(function() {
 		if ($(this).hasClass('toggleable')) {
 			$(this).toggleClass('active inactive');
@@ -15,5 +15,5 @@ function initialise_commands() {
 
 function log(...args) {
 	if (DEBUG)
-		console.log("[command.js] ", ...args);
+		console.log("[commands.js] ", ...args);
 }

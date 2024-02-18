@@ -1,5 +1,6 @@
 import { receiveTeamChatData } from "./chat.js";
 import { receiveMapMarkerData, receiveMapMonuments } from "./map.js";
+import { receiveTeamInfo } from "./team.js";
 import { receiveServerInfo } from "./server.js";
 
 const DEBUG = true;
@@ -8,13 +9,7 @@ export var socket = io.connect('http://' + location.host);
 
 socket.on('connect', function() {
     log('Connected to the server');
-    // Optionally, request the latest data after connecting
-    
 });
-
-//socket.on('map_marker_update', function(data) {
-//    log('Received map marker update:', data);
-//});
 
 socket.on("broadcast", function(raw_data) {
     if (!raw_data)
@@ -37,7 +32,7 @@ socket.on("broadcast", function(raw_data) {
         case "teaminfo":
             return receiveTeamInfo(data);
         default:
-            log("Unknown broadcast type");
+            log("Encountered unknown broadcast type");
     }
 });
 
@@ -46,7 +41,7 @@ socket.on("data_response", function(response) {
     let type = response.type;
     let data = response.data;
 
-    log("Got response type: " + type + " data: " + data);
+    log("Got data from server with type=" + type);
 
     switch (type) {
         case "teamchat":
@@ -60,7 +55,7 @@ socket.on("data_response", function(response) {
         case "monuments":
             return receiveMapMonuments(data);
         default:
-            log("Unknown response type");
+            log("Encountered unknown request type");
     }
 });
 
@@ -74,5 +69,5 @@ export function make_request(what) {
 
 function log(...args) {
 	if (DEBUG)
-		console.log("[socketio.js] ", ...args);
+		console.log("%c[socketio.js] ", "color: #bada55", ...args);
 }
