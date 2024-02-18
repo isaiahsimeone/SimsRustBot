@@ -6,6 +6,7 @@ from ipc.message import Message, MessageType
 from ipc.serialiser import serialise_API_object
 from util.tools import Tools
 import json
+import copy
 
 class TeamPoller:
     def __init__(self, socket, BUS):
@@ -38,7 +39,9 @@ class TeamPoller:
             
         self.last_team_info_hash = new_hash
         
-    def hash_team_info(self, team_info):
+    def hash_team_info(self, team_info_now):
+        # Deepcopy so attributes deleted here remain in parents scope
+        team_info = copy.deepcopy(team_info_now)
         # We don't care about these things changing
         for i in range(0, len(team_info['members'])):
             del team_info['members'][i]['x']    
