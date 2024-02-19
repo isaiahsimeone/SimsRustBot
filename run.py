@@ -19,7 +19,7 @@ def main():
     config.check_fcm_credentials()
     config.check_server_details()
    
-    init_db(config)
+    #init_db(config)
    
     bus = BUS(config)
 
