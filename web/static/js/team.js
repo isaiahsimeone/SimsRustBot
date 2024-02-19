@@ -1,5 +1,5 @@
 import * as socketio from "./socketio.js";
-import { receiveMapNotes } from "./map.js";
+import { receiveMapNotes } from "./note.js";
 
 const DEBUG = true;
 

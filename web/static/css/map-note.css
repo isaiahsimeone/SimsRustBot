@@ -1,0 +1,149 @@
+.map-note-dialog {
+  position: absolute;
+  width: 230px;
+  height: 160px;
+  z-index: 999;
+  display: none;    
+  /* From https://css.glass */
+  background: rgba(50, 47, 47, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10.7px);
+  -webkit-backdrop-filter: blur(10.7px);
+  color: #cccbcb;
+  font-family: RobotoBold;
+  cursor: pointer;
+}
+
+.map-note-options-container {
+  /* From https://css.glass */
+  background: rgba(20, 21, 18, 0.8);
+  height: 135px;
+  width: 230px;
+  margin-top: 2px;
+}
+
+.map-note-options-table {
+
+  /* From https://css.glass */
+  background: rgba(20, 23, 22, 0.4);
+  width: 228px;
+  height: 110px;
+  top: 1px;
+  position: relative;
+  margin-left: 1px;
+  margin-right: 1px;
+}
+
+.map-note-options-table table {
+  width: 100%;
+}
+
+.map-note-options-table th.note-name {
+  width: 100%; /* Ensure the container takes the remaining space */
+  padding: 0 5px; /* Add padding to the right */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.map-note-options-table th.note-name input {
+  width: calc(100% - 10px); /* Subtract the total padding from the width */
+  padding: 5px; /* Add padding inside the input */
+  margin-left: auto; /* Push the input to the right */
+  display: block; /* Make the input a block element */
+}
+.note-input-cell {
+  text-align: right; /* Aligns the input field to the right */
+  justify-content: flex-end; /* Align icons to the right */
+  background-color: #333; /* Dark background for the icon row */
+}
+
+.note-input {
+  line-height: 1rem;
+  background-color: #3d3d39;
+  color: #cccbcb;
+  border: transparent;
+  width: 68%; /* Example width, adjust as needed */
+}
+
+.icon-selector {
+  padding: 2px;
+  text-align: right; /* Aligns the input field to the right */
+  background-color: #333; /* Dark background */
+}
+
+.icon-row {
+  display: flex;
+  justify-content: flex-end; /* Align icons to the right */
+  background-color: #333; /* Dark background for the icon row */
+  padding-bottom: 2px;
+  padding-top: 2px;
+}
+
+
+.icon-placeholder {
+  width: 22px; /* Adjust size as needed */
+  height: 22px; /* Adjust size as needed */
+  background-color: #fff; /* White color for the placeholder icons */
+  border-radius: 50%;
+  background-size: 12px; /* Width and height of the actual image */
+  background-repeat: no-repeat;
+  background-position: center; /* Centers the background image */
+  margin-left: 5px; /* Spacing between icons */
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: cover;
+  mask-size: 70%;
+  background-color: white; /* Set a default background color for all icons */
+}
+
+
+.icon-placeholder.selected {
+  background-color: rgba(255, 255, 255, 0.4); /* Light semi-transparent background to indicate selection */
+  border: 2px solid white; /* White border to indicate selection */
+  box-sizing: border-box;
+}
+
+/* Remove margin from the last icon in each row */
+.icon-row .icon-placeholder:last-child {
+  margin-right: 0;
+}
+.icon-row .icon-placeholder:first-child {
+  margin-left: 0;
+}
+
+
+.map-note-apply {
+  background: rgb(102, 125, 61);
+  width: 228px;
+  bottom: 0;
+  position: absolute;
+  margin-left: 1px;
+  margin-right: 1px;
+  margin-bottom: 1px;
+  margin-top: 1px;
+  justify-content: center;
+  text-align: center;
+  color: rgb(174, 202, 126);
+  font-size: 9px;
+  height: 23px;
+  line-height: 1.25rem;
+  align-items: center;
+}
+
+.note-op-name {
+  position: absolute;
+  width: fit-content;
+  margin-left: 5px;
+  font-size: 10px;
+}
+
+
+@font-face {
+  font-family: RobotoRegular;
+  src: url("../fonts/RobotoCondensed-Regular.ttf")
+}
+
+@font-face {
+  font-family: RobotoBold;
+  src: url("../fonts/RobotoCondensed-Bold.ttf")
+}
+
