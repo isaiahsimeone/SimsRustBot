@@ -1,6 +1,7 @@
 # Sim's Rust Bot
 
 Next:
+- make heli & chinook gifs
 - Include a verbosity setting so the bot doesn't yap too much on the chat
 - Death markers
 - set min marker size for zoom in - they get too small
