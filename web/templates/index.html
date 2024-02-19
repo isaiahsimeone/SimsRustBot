@@ -68,21 +68,21 @@
                     <td class="note-op-name">MARKER</td>
                     <td>
                       <div class="icon-row">
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/0.png')"></div>
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/1.png')"></div>
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/2.png')"></div>
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/3.png')"></div>
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/4.png')"></div>
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/5.png')"></div>
+                        <div class="map_icon icon-placeholder selected" style="mask-image: url('static/images/markers/0.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/1.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/2.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/3.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/4.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/5.png')"></div>
                       </div>
                       <!-- Second row of icons -->
                       <div class="icon-row">
-                        <div class="icon-placeholder selected" style="mask-image: url('static/images/markers/6.png')"></div>
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/7.png')"></div>
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/8.png')"></div>
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/9.png')"></div>
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/10.png')"></div>
-                        <div class="icon-placeholder" style="mask-image: url('static/images/markers/11.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/6.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/7.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/8.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/9.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/10.png')"></div>
+                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/11.png')"></div>
                       </div>
                     </td>
                   </tr>
@@ -90,12 +90,12 @@
                     <td class="note-op-name">COLOUR</td>
                     <td>
                       <div class="icon-row">
-                        <div class="icon-placeholder selected" style="background-color: #cbcd53;"></div>
-                        <div class="icon-placeholder" style="background-color: #2e66af;"></div>
-                        <div class="icon-placeholder" style="background-color: #6c9835;"></div>
-                        <div class="icon-placeholder" style="background-color: #a73533;"></div>
-                        <div class="icon-placeholder" style="background-color: #a253ae;"></div>
-                        <div class="icon-placeholder" style="background-color: #13d7b0;"></div>
+                        <div id="colour_yellow" class="note_colour icon-placeholder selected" style="background-color: #cbcd53;"></div>
+                        <div id="colour_blue" class="note_colour icon-placeholder" style="background-color: #2e66af;"></div>
+                        <div id="colour_green" class="note_colour icon-placeholder" style="background-color: #6c9835;"></div>
+                        <div id="colour_red" class="note_colour icon-placeholder" style="background-color: #a73533;"></div>
+                        <div id="colour_purple" class="note_colour icon-placeholder" style="background-color: #a253ae;"></div>
+                        <div id="colour_cyan" class="note_colour icon-placeholder" style="background-color: #13d7b0;"></div>
                       </div>
                     </td>
                   </tr>
@@ -159,6 +159,10 @@
 
             // Add 'selected' class to the clicked icon
             icon.classList.add("selected");
+            if (icon.classList.contains("note_colour")) {
+              const map_icons = document.querySelectorAll(".map_icon");
+              map_icons.forEach((i) => i.style.backgroundColor = icon.style.backgroundColor);
+            }
           });
         });
         // move this to a chat.js file, and include sender_steam_id. This is also ugly as shit
