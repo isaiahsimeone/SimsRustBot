@@ -133,6 +133,7 @@
 
 .overlay {
   position: absolute;
+  z-index: 2;
   min-width:20px;
   min-height:20px;
   width: 15px; /*50px; /* Base width */
@@ -141,12 +142,22 @@
   display: block; /* Initially visible */
 }
 
+.blades {
+  z-index: 3 !important;
+}
+
+.player {
+  z-index: 10 !important;
+}
+
 @font-face {
   font-family: permanentMarker;
   src: url("../fonts/PermanentMarker-Regular.ttf")
 }
 
 .map_text {
+  position: absolute;
+  z-index: 0;
   font-family: permanentMarker;
   white-space: nowrap;
   text-align: center;
