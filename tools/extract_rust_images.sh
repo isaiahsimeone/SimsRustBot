@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Run on rust game folder (steamapps/common/Rust)
+# Run on rust game folder (steamapps/common/Rust) - This will take a while
 mkdir -p extracted
 
 find . -type f -exec sh -c '
