@@ -74,7 +74,7 @@ export function receiveMapNotes(notes) {
 	log("I got map notes: " + JSON.stringify(notes));
 	map_notes = notes;
 
-	//redrawMapNotes();
+	redrawMapNotes();
 }
 
 export function receiveMapMarkerData(markers) {
@@ -117,6 +117,7 @@ export function initialiseMap() {
 			updateInitialMapRect();
 			updateMapMarkers();
 			redrawMonuments();
+			redrawMapNotes();
 			adjustOverlaysOnZoom();
 		});
 
@@ -130,17 +131,96 @@ export function initialiseMap() {
 	map_image_offset_left = getMapImageWhitespace();
 }
 
+function deleteAllMapNotes() {
+	var elements = document.getElementsByClassName("map_note");
+	
+	Array.from(elements).forEach((element) => {
+		element.remove();
+	});
+}
+
 function redrawMapNotes() {
 	deleteAllMapNotes();
-	for (let i = 0; i < Object.keys(map_monuments).length; i++) {
-		let text = MonumentNames[map_monuments[i].token];
-		if (text)
-			createMapNote(i, map_monuments[i].x, map_monuments[i].y, colour, label);
+	for (let i = 0; i < map_notes.length; i++) {
+		createMapNote(i, map_notes[i]);
 	}
 }
 
-function createMapNote(id, x, y, colour, label) {
+const MapNoteColours = {
+	0: "#cbcd53",
+	1: "#2e66af",
+	2: "#6c9835",
+	3: "#a73533",
+	4: "#a253ae",
+	5: "#13d7b0"
+}
+
+
+function createMapNote(id, map_note) {
+	if (map_note.type == 0) // death marker
+		return ;
+	console.log("Creating note");
+	let note = document.createElement("div");
+	note.className = "overlay map_note";
+	note.id = "overlay_note" + id;
+
+	note.style.fontSize = "10px";
+	note.innerHTML = map_note.label;
+	//note.style.backgroundImage = `url('${img_path}/markers/bed.png')`;
+
+
+	let icon_colour = MapNoteColours[map_note.colour_index];
 	
+
+	let note_backg = document.createElement("div");
+	note_backg.className = "note-background";
+	note_backg.style.backgroundColor = darkenRGB(icon_colour);//"#40411a"; // background colour
+	//background-color: #f0f0f0; /* background color */
+
+
+	let note_mask = document.createElement("div");
+	note_mask.className = "note-mask";
+	note_mask.style.mask = `url('${img_path}/markers/${map_note.icon}.png') no-repeat center / contain`; // icon
+	note_mask.style.maskSize = "60%";
+	note_mask.style.backgroundColor = `${icon_colour}`; // icon colour
+
+
+	let note_border = document.createElement("div");
+	note_border.className = "note-border";
+	note_border.style.border = `1px solid ${icon_colour}`; // Colour for border, same as icon
+	//border: 2px solid #ff0000; /* color for the border, same as the icon */
+
+
+	let note_outer_border = document.createElement("div");
+	note_outer_border.className = "note-outer-border"; // Just a black border
+
+	note.appendChild(note_backg);
+	note.appendChild(note_mask);
+	note.appendChild(note_border);
+	//note.appendChild(note_outer_border);
+	
+	mapContainer.appendChild(note);
+
+	positionMarker(note.id, map_note.x, map_note.y);
+}
+
+function darkenRGB(hex, factor=0.75) {
+	const r = parseInt(hex.slice(1, 3), 16);
+	const g = parseInt(hex.slice(3, 5), 16);
+	const b = parseInt(hex.slice(5, 7), 16);
+    
+	// Darken the RGB values
+	const darkerR = Math.floor(r * (1 - factor));
+	const darkerG = Math.floor(g * (1 - factor));
+	const darkerB = Math.floor(b * (1 - factor));
+  
+	// Convert back to hex
+	const toHex = (value) => {
+	  const hex = value.toString(16);
+	  return hex.length == 1 ? '0' + hex : hex;
+	};
+  
+	return `#${toHex(darkerR)}${toHex(darkerG)}${toHex(darkerB)}`;
 }
 
 function redrawMonuments() {
@@ -265,7 +345,7 @@ function deleteAllMapMarkers() {
 	var elements = document.getElementsByClassName("overlay");
 
 	Array.from(elements).forEach((element) => {
-		if (!element.classList.contains("map_text")) // Don't delete text
+		if (!element.classList.contains("map_text") && !element.classList.contains("map_note")) // Don't delete text
 			element.remove(); // Removes the element from the DOM
 	});
 }
