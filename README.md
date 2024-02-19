@@ -1,7 +1,6 @@
 # Sim's Rust Bot
 
 Next:
-- ~~Chinook blades~~
 - Include a verbosity setting so the bot doesn't yap too much on the chat
 - Death markers
 - set min marker size for zoom in - they get too small
