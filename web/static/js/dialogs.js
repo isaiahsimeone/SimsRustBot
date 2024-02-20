@@ -1,4 +1,6 @@
 import { my_steam_id } from "./steam.js";
+import { receiveWebMapNote } from "./note.js";
+import { panzoom } from "./map.js";
 
 const DEBUG = true;
 
@@ -112,7 +114,20 @@ function mapNoteApplyClicked() {
     log("Create map note marker at (" + dialog.style.left + ", " + dialog.style.top + ") where icon is " + selected_icon_index + 
             ".png, colour is " + selected_colour + " label is \"" + selected_label + "\" for steam_id " + my_steam_id);
 
+    // TODO: We definitely need to modify x and y to compensate for panzoom pan/scale
+    let note = {
+        "type": '1',
+        "x": parseInt(dialog.style.left, 10) * (1 / panzoom.getScale()) + panzoom.getPan().x,// - panzoom.getPan().x, // trim 'px'
+        "y": parseInt(dialog.style.top, 10)* (1 / panzoom.getScale()) + panzoom.getPan().y,// - panzoom.getPan().y,
+        "icon": selected_icon_index,
+        "colour": selected_colour,
+        "label": selected_label
+    };
+    
+    // TODO: this should be sent to the backend, then disseminated to clients. NOT rendered locally
+    receiveWebMapNote(note);
 }
+
 
 function log(...args) {
 	if (DEBUG)

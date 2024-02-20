@@ -1,10 +1,11 @@
-import { positionMarker, mapContainer } from "./map.js";
+import { positionMarker, mapContainer, panzoom } from "./map.js";
 import { img_path } from "./main.js";
 
 const DEBUG = true;
 
 
 let map_notes = null;
+let web_map_notes = [];
 
 const MapNoteColours = {
 	0: "#cbcd53",
@@ -25,6 +26,12 @@ export function receiveMapNotes(notes) {
 	redrawMapNotes();
 }
 
+export function receiveWebMapNote(note) {
+	log("I received a custom map note: " + JSON.stringify(note));
+	web_map_notes.push(note);
+
+	redrawMapNotes();
+}
 
 function deleteAllMapNotes() {
 	var elements = document.getElementsByClassName("map_note");
@@ -40,48 +47,63 @@ export function redrawMapNotes() {
 
 	deleteAllMapNotes();
 
+	drawRustServerNotes();
+	drawWebNotes();
+}
+
+function drawRustServerNotes() {
 	for (let i = 0; i < map_notes.length; i++) {
-		createMapNote(i, map_notes[i]);
+		let note = map_notes[i];
+		createMapNote(i, note.x, note.y, note.icon, MapNoteColours[note.colour_index], note.label);
+	}
+}
+
+function drawWebNotes() {
+	// notes added via web
+	for (let i = 0; i < web_map_notes.length; i++) {
+		let note = web_map_notes[i];
+		log("DRAW");
+		createMapNote(i, note.x, note.y, note.icon, note.colour, note.label, true);
 	}
 }
 
 
-function createMapNote(id, map_note) {
-	if (map_note.type == 0) // death marker
-		return ;
+function createMapNote(id, x, y, icon_index, colour, label, web_note=false) {
 	console.log("Creating note");
 	let note = document.createElement("div");
-	note.className = "overlay map_note";
-	note.id = "overlay_note" + id;
+	note.className = "overlay map_note " + (web_note ? "web_map_note" : "");
+
+	if (web_note)
+		note.id = "overlay_web_note" + id;
+	else
+		note.id = "overlay_note" + id;
 
 	note.style.fontSize = "10px";
-	note.innerHTML = map_note.label;
+	note.innerHTML = label;
 	//note.style.backgroundImage = `url('${img_path}/markers/bed.png')`;
 
-
-	let icon_colour = MapNoteColours[map_note.colour_index];
 	
-    if (map_note.icon == 0) {
-        note.style.mask = `url('${img_path}/markers/${map_note.icon}.png') no-repeat center / contain`; // icon
-        note.style.backgroundColor = `${icon_colour}`; // icon colour
+    if (icon_index == 0) {
+        note.style.mask = `url('${img_path}/markers/${icon_index}.png') no-repeat center / contain`; // icon
+        note.style.backgroundColor = `${colour}`; // icon colour
     } else {
 
         let note_backg = document.createElement("div");
         note_backg.className = "note-background";
-        note_backg.style.backgroundColor = darkenRGB(icon_colour);//"#40411a"; // background colour
+        note_backg.style.backgroundColor = darkenRGB(colour);//"#40411a"; // background colour
         //background-color: #f0f0f0; /* background color */
 
 
         let note_mask = document.createElement("div");
         note_mask.className = "note-mask";
-        note_mask.style.mask = `url('${img_path}/markers/${map_note.icon}.png') no-repeat center / contain`; // icon
+        note_mask.style.mask = `url('${img_path}/markers/${icon_index}.png') no-repeat center / contain`; // icon
         note_mask.style.maskSize = "60%";
-        note_mask.style.backgroundColor = `${icon_colour}`; // icon colour
+        note_mask.style.backgroundColor = `${colour}`; // icon colour
 
 
         let note_border = document.createElement("div");
         note_border.className = "note-border";
-        note_border.style.border = `1px solid ${icon_colour}`; // Colour for border, same as icon
+        note_border.style.border = `1px solid ${colour}`; // Colour for border, same as icon
         //border: 2px solid #ff0000; /* color for the border, same as the icon */
 
 
@@ -96,7 +118,8 @@ function createMapNote(id, map_note) {
 	
 	mapContainer.appendChild(note);
 
-	positionMarker(note.id, map_note.x, map_note.y);
+	
+	positionMarker(note.id, x, y, 0, !web_note);
 }
 
 function darkenRGB(hex, factor=0.75) {

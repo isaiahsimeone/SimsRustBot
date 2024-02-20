@@ -15,7 +15,6 @@ let initial_map_rect = null;
 
 let map_markers = null;
 let map_monuments = null;
-let map_notes = null;
 
 export let panzoom_inverted_scale = 1;
 
@@ -168,7 +167,7 @@ function toImageCoords(x, y) {
 	return { 'x': translated_x, 'y': translated_y };
 }
 
-export function positionMarker(overlayId, jsonX, jsonY, rotation = 0) {
+export function positionMarker(overlayId, jsonX, jsonY, rotation = 0, requiresTranslation=true) {
 
 	const overlay = document.getElementById(overlayId);
 
@@ -178,8 +177,15 @@ export function positionMarker(overlayId, jsonX, jsonY, rotation = 0) {
 	// Overlay center points
 	const overlay_width_center = overlay.offsetWidth / 2;
 	const overlay_height_center = overlay.offsetHeight / 2;
+	
+	let x = jsonX;
+	let y = jsonY;
 
-	let { x, y } = toImageCoords(jsonX, jsonY);
+	if (requiresTranslation) {
+		let translated = toImageCoords(jsonX, jsonY);
+		x = translated.x;
+		y = translated.y;
+	}
 
 	x -= overlay_width_center;
 	y -= overlay_height_center;
@@ -194,6 +200,7 @@ export function positionMarker(overlayId, jsonX, jsonY, rotation = 0) {
 	overlay.dataset.initialRotation = rotation;
 
 }
+
 
 // places an overlay image on the map given JSON coordinates
 // from the RustAPI. It will be converted to coordinates suitable
