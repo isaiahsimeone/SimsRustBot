@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" href="static/css/style.css" />
     <link rel="stylesheet" href="static/css/map-note.css" />
+
   </head>
   <body>
     <!-- Command Modal -->
@@ -33,7 +34,7 @@
     <div class="container-fluid p-0">
       <div class="row no-gutters">
         <!-- Left Panel: Command List -->
-        <div class="col-md-2 bg-dark text-light">
+        <div id="left-panel" class="col-md-2 bg-dark text-light">
           <div class="logo p-3">
             <a target="_blank" href="https://www.github.com/isaiahsimeone/simsrustbot">
               <img src="static/images/sims_rust_bot_logo.png" alt="Sim's Rust Bot" class="img-fluid" />
@@ -52,37 +53,38 @@
 
         <!-- Center Panel: Map -->
         <div class="col-md-8">
+          
           <!--Map note popup -->
           <div id="map-note-dialog" class="map-note-dialog">
-            EDIT MARKER
+            <span style="margin-left:5px">EDIT MARKER</span>
             <div class="map-note-options-container">
               <div class="map-note-options-table">
                 <table>
                   <tr>
                     <th class="note-op-name">NAME</th>
                     <th class="note-input-cell">
-                      <input type="text" class="note-input" placeholder="Enter Text..." />
+                      <input type="text" id="map-note-label" class="note-input" placeholder="Enter Text..." />
                     </th>
                   </tr>
                   <tr>
                     <td class="note-op-name">MARKER</td>
                     <td>
                       <div class="icon-row">
-                        <div class="note-icon selected" style="mask-image: url('static/images/markers/0.png')"></div>
-                        <div class="note-icon" style="mask-image: url('static/images/markers/1.png')"></div>
-                        <div class="note-icon" style="mask-image: url('static/images/markers/2.png')"></div>
-                        <div class="note-icon" style="mask-image: url('static/images/markers/3.png')"></div>
-                        <div class="note-icon" style="mask-image: url('static/images/markers/4.png')"></div>
-                        <div class="note-icon" style="mask-image: url('static/images/markers/5.png')"></div>
+                        <div index="0" class="note-icon selected" style="mask-image: url('static/images/markers/0.png')"></div>
+                        <div index="1" class="note-icon" style="mask-image: url('static/images/markers/1.png')"></div>
+                        <div index="2" class="note-icon" style="mask-image: url('static/images/markers/2.png')"></div>
+                        <div index="3" class="note-icon" style="mask-image: url('static/images/markers/3.png')"></div>
+                        <div index="4" class="note-icon" style="mask-image: url('static/images/markers/4.png')"></div>
+                        <div index="5" class="note-icon" style="mask-image: url('static/images/markers/5.png')"></div>
                       </div>
                       <!-- Second row of icons -->
                       <div class="icon-row">
-                        <div class="note-icon" style="mask-image: url('static/images/markers/6.png')"></div>
-                        <div class="note-icon" style="mask-image: url('static/images/markers/7.png')"></div>
-                        <div class="note-icon" style="mask-image: url('static/images/markers/8.png')"></div>
-                        <div class="note-icon" style="mask-image: url('static/images/markers/9.png')"></div>
-                        <div class="note-icon" style="mask-image: url('static/images/markers/10.png')"></div>
-                        <div class="note-icon" style="mask-image: url('static/images/markers/11.png')"></div>
+                        <div index="6" class="note-icon" style="mask-image: url('static/images/markers/6.png')"></div>
+                        <div index="7" class="note-icon" style="mask-image: url('static/images/markers/7.png')"></div>
+                        <div index="8" class="note-icon" style="mask-image: url('static/images/markers/8.png')"></div>
+                        <div index="9" class="note-icon" style="mask-image: url('static/images/markers/9.png')"></div>
+                        <div index="10" class="note-icon" style="mask-image: url('static/images/markers/10.png')"></div>
+                        <div index="11" class="note-icon" style="mask-image: url('static/images/markers/11.png')"></div>
                       </div>
                     </td>
                   </tr>
@@ -90,18 +92,21 @@
                     <td class="note-op-name">COLOUR</td>
                     <td>
                       <div class="icon-row">
-                        <div id="colour_yellow" class="note-icon-colour selected" style="background-color: #cbcd53;"></div>
-                        <div id="colour_blue" class="note-icon-colour" style="background-color: #2e66af;"></div>
-                        <div id="colour_green" class="note-icon-colour" style="background-color: #6c9835;"></div>
-                        <div id="colour_red" class="note-icon-colour" style="background-color: #a73533;"></div>
-                        <div id="colour_purple" class="note-icon-colour" style="background-color: #a253ae;"></div>
-                        <div id="colour_cyan" class="note-icon-colour" style="background-color: #13d7b0;"></div>
+                        <div id="colour_yellow" class="note-icon-colour selected" data-current-color="#cbcd53"></div>
+                        <div id="colour_blue" class="note-icon-colour" data-current-color="#2e66af"></div>
+                        <div id="colour_green" class="note-icon-colour" data-current-color="#6c9835"></div>
+                        <div id="colour_red" class="note-icon-colour" data-current-color="#a73533"></div>
+                        <div id="colour_purple" class="note-icon-colour" data-current-color="#a253ae"></div>
+                        <div id="color-picker-trigger" class="note-icon-colour note-rainbow-icon" data-current-color="#ab2567" data-jscolor="{value:'#9f3ad7', onInput:'pickerColourChange(this)'}">
+
+
+                        </div>
                       </div>
                     </td>
                   </tr>
                 </table>
               </div>
-              <div class="map-note-apply">APPLY</div>
+              <div id="map-note-apply" class="map-note-apply">APPLY</div>
             </div>
           </div>
 
@@ -144,12 +149,17 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.2/jscolor.min.js"></script>
+
 
     <script>
-
-        
+        function pickerColourChange(picker) {
+            const note_icons = document.querySelectorAll(".note-icon");
+            note_icons.forEach((icon => {
+                icon.style.backgroundColor = picker.toHEXString();
+            }));
+        }
     </script>
     <script type="module" src="static/js/main.js"></script>
-    <script src="static/js/dialogs.js"></script>
   </body>
 </html>

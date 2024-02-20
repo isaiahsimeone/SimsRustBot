@@ -3,6 +3,7 @@ import { initialiseMap } from "./map.js";
 import { initialiseTeam } from "./team.js";
 import { initialiseCommands } from "./command.js";
 import { initialiseServer, server } from "./server.js";
+import { initialiseDialogs } from "./dialogs.js";
 import { awaitVariableSet } from "./util.js";
 
 const DEBUG = true;
@@ -30,6 +31,8 @@ async function init() {
 	initialiseChat();
 
 	initialiseCommands();
+
+	initialiseDialogs();
 }
 
 

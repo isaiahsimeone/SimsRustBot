@@ -121,21 +121,10 @@ export function initialiseMap() {
 		});
 	}
 
-	panzoomElement.addEventListener('contextmenu', showDialog);
 
 	map_image_offset_left = getMapImageWhitespace();
 }
 
-function showDialog(event) {
-	// Prevent the default context menu
-	event.preventDefault();
-  
-	// Get the dialog element and position it at the click location
-	var dialog = document.getElementById('map-note-dialog');
-	dialog.style.left = event.pageX + 'px';
-	dialog.style.top = event.pageY + 'px';
-	dialog.style.display = 'block';
-  }
 
 function redrawMonuments() {
 	deleteAllMapText();
