@@ -68,21 +68,21 @@
                     <td class="note-op-name">MARKER</td>
                     <td>
                       <div class="icon-row">
-                        <div class="map_icon icon-placeholder selected" style="mask-image: url('static/images/markers/0.png')"></div>
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/1.png')"></div>
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/2.png')"></div>
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/3.png')"></div>
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/4.png')"></div>
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/5.png')"></div>
+                        <div class="note-icon selected" style="mask-image: url('static/images/markers/0.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/1.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/2.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/3.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/4.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/5.png')"></div>
                       </div>
                       <!-- Second row of icons -->
                       <div class="icon-row">
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/6.png')"></div>
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/7.png')"></div>
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/8.png')"></div>
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/9.png')"></div>
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/10.png')"></div>
-                        <div class="map_icon icon-placeholder" style="mask-image: url('static/images/markers/11.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/6.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/7.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/8.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/9.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/10.png')"></div>
+                        <div class="note-icon" style="mask-image: url('static/images/markers/11.png')"></div>
                       </div>
                     </td>
                   </tr>
@@ -90,12 +90,12 @@
                     <td class="note-op-name">COLOUR</td>
                     <td>
                       <div class="icon-row">
-                        <div id="colour_yellow" class="note_colour icon-placeholder selected" style="background-color: #cbcd53;"></div>
-                        <div id="colour_blue" class="note_colour icon-placeholder" style="background-color: #2e66af;"></div>
-                        <div id="colour_green" class="note_colour icon-placeholder" style="background-color: #6c9835;"></div>
-                        <div id="colour_red" class="note_colour icon-placeholder" style="background-color: #a73533;"></div>
-                        <div id="colour_purple" class="note_colour icon-placeholder" style="background-color: #a253ae;"></div>
-                        <div id="colour_cyan" class="note_colour icon-placeholder" style="background-color: #13d7b0;"></div>
+                        <div id="colour_yellow" class="note-icon-colour selected" style="background-color: #cbcd53;"></div>
+                        <div id="colour_blue" class="note-icon-colour" style="background-color: #2e66af;"></div>
+                        <div id="colour_green" class="note-icon-colour" style="background-color: #6c9835;"></div>
+                        <div id="colour_red" class="note-icon-colour" style="background-color: #a73533;"></div>
+                        <div id="colour_purple" class="note-icon-colour" style="background-color: #a253ae;"></div>
+                        <div id="colour_cyan" class="note-icon-colour" style="background-color: #13d7b0;"></div>
                       </div>
                     </td>
                   </tr>
@@ -146,51 +146,10 @@
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 
     <script>
-      function hideDialog() {
-        var dialog = document.getElementById("place-marker-dialog");
-        dialog.style.display = "none";
-      }
-      $(document).ready(function () {
-        const icons = document.querySelectorAll(".icon-placeholder");
-        icons.forEach((icon) => {
-          icon.addEventListener("click", () => {
-            // Remove 'selected' class from all icons
-            icons.forEach((i) => i.classList.remove("selected"));
 
-            // Add 'selected' class to the clicked icon
-            icon.classList.add("selected");
-            if (icon.classList.contains("note_colour")) {
-              const map_icons = document.querySelectorAll(".map_icon");
-              map_icons.forEach((i) => i.style.backgroundColor = icon.style.backgroundColor);
-            }
-          });
-        });
-        // move this to a chat.js file, and include sender_steam_id. This is also ugly as shit
-        /*   document.getElementById('sendMessage').addEventListener('click', function() {
-      console.log("CLICKED");
-        const message = document.getElementById('chatMessage').value;
-        if (message) { // Check if message is not empty
-            fetch('/sendteammessage', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `message=${encodeURIComponent(message)}`,
-            })
-            .then(response => response.text())
-            .then(data => {
-                console.log(data);
-                // Optionally clear the input field after sending
-                document.getElementById('chatMessage').value = '';
-                // Optionally append the message to the chat area as a 'sent' message
-            })
-            .catch(error => console.error('Error:', error));
-        } else {
-            console.log("Message is empty.");
-        }
-    });*/
-      });
+        
     </script>
     <script type="module" src="static/js/main.js"></script>
+    <script src="static/js/dialogs.js"></script>
   </body>
 </html>

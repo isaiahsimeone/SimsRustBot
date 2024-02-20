@@ -79,7 +79,7 @@
 }
 
 
-.icon-placeholder {
+.note-icon, .note-icon-colour {
   width: 22px; /* Adjust size as needed */
   height: 22px; /* Adjust size as needed */
   border-radius: 50%;
@@ -95,17 +95,22 @@
 }
 
 
-.icon-placeholder.selected {
-  background-color: rgba(255, 255, 255, 0.4); /* Light semi-transparent background to indicate selection */
+.note-icon.selected {
+  opacity: 0.4; /* show selected */
+  border: 2px solid white; /* White border to indicate selection */
+  box-sizing: border-box;
+}
+
+.note-icon-colour.selected {
   border: 2px solid white; /* White border to indicate selection */
   box-sizing: border-box;
 }
 
 /* Remove margin from the last icon in each row */
-.icon-row .icon-placeholder:last-child {
+.icon-row .note-icon:last-child, .icon-row .note-icon-colour:last-child {
   margin-right: 0;
 }
-.icon-row .icon-placeholder:first-child {
+.icon-row .note-icon:first-child, .icon-row .note-icon-colour:first-child {
   margin-left: 0;
 }
 
