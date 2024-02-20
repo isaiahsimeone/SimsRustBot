@@ -2,6 +2,7 @@
 
 Next:
 - make heli & chinook gifs
+- Heli exploded at (grid cell) - We need to check when the marker for it disappears during polling
 - Include a verbosity setting so the bot doesn't yap too much on the chat
 - Death markers
 - set min marker size for zoom in - they get too small
