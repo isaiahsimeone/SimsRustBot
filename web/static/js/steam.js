@@ -8,6 +8,14 @@ let steam_images_available = [];
 
 export let my_steam_id = getCookie("steam_id");
 
+export function receiveTeamMembers(members) {
+    for (let i = 0; i < members.length; i++) {
+        steamIdToNameMap[members[i].steam_id] = members[i].name;
+        downloadSteamImage(members[i].steam_id);
+    }
+    log("Your steam name is", nameFromSteamId(my_steam_id));
+}
+
 export function nameFromSteamId(steamId) {
     return steamIdToNameMap[steamId] || "Unknown";
 }
@@ -23,7 +31,7 @@ export function steamImageExists(steam_id) {
 }
 
 export function downloadSteamImage(steamId) {
-    log("downloading " + String(steamId));
+    log("Downloading steam profile pic for", steamId);
     const url = `${window.location.href}downloadsteamimage/${steamId}`;
 
     fetch(url, {

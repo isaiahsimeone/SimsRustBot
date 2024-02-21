@@ -1,5 +1,6 @@
 import * as socketio from "./socketio.js";
 import { receiveMapNotes } from "./note.js";
+import { receiveTeamMembers } from "./steam.js";
 
 const DEBUG = true;
 
@@ -14,6 +15,9 @@ export function receiveTeamInfo(data) {
     data = data.data;
     log("Got team info: " + JSON.stringify(data));
     team_info = data;
+
+    // Get steam names from steam IDs
+    receiveTeamMembers(team_info['members'])
 
     // Call map.js to plot map notes
     receiveMapNotes(team_info['map_notes'])

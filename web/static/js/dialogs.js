@@ -1,4 +1,4 @@
-import { my_steam_id } from "./steam.js";
+import { my_steam_id, nameFromSteamId } from "./steam.js";
 import { panzoom } from "./map.js";
 import * as socketio from "./socketio.js";
 
