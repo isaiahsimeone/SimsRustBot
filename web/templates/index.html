@@ -7,7 +7,18 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" href="static/css/style.css" />
     <link rel="stylesheet" href="static/css/map-note.css" />
-
+    <style>
+      #mousepos {
+          padding-left: 10px;
+          border-radius: 10px;
+          position: absolute;
+          user-select: none;
+          font-size: 2em;
+          width: 120px;
+          color: #EEEEEE;
+          background-color: #FD7013;
+      }
+  </style>
   </head>
   <body>
     <!-- Command Modal -->
@@ -46,7 +57,7 @@
 
             <!-- Command that opens a modal -->
             <div class="command-btn modal-trigger" data-toggle="modal" data-target="#commandModal">Modal COMMAND_2</div>
-
+            <div id="mousepos"></div>
             <!-- Repeat for other commands -->
           </div>
         </div>
@@ -110,7 +121,7 @@
             </div>
           </div>
 
-          <div id="panzoom-element" class="panzoom">
+          <div id="panzoom-element" class="panzoom" onmousemove="getCursor(event)">
             <div id="map-container" class="map-container">
               <!-- The map image will be placed here -->
               <img src="static/images/map.jpg" alt="RUST_MAP" id="map-image" />
@@ -159,6 +170,15 @@
                 icon.style.backgroundColor = picker.toHEXString();
             }));
         }
+
+        function getCursor(event) {
+          let x = event.clientX;
+          let y = event.clientY;
+          let _position = `X: ${x}<br>Y: ${y}`;
+
+          const infoElement = document.getElementById('mousepos');
+          infoElement.innerHTML = _position;
+      }
     </script>
     <script type="module" src="static/js/main.js"></script>
   </body>

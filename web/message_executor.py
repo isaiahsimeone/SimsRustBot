@@ -6,7 +6,7 @@ from PIL import Image
 class MessageExecutor():
     def __init__(self, web_server):
         self.web_server = web_server
-                    
+
     def get_message_type(self, value):
         for member in MT:
             if member.value == value:

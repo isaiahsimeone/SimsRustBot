@@ -26,9 +26,28 @@ export function receiveMapNotes(notes) {
 	redrawMapNotes();
 }
 
-export function receiveWebMapNote(note) {
-	log("I received a custom map note: " + JSON.stringify(note));
-	web_map_notes.push(note);
+export function receiveWebMapNotes(data) {
+	log("Got mapnotes web", data);
+	for (let i = 0; i < data.length; i++) {
+		let note = data[i];
+		web_map_notes.push(note);
+	}
+	redrawMapNotes();
+}
+
+export function receiveWebMapNoteChange(data) {
+	log("I received a custom map note: " + JSON.stringify(data));
+	
+	let change = data['change'];
+	let author = data['author'];
+	let note = data['note'];
+	
+	if (change == "add")
+		web_map_notes.push(note);
+	//else if (change == "remove")
+		 // REMOVE map note here
+
+	log(change, author, note);
 
 	redrawMapNotes();
 }

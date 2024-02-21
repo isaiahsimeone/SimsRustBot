@@ -2,6 +2,7 @@ import { receiveTeamChatData } from "./chat.js";
 import { receiveMapMarkerData, receiveMapMonuments } from "./map.js";
 import { receiveTeamInfo } from "./team.js";
 import { receiveServerInfo } from "./server.js";
+import { receiveWebMapNoteChange, receiveWebMapNotes } from "./note.js";
 
 const DEBUG = true;
 
@@ -31,6 +32,8 @@ socket.on("broadcast", function(raw_data) {
             return receiveServerInfo(data);
         case "teaminfo":
             return receiveTeamInfo(data);
+        case "mapnotechange":
+            return receiveWebMapNoteChange(data);
         default:
             log("Encountered unknown broadcast type");
     }
@@ -54,6 +57,8 @@ socket.on("data_response", function(response) {
             return receiveMapMarkerData(data);
         case "monuments":
             return receiveMapMonuments(data);
+        case "mapnotesweb":
+            return receiveWebMapNotes(data.data);
         default:
             log("Encountered unknown request type");
     }

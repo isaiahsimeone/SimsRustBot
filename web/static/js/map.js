@@ -85,6 +85,7 @@ export function receiveMapMonuments(data) {
 export function initialiseMap() {
 	socketio.make_request("markers");
 	socketio.make_request("monuments");
+	socketio.make_request("mapnotesweb");
 
 	updateInitialMapRect();
 
@@ -152,6 +153,7 @@ function updateInitialMapRect() {
 		initial_map_rect = mapImage.getBoundingClientRect();
 	}
 }
+
 
 function toImageCoords(x, y) {
 	if (!initial_map_rect)

@@ -6,8 +6,9 @@ import json
 import time
 import asyncio
 
+
 def setup_event_streams(socketio, web_server):
-  
+    
     @socketio.on('connect')
     def socketio_connect():
         print("Client connected")
@@ -32,9 +33,11 @@ def setup_event_streams(socketio, web_server):
                 data = web_server.server_info
             case "teaminfo":
                 data = web_server.team_info
+            case "mapnotesweb":
+                data = web_server.map_note_manager.get_notes()
             case _:
                 web_server.log("Client requested unknown data: " + str(message), "error")
-                
+        
         emit("data_response", {"type": request_what, "data": data})
   
     @socketio.on('client_send')
@@ -56,4 +59,15 @@ def setup_event_streams(socketio, web_server):
                 message = data.get("message")
                 sender = data.get("sender")
                 await web_server.send_message(Message(MessageType.SEND_TEAM_MESSAGE, {"message": message, "sender": sender}), Service.RUSTAPI)
+            case "newmapnote":
+                web_server.log("Got new map note")
+                message = data.get("message")
+                sender = data.get("sender")
+                # No BUS message sent, this data is just for the web app currently
+                web_server.map_note_manager.add_note(message, sender)
+            case "removemapnote":
+                web_server.log("Got request to remove map note")
+                message = data.get("message")
+                sender = data.get("sender")
+                web_server.map_note_manager.remove_note(message, sender)
         await asyncio.sleep(1) # TODO: This is hacky. Need to wait for message to propagate to rust API listener

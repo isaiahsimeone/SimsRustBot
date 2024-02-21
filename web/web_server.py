@@ -11,6 +11,7 @@ import json
 import asyncio
 import time
 from flask_socketio import SocketIO, emit
+from .web_map_note_manager import WebMapNoteManager
 
 app = Flask(__name__)
 app.secret_key = 'secret'
@@ -31,6 +32,7 @@ class WebServer:
         self.steam_api_key = self.config.get("steam_api_key")
         
         self.executor = MessageExecutor(self)
+        self.map_note_manager = WebMapNoteManager(socketio, self)
         
         self.server_info = None
         self.team_info = None
@@ -104,7 +106,7 @@ class WebServer:
                 self.page_ready = True
                 return None
             time.sleep(1)
-            
+    
     def get_host(self):
         return self.host
     

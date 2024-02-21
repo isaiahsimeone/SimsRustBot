@@ -1,6 +1,6 @@
 import { my_steam_id } from "./steam.js";
-import { receiveWebMapNote } from "./note.js";
 import { panzoom } from "./map.js";
+import * as socketio from "./socketio.js";
 
 const DEBUG = true;
 
@@ -47,6 +47,9 @@ function init_note_dialog() {
 }
 
 function showMapNoteDialog(event) {
+    if (panzoom.getScale().toFixed(3) != 1) {
+        return ; // Hacky, but markers don't place if panzoom is zooming/panning. This disallows marker placement unless not zoomed
+    } 
 	// Prevent the default context menu
 	event.preventDefault();
   
@@ -115,17 +118,21 @@ function mapNoteApplyClicked() {
             ".png, colour is " + selected_colour + " label is \"" + selected_label + "\" for steam_id " + my_steam_id);
 
     // TODO: We definitely need to modify x and y to compensate for panzoom pan/scale
+    let parsed_x = parseInt(dialog.style.left) - panzoom.getPan().x;
+    let parsed_y = parseInt(dialog.style.top, 10) - panzoom.getPan().y;
     let note = {
         "type": '1',
-        "x": parseInt(dialog.style.left, 10) * (1 / panzoom.getScale()) + panzoom.getPan().x,// - panzoom.getPan().x, // trim 'px'
-        "y": parseInt(dialog.style.top, 10)* (1 / panzoom.getScale()) + panzoom.getPan().y,// - panzoom.getPan().y,
+        "x": parsed_x,// - panzoom.getPan().x, // trim 'px'
+        "y": parsed_y,// - panzoom.getPan().y,
         "icon": selected_icon_index,
         "colour": selected_colour,
         "label": selected_label
     };
     
     // TODO: this should be sent to the backend, then disseminated to clients. NOT rendered locally
-    receiveWebMapNote(note);
+    //receiveWebMapNote(note);
+    let data = {'message': note, 'sender': my_steam_id};
+    socketio.send_to_server("newmapnote", data);
 }
 
 
