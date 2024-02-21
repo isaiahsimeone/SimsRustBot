@@ -12,6 +12,7 @@ import asyncio
 import time
 from flask_socketio import SocketIO, emit
 from .web_map_note_manager import WebMapNoteManager
+from util.tools import Tools
 
 app = Flask(__name__)
 app.secret_key = 'secret'
@@ -71,7 +72,7 @@ class WebServer:
         await asyncio.Future()
         
     def broadcast_to_web(self, type, data):
-        socketio.emit("broadcast", {"type": type, "data": data})
+        socketio.emit("broadcast", {"type": type, "data": Tools.stringify_steam_ids(data)})
     
     # Get server info, map image, monuments, etc
     async def request_rust_data(self):
