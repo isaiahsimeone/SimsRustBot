@@ -3,6 +3,7 @@
 With web map notes, how about we just translate the coordinates to JSON coordinates like those that we would get from the companion API, then just inject them into the map_notes list and let the rest of the current flow handle the positioning
 
 Next:
+- Map note labels
 - make heli & chinook gifs
 - Heli exploded at (grid cell) - We need to check when the marker for it disappears during polling
 - Include a verbosity setting so the bot doesn't yap too much on the chat
