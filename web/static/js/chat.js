@@ -1,5 +1,6 @@
 
-import { my_steam_id, nameFromSteamId } from "./steam.js";
+import { my_steam_id, nameFromSteamId, steamPictureOrDefault } from "./steam.js";
+import { img_path } from "./main.js";
 import * as socketio from "./socketio.js";
 
 const DEBUG = true;
@@ -16,8 +17,25 @@ export function initialiseChat() {
 
 	// Request the chat
 	socketio.make_request("teamchat");
-
 }
+
+export function toggleChatAvailability(is_available) {
+	log("chat is:", is_available);
+	let chatMessageBox = document.getElementById("chatMessage");
+	let joinATeam = document.getElementById("chat-join-a-team-first");
+	let messageContainer = document.getElementById("messages_container");
+
+	chatMessageBox.disabled = !is_available;
+
+	if (!is_available) {
+		joinATeam.style.display = "flex";
+		messageContainer.style.visibility = "hidden";
+	} else {
+		joinATeam.style.display = "none";
+		messageContainer.style.visibility = "visible";
+	}
+}
+
 
 export function receiveTeamChatData(data) {
 	log('Received team chat update:', data);
@@ -35,13 +53,36 @@ function processTeamChatData(data) {
 function addMessageToChat(sender_steam_id, message_txt) {
 	log("Adding Message: (" + sender_steam_id + " " + message_txt + ")")
 
+	// Remove bot and player tag from beginning
+	const pattern = /^\[BOT\] \[[^\]]+\]/;
+	message_txt = message_txt.replace(pattern, '').trim();
+
+
 	let messages_container = document.getElementById("messages_container");
 
 	if (!messages_container)
 		return ;
 	
-	// TODO: add player name to message
+	// Create message header
+	const header = document.createElement("div");
+	header.className = "chat-message-header";
 
+	// Header image
+	const headerImage = document.createElement("div");
+	headerImage.className = "chat-message-header-image circle-image player";
+	headerImage.style.height = "25px";
+	headerImage.style.width = "25px";
+	headerImage.style.backgroundImage = `url('${img_path}/steam_pics/${sender_steam_id}.png')`; // it'll be available eventually
+	
+	const headerName = document.createElement("div");
+	headerName.className = "chat-message-header-name";
+	headerName.innerHTML = nameFromSteamId(sender_steam_id);
+	
+	header.appendChild(headerImage);
+	header.appendChild(headerName);
+	// overlay.style.backgroundImage = `url('${img_path}/steam_pics/${image}.png')`;
+
+	// Create message body
 	const message = document.createElement("div");
 	message.className = "chat-message";
 	message.innerHTML = message_txt;
@@ -51,6 +92,8 @@ function addMessageToChat(sender_steam_id, message_txt) {
 	else
 		message.classList.add("other");
 
+	// insert message header, then body
+	message.insertBefore(header, message.firstChild);
 	messages_container.appendChild(message);
 	// adjust scroll bar of messages field
 	const container = document.getElementById("messages_container")

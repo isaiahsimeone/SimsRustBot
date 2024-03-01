@@ -35,7 +35,7 @@ socket.on("broadcast", function(raw_data) {
         case "mapnotechange":
             return receiveWebMapNoteChange(data);
         default:
-            log("Encountered unknown broadcast type");
+            log("Encountered unknown broadcast type:", type);
     }
 });
 
@@ -60,7 +60,7 @@ socket.on("data_response", function(response) {
         case "mapnotesweb":
             return receiveWebMapNotes(data.data);
         default:
-            log("Encountered unknown request type");
+            log("Encountered unknown request type:", type);
     }
 });
 

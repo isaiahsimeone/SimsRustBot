@@ -1,5 +1,6 @@
 from ipc.bus import BUS, Service
 from ipc.message import Message, MessageType
+from ipc.serialiser import serialise_API_object
 
 from rustplus import RustSocket, ChatEvent, CommandOptions
 import asyncio
@@ -15,6 +16,7 @@ from .commands.get_team_chat import get_team_chat
 
 from .message_executor import MessageExecutor
 
+
 import json
 
 class RustPlusAPI:
@@ -27,6 +29,7 @@ class RustPlusAPI:
         self.playerToken = self.config.get("server_details").get("playerToken")
         self.socket = RustSocket(self.server, self.port, self.steamID, self.playerToken)
         self.event_listener = None
+        self.server_info = None
     
     # entry point
     def execute(self):
@@ -59,21 +62,25 @@ class RustPlusAPI:
         self.map_poller = MapPoller(self.socket, self.BUS)
         self.team_poller = TeamPoller(self.socket, self.BUS)
         
+        self.server_info = serialise_API_object(await self.socket.get_info())
+        
+        #DEBUG
+        self.log("Got Server Info: " + str(self.server_info))
+        
         # Start map marker polling
-        asyncio.create_task(self.map_poller.start_marker_polling())
+        asyncio.create_task(self.map_poller.start_marker_polling(self.server_info))
     
         # Start team polling
         asyncio.create_task(self.team_poller.start_team_polling())
         
         self.log("Map marker and team polling started with a frequency of " + poll_rate + " seconds")
         
-        #DEBUG
-        self.log("Got Server Info: " + str(await self.socket.get_info()))
          
         await asyncio.Future() # Keep running
         
         self.log("asyncio.Future() finished? Exiting", type="error")
-        
+
+    
     def get_socket(self):
         return self.socket
 

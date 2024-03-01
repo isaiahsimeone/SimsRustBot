@@ -14,6 +14,11 @@ class MessageType(Enum):
     RUST_TEAM_INFO = "rust_team_info"
     RUST_TEAM_CHAT_INIT = "rust_team_chat_init"
     
+    # Heli
+    RUST_HELI_SPAWNED = "rust_heli_spawned"
+    RUST_HELI_DOWNED = "rust_heli_downed"
+    RUST_HELI_DESPAWNED = "rust_heli_despawned"
+    
     RUST_PLAYER_STATE_CHANGE = "rust_player_state_change"
     
     # Request
@@ -24,6 +29,7 @@ class MessageType(Enum):
     REQUEST_RUST_SERVER_INFO = "request_rust_server_info"
     REQUEST_RUST_TEAM_INFO = "request_rust_team_info"
     REQUEST_RUST_TEAM_CHAT_INIT = "request_team_chat_init"
+    
 
     # For the API to do
     SEND_TEAM_MESSAGE = "send_team_message"

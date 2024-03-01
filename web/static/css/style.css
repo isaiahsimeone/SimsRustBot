@@ -63,20 +63,52 @@
   border-top: 1px solid #ccc;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: calc(100vh - 200px); /* Adjust height accordingly */
+  justify-content: flex-end;
+  height: calc(100vh - 160px); /* Adjust height */
 }
 
 .chat-messages {
   overflow-y: auto;
+  flex-grow: 1;
 }
 
 .chat-message {
   padding: 0.5rem;
+  word-wrap: break-word;
+  margin-right: 0.5rem;
   border-radius: 10px;
   margin-bottom: 0.5rem;
   max-width: 75%;
 }
+
+#sendMessage {
+  white-space: nowrap;
+  margin: 0 !important;
+  margin-left: 2px;
+}
+
+
+
+
+.chat-message-header {
+  display: flex; /* Aligns children (image and text) in a row */
+  align-items: center; /* Aligns children vertically in the center */
+}
+.chat-message-header-image {
+  height: 25px;
+  width: 25px;
+  background-size: cover;
+  background-position: center;
+  margin-right: 10px; /* Adds some space between the image and the text */
+  border-radius: 50%; /* Makes the image round */
+}
+.chat-message-header-name {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+
+
 
 .chat-message.other {
   background-color: #e5e5e5;
@@ -89,6 +121,8 @@
 
 .chat-input {
   border-top: 1px solid #ccc;
+  display: flex; /* Make the input and button inline */
+  align-items: center; /* Align the button and input vertically */
 }
 
 .panzoom {
@@ -201,4 +235,11 @@
   z-index: 4;
 }
 
-
+#chat-join-a-team-first {
+  display: none;
+  font-size: 20px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: 40%;
+}

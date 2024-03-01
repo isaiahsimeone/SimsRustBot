@@ -1,8 +1,9 @@
-import { server } from "./server.js";
+import { initialiseServer, server } from "./server.js";
 import { img_path } from "./main.js";
 import * as socketio from "./socketio.js";
 import * as createMarker from "./marker.js";
 import { redrawMapNotes, receiveMapNotes } from "./note.js";
+import { seconds_since_epoch } from "./util.js";
 
 const DEBUG = true;
 
@@ -15,6 +16,7 @@ let initial_map_rect = null;
 
 let map_markers = null;
 let map_monuments = null;
+let temporary_map_markers = [];// {type, x, y, start_time, persist_for} entries
 
 export let panzoom_inverted_scale = 1;
 
@@ -119,10 +121,19 @@ export function initialiseMap() {
 			updateMapMarkers();
 			adjustOverlaysOnZoom();
 		});
+
+		panzoomElement.addEventListener("panzoompan", function() {
+			
+		});
 	}
 
-
 	map_image_offset_left = getMapImageWhitespace();
+}
+
+
+export function snapToOverlay(overlay_id) {
+	let e = document.getElementById(overlay_id);
+	panzoom.zoomToPoint(5, {'clientX': e.style.left + map_image_offset_left, 'clientY': e.style.top});
 }
 
 

@@ -1,5 +1,5 @@
 import { my_steam_id, nameFromSteamId } from "./steam.js";
-import { panzoom } from "./map.js";
+import { panzoom, snapToOverlay } from "./map.js";
 import * as socketio from "./socketio.js";
 
 const DEBUG = true;
@@ -64,7 +64,6 @@ function showMapNoteDialog(event) {
 
 function hideMapNoteDialog(event) {
 	var dialog = document.getElementById('map-note-dialog');
-
     dialog.style.display = 'none';
 }
 

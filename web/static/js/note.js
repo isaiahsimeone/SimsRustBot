@@ -73,6 +73,11 @@ export function redrawMapNotes() {
 function drawRustServerNotes() {
 	for (let i = 0; i < map_notes.length; i++) {
 		let note = map_notes[i];
+
+		// Don't draw death markers
+		if (note.type == 0)
+			continue;
+
 		createMapNote(i, note.x, note.y, note.icon, MapNoteColours[note.colour_index], note.label);
 	}
 }

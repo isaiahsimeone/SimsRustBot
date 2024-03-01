@@ -41,8 +41,18 @@ export function createPlayerMarker(id, marker) {
     log("Created player marker ID=", overlay.id, ", X=", marker.x, ", Y=", marker.y, ", img=", img);
 }
 
-export function createExplosionMarker(id, marker) {
-    // No longer provided by rust plus API (19/02/2024)
+export function createExplosionMarker(id, marker_xy) {
+    let overlay = createOverlay(id);
+
+    overlay.style.width = scaledDim(12);
+    overlay.style.height = scaledDim(12);
+    let img = marker_type_to_img[markers.EXPLOSION];
+
+	document.getElementById("map-container").appendChild(overlay);
+	setMarkerImage(overlay.id, img);
+	positionMarker(overlay.id, marker_xy.x, marker_xy.y);
+
+    log("Created explosion marker ID=", overlay.id, "X=", marker_xy.x, "Y=", marker_xy.y);
 }
 
 export function createShopMarker(id, marker) {

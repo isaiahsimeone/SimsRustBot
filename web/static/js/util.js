@@ -19,6 +19,10 @@ export function applyRotation(elementId) {
     update(); // Start rotation
 }
 
+export function seconds_since_epoch() {
+    return Math.floor(Date.now() / 1000);
+}
+
 export function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
