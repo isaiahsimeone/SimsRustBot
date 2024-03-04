@@ -2,6 +2,8 @@
 
 With web map notes, how about we just translate the coordinates to JSON coordinates like those that we would get from the companion API, then just inject them into the map_notes list and let the rest of the current flow handle the positioning
 
+- rust_plus_api.py should be able to translate names to steam IDs
+
 Next:
 - Map note labels
 - make heli & chinook gifs
