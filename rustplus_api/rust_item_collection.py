@@ -31,5 +31,5 @@ class RustItemCollection:
         
         items_str = []
         for item_id, data in self.items.items():
-            items_str.append(f"Item Name: {data['item_name']}, ID: {item_id}, Quantity: {data['quantity']}")
+            items_str.append(f"Item Name: {data['item_name']}, ID: {item_id}, Quantity: {data['quantity']} aliases = {self.name_manager.get_aliases_for_id(item_id)}")
         return "\n".join(items_str)
