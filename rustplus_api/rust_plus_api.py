@@ -18,6 +18,7 @@ from .message_executor import MessageExecutor
 
 from .storage_monitor_manager import StorageMonitorManager
 
+from .rust_item_name_manager import RustItemNameManager
 import json
 
 class RustPlusAPI:
@@ -56,16 +57,18 @@ class RustPlusAPI:
         await get_server_info(self.socket)
         #self.log("Downloading server map...")
 
+        # Name manager for items - loads aliases etc
+        self.rust_item_name_manager = RustItemNameManager()
 
         # Register event listener
         self.event_listener = EventListener(self.socket, self.BUS)
         self.log("Event listener setup complete")
         
-        poll_rate = self.BUS.get_config().get("rust").get("polling_frequency_seconds")
+        
         self.map_poller = MapPoller(self.socket, self.BUS)
         self.team_poller = TeamPoller(self.socket, self.BUS)
+        self.storage_monitor_manager = StorageMonitorManager(self.socket, self.BUS, self.rust_item_name_manager)
         
-        self.storage_monitor_manager = StorageMonitorManager(self.BUS)
         #self.storage_monitor_manager.get_monitor_ids()
         
         self.server_info = serialise_API_object(await self.socket.get_info())
@@ -79,11 +82,17 @@ class RustPlusAPI:
         # Start team polling
         asyncio.create_task(self.team_poller.start_team_polling())
         
-        # Storage monitor polling
-        asyncio.create_task(self.storage_monitor_manager.start_storage_polling())
+
         
-        self.log("Map marker and team polling started with a frequency of " + poll_rate + " seconds")
+        poll_rate_map_team = self.BUS.get_config().get("rust").get("polling_frequency_seconds")
+        self.log("Map marker and team polling started with a frequency of " + poll_rate_map_team + " seconds")
         
+        should_poll_storage = self.BUS.get_config().get("rust").get("storage_monitor_should_poll")
+        if should_poll_storage:
+            poll_rate_storage = self.BUS.get_config().get("rust").get("storage_monitor_polling_frequency_seconds")
+            # Storage monitor polling
+            asyncio.create_task(self.storage_monitor_manager.start_storage_polling())
+            self.log("Storage Monitor polling started with a frequency of " + poll_rate_storage + " seconds")
          
         await asyncio.Future() # Keep running
         

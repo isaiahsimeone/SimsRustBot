@@ -1,13 +1,18 @@
 from ipc.serialiser import serialise_API_object
 import asyncio
+from .rust_item_collection import RustItemCollection
 
 class StorageMonitorManager:
-    def __init__(self, BUS):
+    def __init__(self, socket, BUS, item_name_manager):
+        self.socket = socket
         self.BUS = BUS
         self.should_poll = BUS.get_config().get("rust").get("storage_monitor_should_poll")
         self.poll_rate = int(BUS.get_config().get("rust").get("storage_monitor_polling_frequency_seconds"))
         
         self.monitor_ids = []
+        self.all_monitor_contents = None
+        
+        self.name_manager = item_name_manager
     
     
     async def start_storage_polling(self):
@@ -18,13 +23,23 @@ class StorageMonitorManager:
             await asyncio.sleep(self.poll_rate)
             
     async def poll_storage(self):
-        pass
+        await self.get_all_items()
         
-    def get_items(self, monitor_id):
-        pass
+    async def get_monitor_items(self, monitor_id):
+        monitor_contents_raw = (await self.socket.get_contents(monitor_id)).contents
+        item_collection = RustItemCollection(self.name_manager)
+        for item in monitor_contents_raw:
+            item_collection.insert((item.name, item.item_id, item.quantity))
+        
+        return item_collection
     
-    def get_all_items(self):
-        pass
+    async def get_all_items(self):
+        self.all_monitor_contents = RustItemCollection(self.name_manager)
+        
+        for monitor in self.monitor_ids:
+            self.all_monitor_contents.insert_collection(await self.get_monitor_items(monitor))
+            
+        print(self.all_monitor_contents)
     
     def get_monitor_ids(self):
         monitors = self.BUS.db_query("id", "Devices", "dev_type=3")
@@ -34,4 +49,4 @@ class StorageMonitorManager:
     # Called from outside when there's a new monitor, or one is gone 
     def update_monitor_ids(self):
         self.get_monitor_ids()
-        
+
