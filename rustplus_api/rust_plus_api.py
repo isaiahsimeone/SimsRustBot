@@ -34,11 +34,9 @@ class RustPlusAPI:
         self.server_info = None
         self.storage_monitor_manager = None
         
-        
     # entry point
     def execute(self):
         asyncio.run(self.api_main())
-
 
     async def api_main(self):
         self.log("Connecting to Rust Server (" + self.server + ")...")
@@ -83,7 +81,6 @@ class RustPlusAPI:
         asyncio.create_task(self.team_poller.start_team_polling())
         
 
-        
         poll_rate_map_team = self.BUS.get_config().get("rust").get("polling_frequency_seconds")
         self.log("Map marker and team polling started with a frequency of " + poll_rate_map_team + " seconds")
         
@@ -93,6 +90,7 @@ class RustPlusAPI:
             # Storage monitor polling
             asyncio.create_task(self.storage_monitor_manager.start_storage_polling())
             self.log("Storage Monitor polling started with a frequency of " + poll_rate_storage + " seconds")
+         
          
         await asyncio.Future() # Keep running
         

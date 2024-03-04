@@ -6,8 +6,12 @@ class RustItemCollection:
         self.name_manager = name_manager
     
     def insert(self, item_tuple):
-        item_name, item_id, quantity = item_tuple
-        
+        """
+        Insert a tuple (item name, id, quantity) into the collection
+        If the id is already in the collection, increment the quantity
+        """
+        item_name, item_id_, quantity = item_tuple
+        item_id = str(item_id_)
         if item_id in self.items:
             # update the quantity
             self.items[item_id]['quantity'] += quantity
@@ -16,14 +20,31 @@ class RustItemCollection:
             self.items[item_id] = {'item_name': item_name, 'quantity': quantity}
     
     def insert_collection(self, other_collection):
-        for _, data in other_collection.items.items():
-            self.insert((data['item_name'], _, data['quantity']))
-            
-    def get_items(self):
-        return [(data['item_name'], item_id, data['quantity']) for item_id, data in self.items.items()]
+        """
+        Insert another RustItemCollection into this collection
+        """
+        for item_id, data in other_collection.items.items():
+            self.insert((data['item_name'], str(item_id), data['quantity']))
     
-    def get_item_id_by_name(self, name):
-        return self.name_manager.get_item_id(name)
+    def quantity_by_id(self, item_id):
+        """
+        Get the quantity of the specified item (by id) in the RustItemCollection
+        Returns none if we don't know what the alias is
+        """
+        print(self.items)
+        if str(item_id) in self.items:
+            print(f"[RIC] - it IS in self.items", self.items[str(item_id)]['quantity'])
+            return self.items[str(item_id)]['quantity']
+        else:
+            return None # None means we don't know what this alias is
+    
+    def quantity_by_name(self, name_or_alias):
+        """
+        Use the name manager to determine the id of a given name or alias, then return
+        the quantity of that item (by id) that is in this RustItemCollection
+        """
+        item_id = self.name_manager.get_item_id(name_or_alias)
+        return self.quantity_by_id(item_id) 
     
     def __str__(self):
         if not self.items:

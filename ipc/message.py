@@ -34,6 +34,9 @@ class MessageType(Enum):
     REQUEST_RUST_TEAM_INFO = "request_rust_team_info"
     REQUEST_RUST_TEAM_CHAT_INIT = "request_team_chat_init"
     
+    # Items
+    REQUEST_ITEM_COUNT = "request_item_count"
+    RUST_ITEM_COUNT = "rust_item_count"
 
     # For the API to do
     SEND_TEAM_MESSAGE = "send_team_message"

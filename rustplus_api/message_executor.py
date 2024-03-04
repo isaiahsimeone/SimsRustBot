@@ -37,12 +37,14 @@ class MessageExecutor():
             case MT.REQUEST_RUST_TEAM_CHAT_INIT:
                 await self.send_team_chat_init(sender)
             case MT.SEND_TEAM_MESSAGE:
-                await self.send_rust_message(sender, msg["data"]["message"], msg["data"]["sender"])
+                await self.send_rust_message(sender, msg["data"]["message"], msg["data"]["sender"]) # last arg is steam name
+            case MT.REQUEST_ITEM_COUNT:
+                await self.send_item_count(sender, msg)
             case _:
                 self.api.log("MessageExecutor received an unknown message: " + str(msg), type="error")
                 
-    async def send_rust_message(self, sending_service, message, sender):
-        await rust_api_send_message(self.socket, message, sender)
+    async def send_rust_message(self, sending_service, message, steam_name):
+        await rust_api_send_message(self.socket, message, steam_name)
 
     async def send_server_map_image(self, sender):
         server_map = await get_server_map(self.socket)
@@ -69,3 +71,8 @@ class MessageExecutor():
         message = Message(MessageType.RUST_TEAM_CHAT_INIT, {"data": initial_team_chat})
         await self.api.send_message(message, target_service_id=sender)
     
+    async def send_item_count(self, sender, data):
+        
+        #message = Message(MessageType.RUST_TEAM_CHAT_INIT, {"count": item_count})
+        #await self.api.send_message(message, target_service_id=sender)
+        pass

@@ -925,9 +925,13 @@ class RustItemNameManager:
         self.id_to_names = {}  # Maps item_id to a set of names and aliases
         for item in item_aliases:
             self.add_item_with_aliases(*item)
-    
+
     def normalise_alias(self, alias):
-        # Generate a set of normalised aliases, including original, with underscores, and concatenated
+        """
+        Generate a set of normalised aliases for a given alias. The set includes
+        the given alias, that alias in lowercase, with underscores replacing spaces,
+        and with spaces replaced removed 
+        """
         normalised = set()
         normalised.add(alias.lower())
         normalised.add(alias.replace(" ", "_").lower())
@@ -935,6 +939,10 @@ class RustItemNameManager:
         return normalised
 
     def add_item_with_aliases(self, item_id_, item_name, *additional_aliases):
+        """
+        Update the name_to_id map to map aliases to item_id, and update id_to_names
+        to map item_ids to aliases. Alias normalisation is done (see normalise_aliases)
+        """
         item_id = str(item_id_) # stringz only
         # normalised and add the original item name and any additional aliases
         normalised_aliases = self.normalise_alias(item_name)
@@ -951,14 +959,22 @@ class RustItemNameManager:
         self.id_to_names[item_id].update(normalised_aliases)
     
     def get_item_id(self, name_or_alias):
-        # Return the item_id for a given name or alias, ensuring case insensitivity
+        """
+        Get the ID of an item from a given name or alias
+        """
         return self.name_to_id.get(name_or_alias.lower())
 
     def get_aliases_for_id(self, item_id):
+        """
+        List the aliases for a given item_id
+        """
         # Find all names and aliases that map to the given item_id
         return list(self.id_to_names.get(str(item_id), []))
 
     def get_aliases_for_name(self, name):
+        """
+        Get all aliases for a given alias (including itself (name))
+        """
         # Retrieve all aliases for a given name or alias
         item_id = self.get_item_id(name)
         if item_id:
@@ -967,6 +983,10 @@ class RustItemNameManager:
     
     # levenshtein distance
     def suggest_closest_match(self, name):
+        """
+        Levenshtein distance to determine which name/alias is closest
+        to a provided one (excluding itself)
+        """
         # Get a list of all possible names and aliases
         all_names = list(self.name_to_id.keys())
         # Use difflib to find the closest match(es)
