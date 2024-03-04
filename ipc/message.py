@@ -19,6 +19,10 @@ class MessageType(Enum):
     RUST_HELI_DOWNED = "rust_heli_downed"
     RUST_HELI_DESPAWNED = "rust_heli_despawned"
     
+    # Cargo
+    RUST_CARGO_SPAWNED = "rust_cargo_spawned"
+    RUST_CARGO_DESPAWNED = "rust_cargo_despawned"
+    
     RUST_PLAYER_STATE_CHANGE = "rust_player_state_change"
     
     # Request

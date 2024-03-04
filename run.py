@@ -1,6 +1,4 @@
-import asyncio
-import sys
-import json
+
 import threading
 
 from ipc.bus import BUS
@@ -10,18 +8,18 @@ from web.web_server import WebServer
 from config.config_manager import ConfigManager
 from util.printer import Printer
 from util.tools import Tools
-from database.database import init_db
+from database.database import Database
 
 def main():
     Printer.print_banner()
+    
+    database = Database()
     
     config = ConfigManager("./config/config.json")
     config.check_fcm_credentials()
     config.check_server_details()
    
-    #init_db(config)
-   
-    bus = BUS(config)
+    bus = BUS(config, database)
 
     rustplus_api = RustPlusAPI(bus)
     discord_bot = DiscordBot(bus)

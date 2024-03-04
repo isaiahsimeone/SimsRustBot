@@ -20,6 +20,14 @@ class Message(Base):
     timestamp = Column(Integer)
 
     user = relationship("User", back_populates="messages")
+
+# A rust plus device (smart switch, smart alarm, storage monitor)
+class Device(Base):
+    __tablename__ = "devices"
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    dev_type = Column(Integer)
     
 
 User.messages = relationship("Message", order_by=Message.id, back_populates="user")

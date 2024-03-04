@@ -6,6 +6,9 @@ from util.printer import Printer
 from termcolor import colored
 from ipc.message import Message, MessageType
 from ipc.serialiser import serialise_API_object
+from database import database
+from database.models import Device
+
 
 class Service(Enum):
     DISCORD = (1, "light_cyan")
@@ -20,10 +23,11 @@ class Service(Enum):
         return self.name
 
 class BUS:
-    def __init__(self, config):
+    def __init__(self, config, database):
         self.config = config
         self.message_queue = asyncio.Queue()  # Use asyncio Queue
         self.listeners = {}
+        self.database = database
 
     async def send_message(self, service_id, message: Message, target_service_id=None):
         msg_json = message.to_json()
@@ -65,17 +69,14 @@ class BUS:
     def get_config(self):
         return self.config
 
-    # for database
-    def add_message(self, user_steam_id, content):
-        session = Session()
-        user = session.query(User).filter_by(steam_id=user_steam_id).first()
-        if not user:
-            user = User(steam_id=user_steam_id)
-            session.add(user)
-            session.commit()
 
-        message = Message(user_id=user.id, content=content)
+    def db_insert(self, table, data):
+        self.database.insert(table, data)
         
-        session.add(message)
-        session.commit()
-        session.close()
+    def db_query(self, what, table, where):
+        return self.database.query(what, table, where)
+
+
+   
+        
+    

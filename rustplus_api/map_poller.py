@@ -19,6 +19,7 @@ class MapPoller:
 
         self.heli_is_out = False
         self.last_heli_position = None
+        self.cargo_is_out = False
         
         self.injected_map_markers = []
     
@@ -56,22 +57,40 @@ class MapPoller:
     
         # Check if heli is out
         await self.check_for_heli(markers)
+        await self.check_for_cargo(markers)
         
         
         msg_data = {"markers": markers}
         message = Message(MessageType.RUST_MAP_MARKERS, msg_data)
         await self.send_message(message)
     
+    
+    async def check_for_cargo(self, markers):
+        cargo_marker = self.find_marker_with_type(markers, 5)
+        
+        if self.cargo_is_out and not cargo_marker:
+            self.cargo_is_out = False
+            # Despawned
+            await self.send_message(Message(MessageType.RUST_CARGO_DESPAWNED, {}))
+            return None
+        
+        # Cargo is now out
+        if not self.cargo_is_out and cargo_marker:
+            print("CARGO SPAWNED -- poller")
+            self.cargo_is_out = True
+            await self.send_message(Message(MessageType.RUST_CARGO_SPAWNED, {"bearing": self.get_cardinal_bearing(cargo_marker)}))
+            await rust_api_send_message(self.socket, "Cargo just spawned! It will enter the map from the " + str(self.get_cardinal_bearing(cargo_marker)))
+    
+    
     # Assumes there's only ever one attack heli on the map
     async def check_for_heli(self, markers):
         heli_marker = self.find_marker_with_type(markers, 8)
-        
         
         # heli went down, or despawned
         if self.heli_is_out and not heli_marker:
             self.heli_is_out = False
             
-            if self.get_angle_to_marker(heli_marker) > self.server_info['size'] * 6:
+            if self.get_angle_to_marker(self.last_heli_position['x'], self.last_heli_position['y']) > self.server_info['size'] * 6:
                 # Probably despawned
                 await self.send_message(Message(MessageType.RUST_HELI_DESPAWNED, {}))
                 return None
@@ -79,6 +98,7 @@ class MapPoller:
             # Otherwise, probably was downed in the map
             await self.send_message(Message(MessageType.RUST_HELI_DOWNED, {"position": self.last_heli_position}))
 
+            # For explosion marker
             marker = {'id': random.randint(0, 10000000), 'x': self.last_heli_position['x'], 'y': self.last_heli_position['y'], 'type': 2}
             meta = {'created': time.time(), 'persist_for': 60 * 15} # marker lasts for 15 minutes
             self.injected_map_markers.append((meta, marker))
@@ -93,7 +113,7 @@ class MapPoller:
         if self.heli_is_out and heli_marker:
             self.last_heli_position = {'x': heli_marker['x'], 'y': heli_marker['y']}
             print("update heli position", str(self.last_heli_position), str(self.get_cardinal_bearing(heli_marker)))
-        
+
     
     # Returns a string (north, east, south, west, northeast, southeast, northwest, southwest)
     # indicating the bearing of a marker from the center of the map 

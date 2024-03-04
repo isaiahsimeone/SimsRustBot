@@ -134,7 +134,7 @@ class ConfigManager:
                 
             },
             "database": {
-                "path": "database/db.db"
+                "path": "not_implemented"
             },
             "discord": {
                 "enabled": "true",
@@ -151,7 +151,9 @@ class ConfigManager:
                 "logging_enabled": "true"
             },
             "rust": {
-                "polling_frequency_seconds": "10"
+                "polling_frequency_seconds": "10",
+                "storage_monitor_should_poll": "true",
+                "storage_monitor_polling_frequency_seconds": "60"
             }
         }
 

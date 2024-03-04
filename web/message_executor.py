@@ -42,8 +42,10 @@ class MessageExecutor():
             case MT.RUST_TEAM_INFO:
                 self.web_server.log("Got team info")
                 self.receive_team_info(data)
-            case MT.RUST_HELI_DOWNED:
-                self.web_server.log("Heli went down")
+            #case MT.RUST_HELI_DOWNED:
+            #    self.web_server.log("Heli went down")
+            #case MT.RUST_CARGO_SPAWNED:
+            #    self.web_server.log("Cargo spawned")
             case _:
                 self.web_server.log("ERROR: Unknown message type")
 

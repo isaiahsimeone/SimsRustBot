@@ -16,6 +16,7 @@ from .commands.get_team_chat import get_team_chat
 
 from .message_executor import MessageExecutor
 
+from .storage_monitor_manager import StorageMonitorManager
 
 import json
 
@@ -30,7 +31,9 @@ class RustPlusAPI:
         self.socket = RustSocket(self.server, self.port, self.steamID, self.playerToken)
         self.event_listener = None
         self.server_info = None
-    
+        self.storage_monitor_manager = None
+        
+        
     # entry point
     def execute(self):
         asyncio.run(self.api_main())
@@ -46,7 +49,7 @@ class RustPlusAPI:
         self.log("Rust Service subscribed for messages")
         
         self.log("Starting FCM listener...")
-        FCM(self.config.get("fcm_credentials")).start()
+        FCM(self.config.get("fcm_credentials"), self).start()
         self.log("FCM Listener startup complete")
 
         self.log("Fetching server info...")
@@ -62,16 +65,22 @@ class RustPlusAPI:
         self.map_poller = MapPoller(self.socket, self.BUS)
         self.team_poller = TeamPoller(self.socket, self.BUS)
         
+        self.storage_monitor_manager = StorageMonitorManager(self.BUS)
+        #self.storage_monitor_manager.get_monitor_ids()
+        
         self.server_info = serialise_API_object(await self.socket.get_info())
         
         #DEBUG
         self.log("Got Server Info: " + str(self.server_info))
         
         # Start map marker polling
-        asyncio.create_task(self.map_poller.start_marker_polling(self.server_info))
+        asyncio.create_task(self.map_poller.start_marker_polling(self.server_info)) # TODO: pass this into the constructor, not here
     
         # Start team polling
         asyncio.create_task(self.team_poller.start_team_polling())
+        
+        # Storage monitor polling
+        asyncio.create_task(self.storage_monitor_manager.start_storage_polling())
         
         self.log("Map marker and team polling started with a frequency of " + poll_rate + " seconds")
         
