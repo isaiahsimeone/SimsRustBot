@@ -1,14 +1,8 @@
-from queue import Queue, Empty
-import threading
 import asyncio
 from enum import Enum
 from util.printer import Printer
 from termcolor import colored
-from ipc.message import Message, MessageType
-from ipc.serialiser import serialise_API_object
-from database import database
-from database.models import Device
-
+from ipc.message import Message
 
 class Service(Enum):
     DISCORD = (1, "light_cyan")

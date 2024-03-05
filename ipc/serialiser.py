@@ -1,4 +1,5 @@
 import json
+from typing import Any
 from enum import Enum, auto
 from rustplus.api.structures.rust_team_info import RustTeamMember, RustTeamNote, RustTeamInfo
 from rustplus.api.structures.rust_marker import RustColour, RustSellOrder, RustMarker
@@ -25,7 +26,7 @@ class_mappings = {
 }
 
 
-def serialise_API_object(obj):
+def serialise_API_object(obj) -> Any:
     obj_type = type(obj)
     #print(f"Serialising object of type: {obj_type.__name__}")
 

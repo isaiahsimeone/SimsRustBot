@@ -9,11 +9,6 @@ from .map_poller import MapPoller
 from .team_poller import TeamPoller
 from .event_listener import EventListener
 
-from .commands.send_message import send_message as rust_send_message
-from .commands.get_server_info import get_server_info
-from .commands.get_server_map import get_server_map
-from .commands.get_team_chat import get_team_chat
-
 from .message_executor import MessageExecutor
 
 from .storage_monitor_manager import StorageMonitorManager
@@ -52,7 +47,6 @@ class RustPlusAPI:
         self.log("FCM Listener startup complete")
 
         self.log("Fetching server info...")
-        await get_server_info(self.socket)
         #self.log("Downloading server map...")
 
         # Name manager for items - loads aliases etc
@@ -112,5 +106,5 @@ class RustPlusAPI:
     async def send_message(self, message: Message, target_service_id=None):
         await self.BUS.send_message(Service.RUSTAPI, message, target_service_id)
 
-    def log(self, message):
-        self.BUS.log(Service.RUSTAPI, message)
+    def log(self, message, type="info"):
+        self.BUS.log(Service.RUSTAPI, message, type)

@@ -12,7 +12,7 @@ class FCM(FCMListener):
         super().__init__(fcm_details)
         self.rustAPI = rustAPI
         
-    def on_notification(self, obj, notification, d):
+    def on_notification(self, obj, notification, data_message):
         #print("Got notification from server:", notification)
         data = notification['data']
         body = json.loads(data['body'])

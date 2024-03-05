@@ -35,7 +35,7 @@ class Printer:
 
         cls._print(level.upper(), args, colour, attrs, file, sep, end, flush)
 
-
+    @staticmethod
     def print_banner():
         art = [
             "                                                            \n"
@@ -53,5 +53,5 @@ class Printer:
                 # Cycle through the rainbow colors
                 color = rainbow_colors[i % len(rainbow_colors)]
                 # Add colored character to the line
-                colored_line += colored(char, color)
+                colored_line += colored(char, color) # type: ignore
             print(colored_line)

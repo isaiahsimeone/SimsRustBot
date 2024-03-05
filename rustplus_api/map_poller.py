@@ -1,5 +1,4 @@
 import asyncio
-import rustplus
 #from rustplus import RustSocket, ChatEvent, TeamEvent, EntityEvent, entity_type_to_string
 from ipc.bus import Service
 from ipc.message import Message, MessageType
@@ -18,7 +17,7 @@ class MapPoller:
         self.poll_rate = int(BUS.get_config().get("rust").get("polling_frequency_seconds"))
 
         self.heli_is_out = False
-        self.last_heli_position = None
+        self.last_heli_position = {'x': -1, 'y': -1}
         self.cargo_is_out = False
         
         self.injected_map_markers = []
@@ -29,8 +28,10 @@ class MapPoller:
             await self.poll_markers()
             await asyncio.sleep(self.poll_rate)
     
+    
     async def poll_markers(self):
         markers = serialise_API_object(await self.socket.get_markers())
+        events = serialise_API_object(await self.socket.get_current_events())
         
         updated_injects = []
         for meta, marker in self.injected_map_markers:
@@ -41,7 +42,6 @@ class MapPoller:
         # Updated to remove expired markers
         self.injected_map_markers = updated_injects
         
-        events = serialise_API_object(await self.socket.get_current_events())
         
         # Some events are already captured by markers (e.g. Heli), only add missing ones
         marker_ids = [marker.get("id") for marker in markers]
@@ -89,8 +89,8 @@ class MapPoller:
         # heli went down, or despawned
         if self.heli_is_out and not heli_marker:
             self.heli_is_out = False
-            
-            if self.get_angle_to_marker(self.last_heli_position['x'], self.last_heli_position['y']) > self.server_info['size'] * 6:
+
+            if self.get_angle_to_marker(self.last_heli_position) > self.server_info['size'] * 6:
                 # Probably despawned
                 await self.send_message(Message(MessageType.RUST_HELI_DESPAWNED, {}))
                 return None

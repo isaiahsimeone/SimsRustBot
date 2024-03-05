@@ -1,10 +1,16 @@
-import asyncio
-from rustplus import RustSocket, ChatEvent, TeamEvent, EntityEvent, entity_type_to_string
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from rustplus import RustSocket
+    from ipc.bus import BUS
+    from rustplus import ChatEvent, TeamEvent, EntityEvent
+
+from rustplus import entity_type_to_string
 from ipc.bus import Service
 from ipc.message import Message, MessageType
 
 class EventListener: 
-    def __init__(self, socket, BUS):
+    def __init__(self, socket: RustSocket, BUS: BUS):
         self.socket = socket
         self.BUS = BUS
         
@@ -15,7 +21,7 @@ class EventListener:
         self.socket.entity_event(self.entity_event_handler)
     
     # TODO: may be broken ? Check after FCM listener is sorted
-    async def entity_event_handler(self, event : EntityEvent):
+    async def entity_event_handler(self, event: EntityEvent):
         value = "On" if event.value else "Off"
         print(f"Entity {event.entity_id} of type {entity_type_to_string(event.type)} has been turned {value}")
         # Additional code to handle entity event

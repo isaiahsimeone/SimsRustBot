@@ -1,17 +1,18 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from rust_plus_api import RustPlusAPI
+
 from ipc.message import MessageType as MT
-from PIL import Image 
 
 from ipc.message import Message, MessageType
 
 from .commands.get_server_map import get_server_map
-from .commands.get_monuments import get_monuments
-from .commands.get_server_info import get_server_info
-from .commands.get_team_info import get_team_info
-from .commands.get_team_chat import get_team_chat
+
 from .commands.send_message import send_message as rust_api_send_message
 
 class MessageExecutor():
-    def __init__(self, rust_api):
+    def __init__(self, rust_api: RustPlusAPI):
         self.api = rust_api
         self.socket = self.api.get_socket()
                     
@@ -52,22 +53,26 @@ class MessageExecutor():
         await self.api.send_message(message, target_service_id=sender)
     
     async def send_server_map_monuments(self, sender):
-        server_monuments = await get_monuments(self.socket)
+        server_monuments = await self.socket.get_raw_map_data()
         message = Message(MessageType.RUST_MAP_MONUMENTS, {"data": server_monuments})
         await self.api.send_message(message, target_service_id=sender)
         
     async def send_server_info(self, sender):
-        server_info = await get_server_info(self.socket)
+        server_info = await self.socket.get_info()
         message = Message(MessageType.RUST_SERVER_INFO, {"data": server_info})
         await self.api.send_message(message, target_service_id=sender)
         
     async def send_team_info(self, sender):
-        team_info = await get_team_info(self.socket)
+        team_info = await self.socket.get_team_info()
         message = Message(MessageType.RUST_TEAM_INFO, {"data": team_info})
         await self.api.send_message(message, target_service_id=sender)
         
     async def send_team_chat_init(self, sender):
-        initial_team_chat = await get_team_chat(self.socket)
+        initial_team_chat = None
+        try:
+            initial_team_chat = await self.socket.get_team_chat()
+        except:
+            pass # Not in a team. None
         message = Message(MessageType.RUST_TEAM_CHAT_INIT, {"data": initial_team_chat})
         await self.api.send_message(message, target_service_id=sender)
     

@@ -1,5 +1,6 @@
 from ipc.serialiser import serialise_API_object
 import asyncio
+
 from .rust_item_collection import RustItemCollection
 
 class StorageMonitorManager:
@@ -10,9 +11,10 @@ class StorageMonitorManager:
         self.poll_rate = int(BUS.get_config().get("rust").get("storage_monitor_polling_frequency_seconds"))
         
         self.monitor_ids = []
-        self.all_monitor_contents = None
         
         self.name_manager = item_name_manager
+        
+        self.all_monitor_contents = RustItemCollection(self.name_manager)
     
     
     async def start_storage_polling(self):
