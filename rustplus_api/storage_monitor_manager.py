@@ -39,7 +39,7 @@ class StorageMonitorManager(Loggable):
         await self.get_all_items()
         self.log("wire tool count:", self.get_item_count("-2139580305"))
         self.log("Did you mean:",self.name_manager.suggest_closest_match("rifle incendiary shots"))
-        
+    
     async def get_monitor_items(self, monitor_id):
         try:
             monitor_contents_raw = (await self.api.get_socket().get_contents(monitor_id)).contents
@@ -70,7 +70,7 @@ class StorageMonitorManager(Loggable):
         """
         monitors = self.BUS.db_query("id", "Devices", "dev_type=3") or []
         self.monitor_ids = [monitor[0] for monitor in monitors]
-        print("Monitors:", self.monitor_ids)
+        self.log("Monitors:", self.monitor_ids)
     
     def get_item_count(self, item_name):
         """

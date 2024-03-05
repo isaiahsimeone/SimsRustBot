@@ -19,7 +19,7 @@ class Tools:
         if isinstance(data, dict):  # If the current element is a dictionary
             for key, value in data.items():
                 if key == 'steam_id':
-                    data[key] = str(value)  # Convert to string
+                    data[key] = str(value)
                 else:
                     Tools.stringify_steam_ids(value)  # Recurse into the value
         elif isinstance(data, list):  # If the current element is a list

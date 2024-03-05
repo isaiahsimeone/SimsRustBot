@@ -11,6 +11,5 @@ class CommandRegistry:
         return command  # Return the class, not the instance
 
 def command(cls):
-    """Decorator to register commands."""
     CommandRegistry.register_command(cls)
     return cls
