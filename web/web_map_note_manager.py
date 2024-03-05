@@ -2,7 +2,7 @@ import asyncio
 
 class WebMapNoteManager():
     def __init__(self, socketio, web_server):
-        self.map_notes = None # Map notes made through web interface (not proper rust ones)
+        self.map_notes = [] # Map notes made through web interface (not proper rust ones)
         self.socketio = socketio
         self.web_server = web_server
         self.map_notes = []

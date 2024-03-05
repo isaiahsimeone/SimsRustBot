@@ -1,19 +1,22 @@
 from ipc.bus import Service
 
-class DiscordBotEventHandlers:
+from util.loggable import Loggable
+
+class DiscordBotEventHandlers(Loggable):
     def __init__(self, bot, discord_bot):
         self.bot = bot
         self.discord_bot = discord_bot
+        super().__init__(discord_bot.log)
 
     async def on_ready(self):
         await self.discord_bot.BUS.block_until_subscribed(service_id=Service.DISCORD, wait_for=Service.RUSTAPI)
-        await self.discord_bot.log(f"{self.bot.user} is ready.")
+        self.log(f"{self.bot.user} is ready.")
 
     async def on_connect(self):
-        await self.discord_bot.log(f"{self.bot.user} connected to Discord!")
+        self.log(f"{self.bot.user} connected to Discord!")
 
     async def on_disconnect(self):
-        await self.discord_bot.log(f"{self.bot.user} disconnected from Discord")
+        self.log(f"{self.bot.user} disconnected from Discord")
         
     async def on_message(self, message):
         if message.content.startswith("!"):

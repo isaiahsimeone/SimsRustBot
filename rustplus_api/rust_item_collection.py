@@ -1,7 +1,10 @@
 
 
+from rustplus_api.rust_item_name_manager import RustItemNameManager
+
+
 class RustItemCollection:
-    def __init__(self, name_manager):
+    def __init__(self, name_manager: RustItemNameManager):
         self.items = {}
         self.name_manager = name_manager
     
@@ -31,12 +34,10 @@ class RustItemCollection:
         Get the quantity of the specified item (by id) in the RustItemCollection
         Returns none if we don't know what the alias is
         """
-        print(self.items)
         if str(item_id) in self.items:
-            print(f"[RIC] - it IS in self.items", self.items[str(item_id)]['quantity'])
             return self.items[str(item_id)]['quantity']
         else:
-            return None # None means we don't know what this alias is
+            return 0 # none of this item
     
     def quantity_by_name(self, name_or_alias):
         """
@@ -44,6 +45,8 @@ class RustItemCollection:
         the quantity of that item (by id) that is in this RustItemCollection
         """
         item_id = self.name_manager.get_item_id(name_or_alias)
+        if item_id == -1:
+            return -1
         return self.quantity_by_id(item_id) 
     
     def __str__(self):

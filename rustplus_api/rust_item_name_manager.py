@@ -427,7 +427,7 @@ item_aliases = [
     ("106959911", "Light Frankenstein Legs"),
     ("99588025", "High External Wooden Wall"),
     ("98508942", "XXL Picture Frame"),
-    ("95950017", "Metal Pipe", "pipe", "metal pipes"),
+    ("95950017", "Metal Pipe", "pipe", "metal pipes", "pipes"),
     ("86840834", "NVGM Scientist Suit"),
     ("81423963", "Yellow ID Tag"),
     ("73681876", "Tech Trash", "tt"),
@@ -962,7 +962,7 @@ class RustItemNameManager:
         """
         Get the ID of an item from a given name or alias
         """
-        return self.name_to_id.get(name_or_alias.lower())
+        return self.name_to_id.get(name_or_alias.lower(), -1) # -1 if it's not an alias
 
     def get_aliases_for_id(self, item_id):
         """

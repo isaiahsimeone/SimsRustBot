@@ -39,7 +39,7 @@ class DiscordBot:
         bot_token = self.config.get("bot_token")
         
         if not bot_token:
-            self.log_synchronous("ERROR: I don't have a discord bot token! Enter one, or leave blank")
+            self.log("ERROR: I don't have a discord bot token! Enter one, or leave blank")
             token = input("Enter discord bot token: ").strip()
             if token == "":
                 return None
@@ -55,8 +55,5 @@ class DiscordBot:
     async def send_message(self, message: Message, target_service_id=None):
         await self.BUS.send_message(Service.DISCORD, message, target_service_id)
     
-    def log(self, message: Message):
-        self.BUS.log(Service.DISCORD, message)
-        
-    def log_synchronous(self, message: Message):
+    def log(self, message):
         self.BUS.log(Service.DISCORD, message)

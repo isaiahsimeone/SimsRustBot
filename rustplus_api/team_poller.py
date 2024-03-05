@@ -8,32 +8,35 @@ from util.tools import Tools
 import json
 import copy
 
-class TeamPoller:
-    def __init__(self, socket, BUS):
-        self.socket = socket
-        self.BUS = BUS
+from util.loggable import Loggable
+
+class TeamPoller(Loggable):
+    def __init__(self, rust_api):
+        self.api = rust_api
+        self.BUS = rust_api.get_BUS()
+        super().__init__(rust_api.log)
         
-        self.poll_rate = int(BUS.get_config().get("rust").get("polling_frequency_seconds"))
+        self.poll_rate = int(self.BUS.get_config().get("rust").get("polling_frequency_seconds"))
         
         self.last_team_info_hash = None
     
     
     async def start_team_polling(self):
         while True:
-            print("poll team")
+            self.log("poll team")
             await self.poll_team()
             await asyncio.sleep(self.poll_rate)
     
     # Check for changes to team - sends message only if is_online, is_alive, spawn_time, or death_time has changed
     async def poll_team(self):
-        team_info = serialise_API_object((await self.socket.get_team_info()))
+        team_info = serialise_API_object((await self.api.get_socket().get_team_info()))
         
         new_hash = self.hash_team_info(team_info)
         
         if self.last_team_info_hash is not None:
             if self.last_team_info_hash != new_hash:
                 # The team has changed (excluding a team members coordinates, spawn, or death time)
-                print("Team changed")
+                self.log("Team changed")
                 message = Message(MessageType.RUST_TEAM_INFO, {"data": team_info})
                 await self.send_message(message)
             
@@ -49,37 +52,7 @@ class TeamPoller:
             del team_info['members'][i]['spawn_time']    
             del team_info['members'][i]['death_time']
         
-        return hash(json.dumps(team_info))
-    
-        """
-        if self.last_team_members_info is not None:
-            for member in team_members_info:
-                steam_id = member["steam_id"]
-                
-                member_prev = next((m for m in self.last_team_members_info if m['steam_id'] == steam_id), None)
-                
-                change_type = None
-                
-                if not member_prev:
-                    change_type = "new_team_member"
-                    print("Someone joined the team")
-                    return None
-                
-                if member["is_alive"] != member_prev["is_alive"]:
-                    change_type = "player_" + ("spawned" if member["is_alive"] else "died")
-                    print(member["name"] + " is " + change_type)
-                    
-                if member["is_online"] != member_prev["is_online"]:
-                    change_type = "player_" + ("online" if member["is_online"] else "offline")
-                    print(member["name"] + " is " + change_type)
-                    
-                if change_type:
-                    message = Message(MessageType.RUST_TEAM_INFO, {"data": self.team_members_info})
-                    await self.send_message(message)
-                    
-        self.last_team_members_info = team_members_info
-        """
-        
+        return hash(json.dumps(team_info))       
         
     async def send_message(self, message: Message, target_service_id=None):
         await self.BUS.send_message(Service.RUSTAPI, message, target_service_id)

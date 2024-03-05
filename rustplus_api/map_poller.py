@@ -1,20 +1,27 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from rust_plus_api import RustPlusAPI
+    from ipc.bus import BUS
+    from rustplus import RustSocket
+    
 import asyncio
-#from rustplus import RustSocket, ChatEvent, TeamEvent, EntityEvent, entity_type_to_string
 from ipc.bus import Service
 from ipc.message import Message, MessageType
 from ipc.serialiser import serialise_API_object
-from util.tools import Tools
 import math
-from .commands.send_message import send_message as rust_api_send_message
 import random
 import time
+from util.loggable import Loggable
 
-class MapPoller:
-    def __init__(self, socket, BUS):
-        self.socket = socket
-        self.BUS = BUS
+class MapPoller(Loggable):
+    def __init__(self, rust_api: RustPlusAPI):
+        self.api = rust_api
+        self.socket = rust_api.get_socket()
+        self.BUS = rust_api.get_BUS()
+        super().__init__(rust_api.log)
         
-        self.poll_rate = int(BUS.get_config().get("rust").get("polling_frequency_seconds"))
+        self.poll_rate = int(self.BUS.get_config().get("rust").get("polling_frequency_seconds"))
 
         self.heli_is_out = False
         self.last_heli_position = {'x': -1, 'y': -1}
@@ -76,10 +83,10 @@ class MapPoller:
         
         # Cargo is now out
         if not self.cargo_is_out and cargo_marker:
-            print("CARGO SPAWNED -- poller")
+            self.log("CARGO SPAWNED -- poller")
             self.cargo_is_out = True
             await self.send_message(Message(MessageType.RUST_CARGO_SPAWNED, {"bearing": self.get_cardinal_bearing(cargo_marker)}))
-            await rust_api_send_message(self.socket, "Cargo just spawned! It will enter the map from the " + str(self.get_cardinal_bearing(cargo_marker)))
+            await self.api.send_game_message("Cargo just spawned! It will enter the map from the " + str(self.get_cardinal_bearing(cargo_marker)))
     
     
     # Assumes there's only ever one attack heli on the map
@@ -105,14 +112,14 @@ class MapPoller:
         
         # heli is now out
         if not self.heli_is_out and heli_marker:
-            print("HELI SPAWNED -- poller")
+            self.log("HELI SPAWNED -- poller")
             self.heli_is_out = True
             await self.send_message(Message(MessageType.RUST_HELI_SPAWNED, {"bearing": self.get_cardinal_bearing(heli_marker)}))
-            await rust_api_send_message(self.socket, "Heli just spawned! It will enter the map from the " + str(self.get_cardinal_bearing(heli_marker)))
+            await self.api.send_game_message("Heli just spawned! It will enter the map from the " + str(self.get_cardinal_bearing(heli_marker)))
             
         if self.heli_is_out and heli_marker:
             self.last_heli_position = {'x': heli_marker['x'], 'y': heli_marker['y']}
-            print("update heli position", str(self.last_heli_position), str(self.get_cardinal_bearing(heli_marker)))
+            self.log("update heli position", str(self.last_heli_position), str(self.get_cardinal_bearing(heli_marker)))
 
     
     # Returns a string (north, east, south, west, northeast, southeast, northwest, southwest)
@@ -177,7 +184,6 @@ class MapPoller:
             if marker['type'] == target_type:
                 return marker
         return None
-    
     
     async def send_message(self, message: Message, target_service_id=None):
         await self.BUS.send_message(Service.RUSTAPI, message, target_service_id)

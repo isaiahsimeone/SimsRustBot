@@ -1,8 +1,13 @@
-from ipc.bus import BUS, Service
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ipc.bus import BUS
+
+from ipc.bus import Service
 from ipc.message import Message, MessageType
 from ipc.serialiser import serialise_API_object
 
-from rustplus import RustSocket, ChatEvent, CommandOptions
+from rustplus import RustSocket
 import asyncio
 from .FCM_listener import FCM
 from .map_poller import MapPoller
@@ -14,10 +19,15 @@ from .message_executor import MessageExecutor
 from .storage_monitor_manager import StorageMonitorManager
 
 from .rust_item_name_manager import RustItemNameManager
+
+from rustplus_api.commands.command_executor import CommandExecutor
+
+
+
 import json
 
-class RustPlusAPI:
-    def __init__(self, BUS):
+class RustPlusAPI():
+    def __init__(self, BUS: BUS):
         self.BUS = BUS
         self.config = BUS.get_config()
         self.server = self.config.get("server_details").get("ip")
@@ -25,9 +35,11 @@ class RustPlusAPI:
         self.steamID = self.config.get("server_details").get("playerId")
         self.playerToken = self.config.get("server_details").get("playerToken")
         self.socket = RustSocket(self.server, self.port, self.steamID, self.playerToken)
+        self.command_executor = CommandExecutor(self, self.config.get("rust").get("command_prefix"))
         self.event_listener = None
         self.server_info = None
-        self.storage_monitor_manager = None
+        self.rust_item_name_manager = RustItemNameManager()
+        self.storage_monitor_manager = StorageMonitorManager(self, self.rust_item_name_manager)
         
     # entry point
     def execute(self):
@@ -50,16 +62,14 @@ class RustPlusAPI:
         #self.log("Downloading server map...")
 
         # Name manager for items - loads aliases etc
-        self.rust_item_name_manager = RustItemNameManager()
 
         # Register event listener
-        self.event_listener = EventListener(self.socket, self.BUS)
+        self.event_listener = EventListener(self)
         self.log("Event listener setup complete")
         
         
-        self.map_poller = MapPoller(self.socket, self.BUS)
-        self.team_poller = TeamPoller(self.socket, self.BUS)
-        self.storage_monitor_manager = StorageMonitorManager(self.socket, self.BUS, self.rust_item_name_manager)
+        self.map_poller = MapPoller(self)
+        self.team_poller = TeamPoller(self)
         
         #self.storage_monitor_manager.get_monitor_ids()
         
@@ -93,6 +103,24 @@ class RustPlusAPI:
     
     def get_socket(self):
         return self.socket
+    
+    def get_BUS(self):
+        return self.BUS
+    
+    def get_config(self):
+        return self.config
+    
+    async def send_game_message(self, message, sender=None):
+        author = ""
+        if sender:
+            author = f"[{sender}]"
+        await self.socket.send_team_message("[BOT] " + str(author) + " " + str(message))
+        
+    async def execute_command(self, command_string, sender_steam_id):
+        res = await self.command_executor.parse_and_execute_command(command_string, sender_steam_id)
+        if res and res[0] == '?':
+            components = res.split(':')
+            await self.send_game_message(f"Unknown command '{components[1]}'. Did you mean '{components[2]}'?")
 
     async def disconnect_api(self):
         self.log("Disconnecting from Rust Server (" + self.server + ")...")
@@ -106,5 +134,6 @@ class RustPlusAPI:
     async def send_message(self, message: Message, target_service_id=None):
         await self.BUS.send_message(Service.RUSTAPI, message, target_service_id)
 
-    def log(self, message, type="info"):
+    def log(self, *args, type="info"):
+        message = ' '.join(str(arg) for arg in args)
         self.BUS.log(Service.RUSTAPI, message, type)

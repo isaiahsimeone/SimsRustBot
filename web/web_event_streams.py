@@ -38,7 +38,7 @@ def setup_event_streams(socketio, web_server):
             case _:
                 web_server.log("Client requested unknown data: " + str(message), "error")
         
-        emit("data_response", {"type": request_what, "data": Tools.stringify_steam_ids(data)})
+        emit("data_response", {"type": request_what, "data": Tools.stringify_steam_ids(data)}) # type: ignore
   
     @socketio.on('client_send')
     def client_sent_data(message):

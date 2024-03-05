@@ -18,7 +18,7 @@ def setup_steam_routes(app, web_server):
             'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
             'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
         }
-        return redirect(STEAM_OPENID_URL + '?' + requests.compat.urlencode(params))
+        return redirect(STEAM_OPENID_URL + '?' + requests.compat.urlencode(params)) # type: ignore
 
     @app.route('/auth/response')
     def auth_response():
@@ -53,7 +53,7 @@ def setup_steam_routes(app, web_server):
         if not web_server.get_steam_api_key():
             return jsonify({"success": False, "message": "No Steam API key available."}), 400
 
-        print("REQUESTING DOWNLOAD OF STEAM PIC FOR STEAMID:", steam_id)
+        web_server.log("Requesting download of steam picture for ID:", steam_id)
         steam_info_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
         params = {
             'key': web_server.get_steam_api_key(),

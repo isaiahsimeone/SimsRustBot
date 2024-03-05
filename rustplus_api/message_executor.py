@@ -7,14 +7,13 @@ from ipc.message import MessageType as MT
 
 from ipc.message import Message, MessageType
 
-from .commands.get_server_map import get_server_map
+from util.loggable import Loggable
 
-from .commands.send_message import send_message as rust_api_send_message
-
-class MessageExecutor():
+class MessageExecutor(Loggable):
     def __init__(self, rust_api: RustPlusAPI):
         self.api = rust_api
         self.socket = self.api.get_socket()
+        super().__init__(rust_api.log)
                     
     def get_message_type(self, value):
         for member in MT:
@@ -27,7 +26,6 @@ class MessageExecutor():
         
         match msg_type:
             case MT.REQUEST_RUST_SERVER_MAP:
-                print("I AM SENDING THE MAP")
                 await self.send_server_map_image(sender)
             case MT.REQUEST_RUST_MAP_MONUMENTS:
                 await self.send_server_map_monuments(sender)
@@ -42,13 +40,22 @@ class MessageExecutor():
             case MT.REQUEST_ITEM_COUNT:
                 await self.send_item_count(sender, msg)
             case _:
-                self.api.log("MessageExecutor received an unknown message: " + str(msg), type="error")
+                self.log("MessageExecutor received an unknown message: " + str(msg), type="error")
                 
     async def send_rust_message(self, sending_service, message, steam_name):
-        await rust_api_send_message(self.socket, message, steam_name)
+        await self.api.send_game_message(message, steam_name)
 
     async def send_server_map_image(self, sender):
-        server_map = await get_server_map(self.socket)
+        map_image = await self.socket.get_map()
+    
+        pixel_data = list(map_image.getdata())
+
+        server_map = {
+            'width': map_image.width,
+            'height': map_image.height,
+            'pixels': pixel_data
+        }
+        
         message = Message(MessageType.RUST_SERVER_MAP, {"data": server_map})
         await self.api.send_message(message, target_service_id=sender)
     

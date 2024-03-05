@@ -72,6 +72,19 @@ class Database:
             return None
         finally:
             session.close()
+    
+    def delete_from(self, table, where="1=0"):
+        session = self.session
+        
+        try:
+            result = session.execute(text(f"DELETE FROM {table} WHERE {where}"))
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            print(f"Database error delete from: {e}")
+            return None
+        finally:
+            session.close()
 
 @staticmethod
 def dprint(*args, **kwargs):

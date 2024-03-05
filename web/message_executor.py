@@ -1,11 +1,20 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ipc.bus import BUS
+    from web_server import WebServer
+
 from ipc.message import MessageType as MT
 from ipc.message import Message
 from ipc.bus import Service
-from PIL import Image 
+from PIL import Image
 
-class MessageExecutor():
-    def __init__(self, web_server):
+from util.loggable import Loggable 
+
+class MessageExecutor(Loggable):
+    def __init__(self, web_server: WebServer):
         self.web_server = web_server
+        super().__init__(web_server.log)
 
     def get_message_type(self, value):
         for member in MT:
@@ -19,35 +28,35 @@ class MessageExecutor():
         
         match msg_type:
             case MT.RUST_TEAM_CHAT_INIT:
-                self.web_server.log("Got initial team chat")
+                self.log("Got initial team chat")
                 self.receive_team_chat_init(data)
             case MT.RUST_IN_GAME_MSG:
-                self.web_server.log("Got A team chat")
+                self.log("Got a team chat")
                 self.receive_team_chat(data)
             case MT.RUST_SERVER_MAP:
-                self.web_server.log("Got server map. Moving to images root")
+                self.log("Got server map. Moving to images root")
                 self.receive_map_image(data)
             case MT.RUST_MAP_MARKERS:
-                self.web_server.log("Updating map markers")
+                self.log("Updating map markers")
                 self.receive_map_markers(data)
             case MT.RUST_MAP_MONUMENTS:
-                self.web_server.log("Received map monuments")
+                self.log("Received map monuments")
                 self.receive_map_monuments(data)
             case MT.RUST_PLAYER_STATE_CHANGE:
-                self.web_server.log("Got a player state change")
+                self.log("Got a player state change")
                 self.receive_player_state_change(data)
             case MT.RUST_SERVER_INFO:
-                self.web_server.log("Got Server Info")
+                self.log("Got Server Info")
                 self.receive_server_info(data)
             case MT.RUST_TEAM_INFO:
-                self.web_server.log("Got team info")
+                self.log("Got team info")
                 self.receive_team_info(data)
             #case MT.RUST_HELI_DOWNED:
             #    self.web_server.log("Heli went down")
             #case MT.RUST_CARGO_SPAWNED:
             #    self.web_server.log("Cargo spawned")
             case _:
-                self.web_server.log("ERROR: Unknown message type")
+                self.log("Unknown message type", type="error")
 
     def receive_map_image(self, data):
         image_data = data.get("data")
@@ -57,7 +66,7 @@ class MessageExecutor():
         img_pixels = [tuple(pixel) for pixel in image_data.get("pixels")]
         
         img = Image.new(mode="RGB", size=(img_width, img_height))
-        img.putdata(img_pixels)
+        img.putdata(img_pixels) # type: ignore
         
         img.save("web/static/images/map.jpg")
         self.web_server.map_image_available = True
@@ -85,12 +94,12 @@ class MessageExecutor():
     def receive_team_chat_init(self, data):
         if not data or not data['data']:
             return None # Probably isn't in a team
-        print("GOT: " + str(data))
+        self.log("GOT: " + str(data))
         for message in data['data']:
-            print("-", str(message))
+            self.log("-", str(message))
             self.web_server.team_chat_log.append(message)
     
     def receive_team_chat(self, data):
-        print("GOTTC: " + str(data))
+        self.log("GOTTC: " + str(data))
         self.web_server.team_chat_log.append(data)
         self.web_server.broadcast_to_web("teamchat", data)

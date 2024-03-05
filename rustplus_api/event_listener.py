@@ -1,18 +1,21 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from rustplus import RustSocket
     from ipc.bus import BUS
     from rustplus import ChatEvent, TeamEvent, EntityEvent
-
+    from rustplus_api.rust_plus_api import RustPlusAPI
+    
+from util.loggable import Loggable
 from rustplus import entity_type_to_string
 from ipc.bus import Service
 from ipc.message import Message, MessageType
 
-class EventListener: 
-    def __init__(self, socket: RustSocket, BUS: BUS):
-        self.socket = socket
-        self.BUS = BUS
+class EventListener(Loggable): 
+    def __init__(self, rust_api: RustPlusAPI):
+        self.api = rust_api
+        self.socket = rust_api.get_socket()
+        self.BUS = rust_api.get_BUS()
+        super().__init__(rust_api.log)
         
         # Register handlers
         self.socket.team_event(self.team_event_handler)
@@ -23,10 +26,9 @@ class EventListener:
     # TODO: may be broken ? Check after FCM listener is sorted
     async def entity_event_handler(self, event: EntityEvent):
         value = "On" if event.value else "Off"
-        print(f"Entity {event.entity_id} of type {entity_type_to_string(event.type)} has been turned {value}")
+        self.log(f"Entity {event.entity_id} of type {entity_type_to_string(event.type)} has been turned {value}")
         # Additional code to handle entity event
 
-    # TODO: mightn't need to get map notes, they might be retrievable from map marker polling
     async def team_event_handler(self, event: TeamEvent):
         team_info = event.team_info
         msg_data = {"leader_steam_id": team_info.leader_steam_id, 
@@ -36,15 +38,18 @@ class EventListener:
         
         message = Message(MessageType.RUST_TEAM_CHANGE, msg_data)
         await self.send_message(message)
-        #print(f"The team leader's steamId is: {event.team_info.leader_steam_id}")
 
     async def chat_event_handler(self, event: ChatEvent):
-        msg_data = {"steam_id": event.message.steam_id, 
+        data = {"steam_id": event.message.steam_id, 
                     "name": event.message.name, 
                     "message": event.message.message,
                     "colour": event.message.colour,
                     "time": event.message.time}
-        message = Message(MessageType.RUST_IN_GAME_MSG, msg_data)
+        
+        # Handle command
+        await self.api.execute_command(data['message'], data['steam_id'])
+        
+        message = Message(MessageType.RUST_IN_GAME_MSG, data)
         await self.send_message(message)
         
     async def proto_event_handler(self, data: bytes):

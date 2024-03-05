@@ -1,3 +1,10 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from config.config_manager import ConfigManager
+    from database.database import Database
+
 import asyncio
 from enum import Enum
 from util.printer import Printer
@@ -17,7 +24,7 @@ class Service(Enum):
         return self.name
 
 class BUS:
-    def __init__(self, config, database):
+    def __init__(self, config: ConfigManager, database: Database):
         self.config = config
         self.message_queue = asyncio.Queue()  # Use asyncio Queue
         self.listeners = {}
@@ -69,6 +76,9 @@ class BUS:
         
     def db_query(self, what, table, where):
         return self.database.query(what, table, where)
+    
+    def db_delete_from(self, table, where):
+        return self.database.delete_from(table, where)
 
 
    
