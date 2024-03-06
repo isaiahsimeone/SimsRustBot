@@ -40,6 +40,8 @@ class MessageType(Enum):
 
     # For the API to do
     SEND_TEAM_MESSAGE = "send_team_message"
+    
+    TEST = "test"
 
 
 class Message:

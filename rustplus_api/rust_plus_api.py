@@ -95,7 +95,6 @@ class RustPlusAPI():
             asyncio.create_task(self.storage_monitor_manager.start_storage_polling())
             self.log("Storage Monitor polling started with a frequency of " + poll_rate_storage + " seconds")
          
-         
         await asyncio.Future() # Keep running
         
         self.log("asyncio.Future() finished? Exiting", type="error")

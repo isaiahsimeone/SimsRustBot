@@ -1,6 +1,4 @@
-import json
 from typing import Any
-from enum import Enum, auto
 from rustplus.api.structures.rust_team_info import RustTeamMember, RustTeamNote, RustTeamInfo
 from rustplus.api.structures.rust_marker import RustColour, RustSellOrder, RustMarker
 from rustplus.api.structures.rust_info import RustInfo

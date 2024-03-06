@@ -37,8 +37,6 @@ class StorageMonitorManager(Loggable):
             
     async def poll_storage(self):
         await self.get_all_items()
-        self.log("wire tool count:", self.get_item_count("-2139580305"))
-        self.log("Did you mean:",self.name_manager.suggest_closest_match("rifle incendiary shots"))
     
     async def get_monitor_items(self, monitor_id):
         try:

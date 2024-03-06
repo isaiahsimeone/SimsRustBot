@@ -1,5 +1,8 @@
 
+import argparse
+import os
 import threading
+import unittest
 
 from ipc.bus import BUS
 from rustplus_api.rust_plus_api import RustPlusAPI
@@ -12,6 +15,15 @@ from database.database import Database
 
 def main():
     Printer.print_banner()
+    
+    parser = argparse.ArgumentParser(description="Run the application or tests")
+    parser.add_argument('--test', action='store_true', help="Run tests instead of the application")
+    args = parser.parse_args()
+    
+    # If --test is specified, run tests
+    if args.test:
+        run_tests()
+        return
     
     database = Database()
     
@@ -45,6 +57,14 @@ def start_service_threaded(service):
     Printer.print("info", "Starting thread for", service)
     service.execute()
 
+def run_tests():
+    # This will load all test cases from the tests directory
+    # Adjust the pattern or directory as needed
+    loader = unittest.TestLoader()
+    suite = loader.discover(start_dir='./tests', pattern='*_test.py')
+    print(suite)
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
 
 if __name__ == "__main__":
     main()

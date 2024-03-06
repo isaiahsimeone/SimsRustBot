@@ -56,7 +56,7 @@ class BUS:
     
     async def block_until_subscribed(self, service_id, wait_for):
         if wait_for in self.listeners:
-            return None
+            return 
         self.log(service_id, Service.get_name(service_id) + " is blocked until " + Service.get_name(wait_for) + " is subscribed")
         while wait_for not in self.listeners:
             pass
