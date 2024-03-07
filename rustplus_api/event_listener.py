@@ -21,13 +21,30 @@ class EventListener(Loggable):
         self.socket.team_event(self.team_event_handler)
         self.socket.chat_event(self.chat_event_handler)
         self.socket.protobuf_received(self.proto_event_handler)
-        self.socket.entity_event(self.entity_event_handler)
+        #self.socket.entity_event(self.entity_event_handler)
     
     # TODO: may be broken ? Check after FCM listener is sorted
     async def entity_event_handler(self, event: EntityEvent):
+        print("EVENT:", event)
         value = "On" if event.value else "Off"
         self.log(f"Entity {event.entity_id} of type {entity_type_to_string(event.type)} has been turned {value}")
         # Additional code to handle entity event
+
+    """
+    Rustplus API documentation decorates the callback function
+    with #socket.entity_event(ENTITYID), we need to wrap
+    """
+    def register_entity_event_listener(self, entity_id):
+        self.socket.remote.handle_subscribing_entity(entity_id, self.entity_event_handler)
+        print("REGISTERED", entity_id)
+
+
+    def update_smart_switch_handlers(self):
+        switch_ids = self.api.BUS.db_query("id", "Devices", "dev_type=1")
+        for id in switch_ids:
+            self.register_entity_event_listener(id)
+        self.log("Switchids:", switch_ids)
+        
 
     async def team_event_handler(self, event: TeamEvent):
         team_info = event.team_info

@@ -55,7 +55,7 @@ class RustPlusAPI():
         self.log("Rust Service subscribed for messages")
         
         self.log("Starting FCM listener...")
-        FCM(self.config.get("fcm_credentials"), self).start()
+        self.fcm = FCM(self.config.get("fcm_credentials"), self).start()
         self.log("FCM Listener startup complete")
 
         self.log("Fetching server info...")

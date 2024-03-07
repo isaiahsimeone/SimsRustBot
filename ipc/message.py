@@ -41,6 +41,10 @@ class MessageType(Enum):
     # For the API to do
     SEND_TEAM_MESSAGE = "send_team_message"
     
+    # Devices
+    DEVICE_PAIRED = "device_paired"
+    DEVICE_ALARM_MSG = "device_alarm_msg"
+    
     TEST = "test"
 
 

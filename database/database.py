@@ -40,8 +40,9 @@ class Database:
         id = data['id']
         name = data['name']
         dev_type = data['dev_type']
+        state = data['state']
         
-        new_device = Device(id=id, name=name, dev_type=dev_type)
+        new_device = Device(id=id, name=name, dev_type=dev_type, state=state)
         
         session = self.session
         
@@ -56,7 +57,18 @@ class Database:
             session.close()
         
         
+    def update(self, table, what, where="1=0"):
+        session = self.session
         
+        try:
+            result = session.execute(text(f"UPDATE {table} SET {what} WHERE {where}"))
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            print(f"Database error update from: {e}")
+            return None
+        finally:
+            session.close()
         
     def query(self, what, table, where="1=1"):
         session = self.session
@@ -65,7 +77,8 @@ class Database:
             result = session.execute(text(f"SELECT {what} FROM {table} WHERE {where}"))
             #print("RES", result.fetchall())
             rows = result.fetchall()
-            return rows
+            ret = [row[0] for row in rows]
+            return ret
         except Exception as e:
             session.rollback()
             print(f"Database error: {e}")

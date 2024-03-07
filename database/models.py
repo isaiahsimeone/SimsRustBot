@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy import Boolean, DateTime, create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -28,6 +28,8 @@ class Device(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     dev_type = Column(Integer)
+    state = Column(Boolean) # For smart switches - true == on
+
     
 
 User.messages = relationship("Message", order_by=Message.id, back_populates="user")

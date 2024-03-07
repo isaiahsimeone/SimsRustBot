@@ -66,8 +66,8 @@ class StorageMonitorManager(Loggable):
         """
         Get the IDs of all rust+ devices that are storage monitors
         """
-        monitors = self.BUS.db_query("id", "Devices", "dev_type=3") or []
-        self.monitor_ids = [monitor[0] for monitor in monitors]
+        self.monitor_ids = self.BUS.db_query("id", "Devices", "dev_type=3") or []
+
         self.log("Monitors:", self.monitor_ids)
     
     def get_item_count(self, item_name):

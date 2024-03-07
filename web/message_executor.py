@@ -56,9 +56,10 @@ class MessageExecutor(Loggable):
             #case MT.RUST_CARGO_SPAWNED:
             #    self.web_server.log("Cargo spawned")
             case _:
-                self.log("Unknown message type", type="error")
+                self.log(f"Unknown message type: {msg_type}", type="error")
 
     def receive_map_image(self, data):
+        # Todo: if the image is saved under this server, and is current, we don't need to redownload. It's slow
         image_data = data.get("data")
         
         img_width = image_data.get("width")

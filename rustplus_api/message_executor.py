@@ -46,6 +46,7 @@ class MessageExecutor(Loggable):
         await self.api.send_game_message(message, steam_name)
 
     async def send_server_map_image(self, sender):
+        #TODO: Check if the map exists for this server, only download if it's a new map
         map_image = await self.socket.get_map()
     
         pixel_data = list(map_image.getdata())

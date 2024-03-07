@@ -40,7 +40,8 @@ class DiscordBot:
         
         if not bot_token:
             self.log("ERROR: I don't have a discord bot token! Enter one, or leave blank")
-            token = input("Enter discord bot token: ").strip()
+            #token = input("Enter discord bot token: ").strip()
+            token = ""
             if token == "":
                 return None
             else:

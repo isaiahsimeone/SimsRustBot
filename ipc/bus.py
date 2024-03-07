@@ -75,10 +75,13 @@ class BUS:
         self.database.insert(table, data)
         
     def db_query(self, what, table, where):
-        return self.database.query(what, table, where)
+        return self.database.query(what, table, where) or []
     
     def db_delete_from(self, table, where):
         return self.database.delete_from(table, where)
+    
+    def db_update(self, table, what, where):
+        return self.database.update(table, what, where)
 
 
    

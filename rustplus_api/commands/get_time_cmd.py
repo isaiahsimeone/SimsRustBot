@@ -15,14 +15,13 @@ class GetTimeCommand(Command):
             sunrise = response.sunrise
             timescale = response.time_scale
             
-            
             msg = f"It's {now}."
             
             # If it's night, state when sunrise is, if it's day, state when night is
             if to_time(now) > to_time(sunrise) and to_time(now) < to_time(sunset):
-                msg += f" Night falls at {response.sunset} ({to_real_minutes(now, sunset, timescale)} real minutes away)"
+                msg += f" Night falls at {response.sunset}"
             else:
-                msg += f" Daylight falls at {response.sunrise} ({to_real_minutes(now, sunrise, timescale)} real minutes away)"
+                msg += f" Day comes at {response.sunrise}"
             
             await rust_api.send_game_message(msg)
 

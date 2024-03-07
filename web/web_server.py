@@ -105,8 +105,8 @@ class WebServer:
         while True:
             if self.map_marker_data and self.map_image_available and self.map_monuments:
                 self.page_ready = True
-                return None
-            time.sleep(1)
+                return
+            await asyncio.sleep(1)
     
     def get_host(self):
         return self.host

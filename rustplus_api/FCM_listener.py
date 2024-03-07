@@ -1,5 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
+from ipc.message import Message, MessageType
+
+
 if TYPE_CHECKING:
     from rust_plus_api import RustPlusAPI
     from ipc.bus import BUS
@@ -24,34 +28,51 @@ class FCM(FCMListener):
         asyncio.run(self.handle_notification(obj, notification, data_message))
         
     async def handle_notification(self, obj, notification, data_message):
+        print(notification)
         data = notification['data']
         body = json.loads(data['body'])
         
         if data['channelId'] == "pairing":
             self.log("Paring request", body['entityName'], "ID", body['entityId'])
-            msg = {'id': body['entityId'], 'name': body['entityName'], 'dev_type': body['entityType']}
             if not await self.valid_device(body['entityId'], body['entityType']):
                 print(f"Ignoring device {body['entityId']} that isn't present on the server")
             else:
-                self.api.BUS.db_insert("device", msg)
+                await self.add_device(data)
         elif data['channelId'] == "alarm":
+            await self.process_alarm_message(data)
             self.log(f"An Alarm said: {data['title']} : {data['message']}")
-            
-    # TODO: Smart alarms have a state associated with them ,we should capture that in the DB
             
     async def valid_device(self, eid, etype):
         match etype:
-            case DeviceType.SWITCH:
+            case DeviceType.SWITCH.value:
                 # hopefully this is all good - dont want to turn shit on, which seems to be the only way to check
                 return True
-            case DeviceType.ALARM:
+            case DeviceType.ALARM.value:
                 # We just listen to these, so it doesn't matter
                 return True
-            case DeviceType.STORAGE_MONITOR:
+            case DeviceType.STORAGE_MONITOR.value:
                 try:
                     await self.api.socket.get_contents(eid)
+                    return True
                 except:
                     return False
             case _:
                 print(f"Big fuckup: Somehow got a device with ID {eid}?")
         return True
+    
+    async def add_device(self, data):
+        self.log(f"Adding device- :", data)
+        body = json.loads(data['body'])
+        self.log(body['entityType'], " =?= ", DeviceType.SWITCH.value)
+
+        msg = {'id': body['entityId'], 'name': body['entityName'], 'dev_type': body['entityType'], 'state': '0'}
+        self.api.BUS.db_insert("device", msg)
+        if int(body['entityType']) == DeviceType.SWITCH.value:
+            print("ITS A SWITCH")
+            self.api.event_listener.update_smart_switch_handlers() #type:ignore
+        await self.api.send_message(Message(MessageType.DEVICE_PAIRED, msg))
+        
+    async def process_alarm_message(self, data):
+        msg = {'title': data['title'], 'message': data['message']}
+        #self.api.BUS.db_insert("device", msg)
+        await self.api.send_message(Message(MessageType.DEVICE_ALARM_MSG, msg))
