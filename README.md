@@ -5,6 +5,7 @@ With web map notes, how about we just translate the coordinates to JSON coordina
 - rust_plus_api.py should be able to translate names to steam IDs
 
 Next:
+- Capture player x,y when they pair a device - Then, we know where their base probably is
 - Map note labels
 - make heli & chinook gifs
 - Heli exploded at (grid cell) - We need to check when the marker for it disappears during polling
