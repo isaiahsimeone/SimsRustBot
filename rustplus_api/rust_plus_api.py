@@ -36,7 +36,6 @@ class RustPlusAPI():
         self.playerToken = self.config.get("server_details").get("playerToken")
         self.socket = RustSocket(self.server, self.port, self.steamID, self.playerToken)
         self.command_executor = CommandExecutor(self, self.config.get("rust").get("command_prefix"))
-        self.event_listener = None
         self.server_info = None
         self.rust_item_name_manager = RustItemNameManager()
         self.storage_monitor_manager = StorageMonitorManager(self, self.rust_item_name_manager)
@@ -46,9 +45,8 @@ class RustPlusAPI():
         asyncio.run(self.api_main())
 
     async def api_main(self):
-        self.log("Connecting to Rust Server (" + self.server + ")...")
         await self.socket.connect()
-        self.log("Connected to Rust Server! (" + self.server + ")")
+        self.log(f"Connected to Rust Server! ({self.server})")
 
         self.executor = MessageExecutor(self)
         self.BUS.subscribe(Service.RUSTAPI, self.process_message)
@@ -113,7 +111,7 @@ class RustPlusAPI():
         author = ""
         if sender:
             author = f"[{sender}]"
-        await self.socket.send_team_message("[BOT] " + str(author) + " " + str(message))
+        await self.socket.send_team_message("[BOT]" + str(author) + " " + str(message))
         
     async def execute_command(self, command_string, sender_steam_id):
         res = await self.command_executor.parse_and_execute_command(command_string, sender_steam_id)

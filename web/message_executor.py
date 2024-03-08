@@ -72,11 +72,7 @@ class MessageExecutor(Loggable):
         
         cropped = image.crop((500, 500, width - 500, height - 500))
         resized = cropped.resize((2000, 2000), Image.LANCZOS).convert("RGB")
-        
-        # Optionally, if you want to ensure the image is in a specific mode, you can convert it
-        # However, this step may not be necessary if the image is already in the desired format
-        #img = img.convert('RGB')
-        
+
         # Save the image to your desired path
         resized.save("web/static/images/map.jpg")
         
