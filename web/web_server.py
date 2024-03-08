@@ -1,4 +1,5 @@
 from ipc.bus import BUS, Service
+from ipc.data_models import RustRequestMapMonuments, RustRequestServerInfo, RustRequestServerMap, RustRequestTeamChatInitial, RustRequestTeamInfo, RustServerInfo, RustTeamInfo
 from ipc.message import Message, MessageType
 from flask import Flask, url_for
 import logging
@@ -79,23 +80,23 @@ class WebServer:
         
         # Request map info
         self.log("Requesting Server Info")
-        await self.send_message(Message(MessageType.REQUEST_RUST_SERVER_INFO, {}), target_service_id=Service.RUSTAPI)
+        await self.send_message(Message(MessageType.REQUEST_RUST_SERVER_INFO, RustRequestServerInfo()), target_service_id=Service.RUSTAPI)
         
         # Request team info
         self.log("Requesting Team Info")
-        await self.send_message(Message(MessageType.REQUEST_RUST_TEAM_INFO, {}), target_service_id=Service.RUSTAPI)
+        await self.send_message(Message(MessageType.REQUEST_RUST_TEAM_INFO, RustRequestTeamInfo()), target_service_id=Service.RUSTAPI)
         
         # Request map image 
         self.log("Requesting Server Map")
-        await self.send_message(Message(MessageType.REQUEST_RUST_SERVER_MAP, {}), target_service_id=Service.RUSTAPI)
+        await self.send_message(Message(MessageType.REQUEST_RUST_SERVER_MAP, RustRequestServerMap()), target_service_id=Service.RUSTAPI)
         
         # Request monuments
         self.log("Requesting Server Monuments")
-        await self.send_message(Message(MessageType.REQUEST_RUST_MAP_MONUMENTS, {}), target_service_id=Service.RUSTAPI)
+        await self.send_message(Message(MessageType.REQUEST_RUST_MAP_MONUMENTS, RustRequestMapMonuments()), target_service_id=Service.RUSTAPI)
         
         # Request initial team chat
         self.log("Requesting Team Chat")
-        await self.send_message(Message(MessageType.REQUEST_RUST_TEAM_CHAT_INIT, {}), target_service_id=Service.RUSTAPI)
+        await self.send_message(Message(MessageType.REQUEST_RUST_TEAM_CHAT_INIT, RustRequestTeamChatInitial()), target_service_id=Service.RUSTAPI)
         
         # Mark index as ready once we get responses to the above requests (i.e. variables set)
         await self.set_page_ready()

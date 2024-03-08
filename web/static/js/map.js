@@ -77,9 +77,10 @@ export function receiveMapMarkerData(markers) {
 }
 
 export function receiveMapMonuments(data) {
-	let monuments_data = data.data
+	let monuments_data = data
 
 	mapContainer.style.backgroundColor = monuments_data.background; // Also gives us the background
+	log("GOT BG: " + monuments_data.background)
 	map_monuments = monuments_data.monuments;
 	redrawMonuments();
 }

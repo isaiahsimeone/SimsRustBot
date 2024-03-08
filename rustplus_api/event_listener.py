@@ -10,6 +10,7 @@ from rustplus import entity_type_to_string
 from ipc.bus import Service
 from ipc.message import Message, MessageType
 
+from ipc.data_models import RustChatMessage, RustTeamChange, RustTeamChatMessage
 class EventListener(Loggable): 
     def __init__(self, rust_api: RustPlusAPI):
         self.api = rust_api
@@ -48,24 +49,27 @@ class EventListener(Loggable):
 
     async def team_event_handler(self, event: TeamEvent):
         team_info = event.team_info
-        msg_data = {"leader_steam_id": team_info.leader_steam_id, 
-                    "members": team_info.members, 
-                    "map_notes": team_info.map_notes, 
-                    "leader_map_notes:": team_info.leader_map_notes}
+
+        data = RustTeamChange(
+            leader_steam_id = team_info.leader_steam_id,
+            members = team_info.members,
+            map_notes = team_info.map_notes,
+            leader_map_notes = team_info.leader_map_notes
+        )
         
-        message = Message(MessageType.RUST_TEAM_CHANGE, msg_data)
+        message = Message(MessageType.RUST_TEAM_CHANGE, data)
         await self.send_message(message)
 
     async def chat_event_handler(self, event: ChatEvent):
-        data = {"steam_id": event.message.steam_id, 
-                    "name": event.message.name, 
-                    "message": event.message.message,
-                    "colour": event.message.colour,
-                    "time": event.message.time}
+        steam_id = event.message.steam_id
+        name = event.message.name
+        message = event.message.message
+        colour = event.message.colour
+        time = event.message.time
         
         # Handle command
-        await self.api.execute_command(data['message'], data['steam_id'])
-        
+        await self.api.execute_command(message, steam_id)
+        data = RustTeamChatMessage(steam_id=steam_id, name=name, message=message, colour=colour, time=time)
         message = Message(MessageType.RUST_CHAT_MESSAGE, data)
         await self.send_message(message)
         

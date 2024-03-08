@@ -1,5 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
+from ipc.data_models import RustCargoDespawned, RustCargoSpawned, RustHeliDespawned, RustHeliDowned, RustHeliSpawned, RustMapMarkers
 if TYPE_CHECKING:
     from rust_plus_api import RustPlusAPI
     from ipc.bus import BUS
@@ -67,8 +69,8 @@ class MapPoller(Loggable):
         await self.check_for_cargo(markers)
         
         
-        msg_data = {"markers": markers}
-        message = Message(MessageType.RUST_MAP_MARKERS, msg_data)
+        data = RustMapMarkers(markers=markers)
+        message = Message(MessageType.RUST_MAP_MARKERS, data)
         await self.send_message(message)
     
     
@@ -78,15 +80,20 @@ class MapPoller(Loggable):
         if self.cargo_is_out and not cargo_marker:
             self.cargo_is_out = False
             # Despawned
-            await self.send_message(Message(MessageType.RUST_CARGO_DESPAWNED, {}))
+            await self.send_message(Message(MessageType.RUST_CARGO_DESPAWNED, RustCargoDespawned()))
             return None
         
         # Cargo is now out
         if not self.cargo_is_out and cargo_marker:
             self.log("CARGO SPAWNED -- poller")
             self.cargo_is_out = True
-            await self.send_message(Message(MessageType.RUST_CARGO_SPAWNED, {"bearing": self.get_cardinal_bearing(cargo_marker)}))
-            await self.api.send_game_message("Cargo just spawned! It will enter the map from the " + str(self.get_cardinal_bearing(cargo_marker)))
+            
+            bearing = self.get_cardinal_bearing(cargo_marker)
+            
+            data = RustCargoSpawned(bearing=bearing)
+            
+            await self.send_message(Message(MessageType.RUST_CARGO_SPAWNED, data))
+            await self.api.send_game_message(f"Cargo just spawned! It will enter the map from the {bearing} ")
     
     
     # Assumes there's only ever one attack heli on the map
@@ -99,11 +106,12 @@ class MapPoller(Loggable):
 
             if self.get_angle_to_marker(self.last_heli_position) > self.server_info['size'] * 6:
                 # Probably despawned
-                await self.send_message(Message(MessageType.RUST_HELI_DESPAWNED, {}))
+                await self.send_message(Message(MessageType.RUST_HELI_DESPAWNED, RustHeliDespawned()))
                 return None
             
+            data = RustHeliDowned(position=self.last_heli_position)
             # Otherwise, probably was downed in the map
-            await self.send_message(Message(MessageType.RUST_HELI_DOWNED, {"position": self.last_heli_position}))
+            await self.send_message(Message(MessageType.RUST_HELI_DOWNED, data))
 
             # For explosion marker
             marker = {'id': random.randint(0, 10000000), 'x': self.last_heli_position['x'], 'y': self.last_heli_position['y'], 'type': 2}
@@ -114,8 +122,13 @@ class MapPoller(Loggable):
         if not self.heli_is_out and heli_marker:
             self.log("HELI SPAWNED -- poller")
             self.heli_is_out = True
-            await self.send_message(Message(MessageType.RUST_HELI_SPAWNED, {"bearing": self.get_cardinal_bearing(heli_marker)}))
-            await self.api.send_game_message("Heli just spawned! It will enter the map from the " + str(self.get_cardinal_bearing(heli_marker)))
+            
+            bearing = self.get_cardinal_bearing(heli_marker)
+            
+            data = RustHeliSpawned(bearing=bearing)
+            await self.send_message(Message(MessageType.RUST_HELI_SPAWNED, data))
+            
+            await self.api.send_game_message(f"Heli just spawned! It will enter the map from the {bearing}")
             
         if self.heli_is_out and heli_marker:
             self.last_heli_position = {'x': heli_marker['x'], 'y': heli_marker['y']}

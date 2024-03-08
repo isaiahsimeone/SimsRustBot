@@ -14,7 +14,6 @@ export function initialiseTeam() {
 }
 
 export function receiveTeamInfo(data) {
-    data = data.data;
     log("Got team info: " + JSON.stringify(data));    
     team_info = data;
 

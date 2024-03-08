@@ -10,7 +10,6 @@ export function initialiseServer() {
 }
 
 export function receiveServerInfo(data) {
-    data = data.data;
     log("Got server info: " + JSON.stringify(data));
     server = data;
 }

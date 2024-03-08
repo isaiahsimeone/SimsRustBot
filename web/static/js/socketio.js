@@ -44,7 +44,7 @@ socket.on("data_response", function(response) {
     let type = response.type;
     let data = response.data;
 
-    log("Got data from server with type=" + type);
+    log("Got data from server with type=" + type + " : " + JSON.stringify(data));
 
     switch (type) {
         case "teamchat":

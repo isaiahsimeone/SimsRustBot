@@ -61,13 +61,26 @@ class MessageExecutor(Loggable):
                 self.log(f"Unknown message type: {msg_type}", type="error")
 
     def receive_map_image(self, data):
-        # Todo: if the image is saved under this server, and is current, we don't need to redownload. It's slow
+        encoded_pixels = data.get("pixels")
+ 
+        # Decode the base64-encoded pixel data to get the raw image bytes
+        pixels = b64decode(encoded_pixels)
+        width = data.get("width")
+        height = data.get("height")
         
-        binary_data = b64decode(data.get("pixels"))
-        image_file = BytesIO(binary_data)
-        img = Image.open(image_file)
+        image = Image.open(BytesIO(pixels))
         
-        img.save("web/static/images/map.jpg")
+        cropped = image.crop((500, 500, width - 500, height - 500))
+        resized = cropped.resize((2000, 2000), Image.LANCZOS).convert("RGB")
+        
+        # Optionally, if you want to ensure the image is in a specific mode, you can convert it
+        # However, this step may not be necessary if the image is already in the desired format
+        #img = img.convert('RGB')
+        
+        # Save the image to your desired path
+        resized.save("web/static/images/map.jpg")
+        
+        # Set the flag indicating the map image is available
         self.web_server.map_image_available = True
         
     def receive_map_markers(self, data):
@@ -80,7 +93,7 @@ class MessageExecutor(Loggable):
     
     def receive_player_state_change(self, data):
         self.web_server.team_update_queue.append(data)
-        #??????
+        #TODO: ??????
         
     def receive_server_info(self, data):
         self.web_server.server_info = data
@@ -91,10 +104,10 @@ class MessageExecutor(Loggable):
         self.web_server.broadcast_to_web("teaminfo", data)
         
     def receive_team_chat_init(self, data):
-        if not data or not data['data']:
-            return None # Probably isn't in a team
+        if not data:
+            return  # Probably isn't in a team
         self.log("GOT: " + str(data))
-        for message in data['data']:
+        for message in data:
             self.log("-", str(message))
             self.web_server.team_chat_log.append(message)
     

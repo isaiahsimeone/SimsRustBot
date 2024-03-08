@@ -12,7 +12,7 @@ class Tools:
 
     def merge_json(obj1, obj2):
         for key in obj2:
-            obj1[key] = obj2[key]
+            obj1[key] = obj2[key] #type:ignore
         return obj1
     
     def stringify_steam_ids(data):
@@ -27,9 +27,3 @@ class Tools:
                 Tools.stringify_steam_ids(item)  # Recurse into each item
         # Base case: if data is neither a dict nor a list, do nothing
         return data
-    
-    """
-    Seconds since unix epoch (1970)
-    """
-    def epoch():
-        return int(time.time())

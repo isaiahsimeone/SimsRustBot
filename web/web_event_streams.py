@@ -8,12 +8,13 @@ if TYPE_CHECKING:
 
 from flask import render_template, Response, stream_with_context
 from flask_socketio import emit
-from ipc.data_models import RustChatMessage
+from ipc.data_models import RustChatMessage, RustTeamChatMessage
 from ipc.message import Message, MessageType
 from ipc.bus import Service
 import json
 import time
 import asyncio
+from ipc.serialiser import serialise_API_object
 from util.tools import Tools
 
 def setup_event_streams(socketio, web_server: WebServer):
@@ -29,7 +30,7 @@ def setup_event_streams(socketio, web_server: WebServer):
     @socketio.on('request')
     def request_data(message):
         request_what = message.get("type")
-        data = None
+        data = {}
         
         match request_what:
             case "teamchat":
@@ -47,7 +48,8 @@ def setup_event_streams(socketio, web_server: WebServer):
             case _:
                 web_server.log("Client requested unknown data: " + str(message), "error")
         
-        emit("data_response", {"type": request_what, "data": Tools.stringify_steam_ids(data)}) # type: ignore
+        emit("data_response", {"type": request_what, 
+                               "data": Tools.stringify_steam_ids(data)}) # type:ignore
   
     @socketio.on('client_send')
     def client_sent_data(message):
@@ -66,7 +68,7 @@ def setup_event_streams(socketio, web_server: WebServer):
             case "teamchat":
                 message = data.get("message")
                 sender = data.get("sender")
-                msg = RustChatMessage(sender, "", message, "", 0)
+                msg = RustTeamChatMessage(steam_id=sender, name="", message=message, colour="", time=int(time.time()))
                 await web_server.send_message(Message(MessageType.REQUEST_SEND_TEAM_MESSAGE, msg), Service.RUSTAPI)
             case "newmapnote":
                 web_server.log("Got new map note")

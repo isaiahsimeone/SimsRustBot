@@ -1,7 +1,15 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ipc.bus import BUS
+    from rustplus_api.rust_plus_api import RustPlusAPI
+
 import asyncio
 import rustplus
 #from rustplus import RustSocket, ChatEvent, TeamEvent, EntityEvent, entity_type_to_string
 from ipc.bus import Service
+from ipc.data_models import RustTeamChange
 from ipc.message import Message, MessageType
 from ipc.serialiser import serialise_API_object
 from util.tools import Tools
@@ -11,7 +19,7 @@ import copy
 from util.loggable import Loggable
 
 class TeamPoller(Loggable):
-    def __init__(self, rust_api):
+    def __init__(self, rust_api: RustPlusAPI):
         self.api = rust_api
         self.BUS = rust_api.get_BUS()
         super().__init__(rust_api.log)
@@ -29,7 +37,7 @@ class TeamPoller(Loggable):
     
     # Check for changes to team - sends message only if is_online, is_alive, spawn_time, or death_time has changed
     async def poll_team(self):
-        team_info = serialise_API_object((await self.api.get_socket().get_team_info()))
+        team_info = await self.api.get_socket().get_team_info()
         
         new_hash = self.hash_team_info(team_info)
         
@@ -37,14 +45,22 @@ class TeamPoller(Loggable):
             if self.last_team_info_hash != new_hash:
                 # The team has changed (excluding a team members coordinates, spawn, or death time)
                 self.log("Team changed")
-                message = Message(MessageType.RUST_TEAM_INFO, {"data": team_info})
+
+                data = RustTeamChange(
+                    leader_steam_id=team_info.leader_steam_id,
+                    members=team_info.members,
+                    map_notes=team_info.map_notes,
+                    leader_map_notes=team_info.leader_map_notes
+                )
+                
+                message = Message(MessageType.RUST_TEAM_INFO, data)
                 await self.send_message(message)
             
         self.last_team_info_hash = new_hash
         
     def hash_team_info(self, team_info_now):
         # Deepcopy so attributes deleted here remain in parents scope
-        team_info = copy.deepcopy(team_info_now)
+        team_info = serialise_API_object(copy.deepcopy(team_info_now))
         # We don't care about these things changing
         for i in range(0, len(team_info['members'])):
             del team_info['members'][i]['x']    

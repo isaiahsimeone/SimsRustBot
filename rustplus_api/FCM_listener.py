@@ -1,6 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+
+from ipc.data_models import RustDeviceAlarmMessage, RustDevicePaired
+
 from ipc.message import Message, MessageType
 
 
@@ -32,7 +35,7 @@ class FCM(FCMListener):
         data = notification['data']
         body = json.loads(data['body'])
         
-        if data['channelId'] == "pairing":
+        if data['channelId'] == "pairing" and 'entityType' in body: # Discard server pairing message
             self.log("Paring request", body['entityName'], "ID", body['entityId'])
             if not await self.valid_device(body['entityId'], body['entityType']):
                 print(f"Ignoring device {body['entityId']} that isn't present on the server")
@@ -65,14 +68,22 @@ class FCM(FCMListener):
         body = json.loads(data['body'])
         self.log(body['entityType'], " =?= ", DeviceType.SWITCH.value)
 
-        msg = {'id': body['entityId'], 'name': body['entityName'], 'dev_type': body['entityType'], 'state': '0'}
+        msg = {'id': body['entityId'], 'name': body['entityName'], 
+               'dev_type': body['entityType'], 'state': '0'}
         self.api.BUS.db_insert("device", msg)
         if int(body['entityType']) == DeviceType.SWITCH.value:
             print("ITS A SWITCH")
             self.api.event_listener.update_smart_switch_handlers() #type:ignore
+            
+        msg = RustDevicePaired(
+            id=body['EntityId'],
+            name=body['entityName'],
+            dev_type=body['entityType'],
+            state=False
+        )
+        
         await self.api.send_message(Message(MessageType.DEVICE_PAIRED, msg))
         
     async def process_alarm_message(self, data):
-        msg = {'title': data['title'], 'message': data['message']}
-        #self.api.BUS.db_insert("device", msg)
+        msg = RustDeviceAlarmMessage(title=data['title'], message=data['message'])
         await self.api.send_message(Message(MessageType.DEVICE_ALARM_MSG, msg))
