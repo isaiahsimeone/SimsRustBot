@@ -1,11 +1,14 @@
 from __future__ import annotations
+from base64 import b64encode
+from io import BytesIO
 from typing import TYPE_CHECKING
+from ipc.data_models import RustServerMap
 if TYPE_CHECKING:
     from rust_plus_api import RustPlusAPI
 
 from ipc.message import MessageType as MT
 
-from ipc.message import Message, MessageType
+from ipc.message import Message
 
 from util.loggable import Loggable
 
@@ -35,7 +38,7 @@ class MessageExecutor(Loggable):
                 await self.send_team_info(sender)
             case MT.REQUEST_RUST_TEAM_CHAT_INIT:
                 await self.send_team_chat_init(sender)
-            case MT.SEND_TEAM_MESSAGE:
+            case MT.REQUEST_SEND_TEAM_MESSAGE:
                 await self.send_rust_message(sender, msg["data"]["message"], msg["data"]["sender"]) # last arg is steam name
             case MT.REQUEST_ITEM_COUNT:
                 await self.send_item_count(sender, msg)
@@ -47,32 +50,31 @@ class MessageExecutor(Loggable):
 
     async def send_server_map_image(self, sender):
         #TODO: Check if the map exists for this server, only download if it's a new map
-        map_image = await self.socket.get_map()
-    
-        pixel_data = list(map_image.getdata())
-
-        server_map = {
-            'width': map_image.width,
-            'height': map_image.height,
-            'pixels': pixel_data
-        }
+        img = await self.socket.get_map()
         
-        message = Message(MessageType.RUST_SERVER_MAP, {"data": server_map})
+        img_rgb = img.convert('RGB')
+        
+        buf = BytesIO()
+        img_rgb.save(buf, format="JPEG")
+        encoded = b64encode(buf.getvalue()).decode("UTF-8")
+
+        map_data = RustServerMap(pixels=encoded)
+        message = Message(MT.RUST_SERVER_MAP, map_data.model_dump())
         await self.api.send_message(message, target_service_id=sender)
     
     async def send_server_map_monuments(self, sender):
         server_monuments = await self.socket.get_raw_map_data()
-        message = Message(MessageType.RUST_MAP_MONUMENTS, {"data": server_monuments})
+        message = Message(MT.RUST_MAP_MONUMENTS, {"data": server_monuments})
         await self.api.send_message(message, target_service_id=sender)
         
     async def send_server_info(self, sender):
         server_info = await self.socket.get_info()
-        message = Message(MessageType.RUST_SERVER_INFO, {"data": server_info})
+        message = Message(MT.RUST_SERVER_INFO, {"data": server_info})
         await self.api.send_message(message, target_service_id=sender)
         
     async def send_team_info(self, sender):
         team_info = await self.socket.get_team_info()
-        message = Message(MessageType.RUST_TEAM_INFO, {"data": team_info})
+        message = Message(MT.RUST_TEAM_INFO, {"data": team_info})
         await self.api.send_message(message, target_service_id=sender)
         
     async def send_team_chat_init(self, sender):
@@ -81,7 +83,7 @@ class MessageExecutor(Loggable):
             initial_team_chat = await self.socket.get_team_chat()
         except:
             pass # Not in a team. None
-        message = Message(MessageType.RUST_TEAM_CHAT_INIT, {"data": initial_team_chat})
+        message = Message(MT.RUST_TEAM_CHAT_INIT, {"data": initial_team_chat})
         await self.api.send_message(message, target_service_id=sender)
     
     async def send_item_count(self, sender, data):

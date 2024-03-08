@@ -1,5 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ipc.bus import BUS
+    from web_server import WebServer
+
+
+
 from flask import render_template, Response, stream_with_context
 from flask_socketio import emit
+from ipc.data_models import RustChatMessage
 from ipc.message import Message, MessageType
 from ipc.bus import Service
 import json
@@ -7,7 +16,7 @@ import time
 import asyncio
 from util.tools import Tools
 
-def setup_event_streams(socketio, web_server):
+def setup_event_streams(socketio, web_server: WebServer):
     
     @socketio.on('connect')
     def socketio_connect():
@@ -55,10 +64,10 @@ def setup_event_streams(socketio, web_server):
     async def process_client_transmission(what, data):
         match what:
             case "teamchat":
-                web_server.log("Sending event")
                 message = data.get("message")
                 sender = data.get("sender")
-                await web_server.send_message(Message(MessageType.SEND_TEAM_MESSAGE, {"message": message, "sender": sender}), Service.RUSTAPI)
+                msg = RustChatMessage(sender, "", message, "", 0)
+                await web_server.send_message(Message(MessageType.REQUEST_SEND_TEAM_MESSAGE, msg), Service.RUSTAPI)
             case "newmapnote":
                 web_server.log("Got new map note")
                 message = data.get("message")

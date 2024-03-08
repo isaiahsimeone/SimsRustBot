@@ -66,7 +66,7 @@ class EventListener(Loggable):
         # Handle command
         await self.api.execute_command(data['message'], data['steam_id'])
         
-        message = Message(MessageType.RUST_IN_GAME_MSG, data)
+        message = Message(MessageType.RUST_CHAT_MESSAGE, data)
         await self.send_message(message)
         
     async def proto_event_handler(self, data: bytes):

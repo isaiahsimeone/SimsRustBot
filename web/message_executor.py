@@ -1,4 +1,6 @@
 from __future__ import annotations
+from base64 import b64decode
+from io import BytesIO
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ipc.bus import BUS
@@ -30,7 +32,7 @@ class MessageExecutor(Loggable):
             case MT.RUST_TEAM_CHAT_INIT:
                 self.log("Got initial team chat")
                 self.receive_team_chat_init(data)
-            case MT.RUST_IN_GAME_MSG:
+            case MT.RUST_CHAT_MESSAGE:
                 self.log("Got a team chat")
                 self.receive_team_chat(data)
             case MT.RUST_SERVER_MAP:
@@ -60,14 +62,10 @@ class MessageExecutor(Loggable):
 
     def receive_map_image(self, data):
         # Todo: if the image is saved under this server, and is current, we don't need to redownload. It's slow
-        image_data = data.get("data")
         
-        img_width = image_data.get("width")
-        img_height = image_data.get("height")
-        img_pixels = [tuple(pixel) for pixel in image_data.get("pixels")]
-        
-        img = Image.new(mode="RGB", size=(img_width, img_height))
-        img.putdata(img_pixels) # type: ignore
+        binary_data = b64decode(data.get("pixels"))
+        image_file = BytesIO(binary_data)
+        img = Image.open(image_file)
         
         img.save("web/static/images/map.jpg")
         self.web_server.map_image_available = True
