@@ -10,6 +10,8 @@ With web map notes, how about we just translate the coordinates to JSON coordina
 - Put config and database on the BUS
 - Make the bigger classes in rustplus their own service in a thread like MapPoller and TeamPoller. We can still use the rustplus bus probably
 
+- track player with battelmetrics or something (so you know when they're on/off)
+
 Next:
 - put ConfigManager and Database on the bus
 - Capture player x,y when they pair a device - Then, we know where their base probably is
