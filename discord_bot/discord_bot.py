@@ -17,8 +17,8 @@ class DiscordBot:
         
         self.BUS.subscribe(Service.DISCORD, self.process_message)
         self.log("Discord Bot subscribed for messages")
-        if self.discord_bot_token:
-            self.start_bot(self.discord_bot_token)
+        
+        self.start_bot(self.discord_bot_token)
         
     def start_bot(self, token):
         intents = discord.Intents.all()

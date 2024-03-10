@@ -131,7 +131,6 @@ class RustPlusAPI():
     async def send_message(self, message: Message, target_service_id=None):
         await self.BUS.send_message(Service.RUSTAPI, message, target_service_id)
 
-    def log(self, *args, **kwargs):
+    def log(self, *args, type="info"):
         message = ' '.join(str(arg) for arg in args)
-        log_type = kwargs.get("type", "info")
-        self.BUS.log(Service.RUSTAPI, message, type=log_type)
+        self.BUS.log(Service.RUSTAPI, message, type)
