@@ -12,9 +12,16 @@ from termcolor import colored
 from ipc.message import Message
 
 class Service(Enum):
-    DISCORD = (1, "light_cyan")
-    WEBSERVER = (2, "light_magenta")
-    RUSTAPI = (3, "light_yellow")
+    DISCORD = (1, "green")
+    WEBSERVER = (2, "magenta")
+    RUSTAPI = (3, "yellow")
+    DATABASE = (4, "cyan")
+    CONFIG = (5, "red")
+    FCM = (6, "light_yellow")
+    MAPPOLLER = (7, "light_green")
+    TEAMPOLLER = (8, "light_blue")
+    EVENTLISTENER = (9, "light_magenta")
+    STORAGEMONITORMGR = (10, "light_cyan")
 
     def __init__(self, value, colour):
         self._value_ = value

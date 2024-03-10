@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 from flask import render_template, Response, stream_with_context
 from flask_socketio import emit
-from ipc.data_models import RustChatMessage, RustTeamChatMessage
+from ipc.data_models import RustChatMessage, RustRequestSendTeamMessage, RustTeamChatMessage
 from ipc.message import Message, MessageType
 from ipc.bus import Service
 import json
@@ -68,7 +68,7 @@ def setup_event_streams(socketio, web_server: WebServer):
             case "teamchat":
                 message = data.get("message")
                 sender = data.get("sender")
-                msg = RustTeamChatMessage(steam_id=sender, name="", message=message, colour="", time=int(time.time()))
+                msg = RustRequestSendTeamMessage(steam_id=0, name=sender, message=message, time=int(time.time()))
                 await web_server.send_message(Message(MessageType.REQUEST_SEND_TEAM_MESSAGE, msg), Service.RUSTAPI)
             case "newmapnote":
                 web_server.log("Got new map note")

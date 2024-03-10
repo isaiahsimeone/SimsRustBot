@@ -20,7 +20,7 @@ app.secret_key = 'secret'
 socketio = SocketIO(app)
 
 class WebServer:
-    def __init__(self, BUS):
+    def __init__(self, BUS: BUS):
         self.BUS = BUS
         self.config = self.BUS.get_config().get("web")
         if self.config.get("logging_enabled") != "true":

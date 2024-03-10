@@ -31,7 +31,7 @@ class MessageExecutor(Loggable):
     
     async def execute_message(self, msg, sender):
         msg_type = self.get_message_type(msg.get("type"))
-        
+        data = msg.get("data")
         match msg_type:
             case MT.REQUEST_RUST_SERVER_MAP:
                 await self.send_server_map_image(sender)
@@ -44,9 +44,9 @@ class MessageExecutor(Loggable):
             case MT.REQUEST_RUST_TEAM_CHAT_INIT:
                 await self.send_team_chat_init(sender)
             case MT.REQUEST_SEND_TEAM_MESSAGE:
-                await self.send_rust_message(sender, msg["data"]["message"], msg["data"]["sender"]) # last arg is steam name
+                await self.send_rust_message(sender, data['message'], data['name']) # last arg is steam name
             case MT.REQUEST_ITEM_COUNT:
-                await self.send_item_count(sender, msg)
+                await self.send_item_count(sender, data)
             case _:
                 self.log("MessageExecutor received an unknown message: " + str(msg), type="error")
                 
@@ -61,7 +61,6 @@ class MessageExecutor(Loggable):
         img_data = self.raw_map_data.jpg_image
         width = self.raw_map_data.width
         height = self.raw_map_data.height
-        background = self.raw_map_data.background
        
         encoded = b64encode(img_data).decode("UTF-8")
        

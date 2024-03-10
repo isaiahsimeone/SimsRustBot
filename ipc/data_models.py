@@ -1,6 +1,6 @@
 
 from pydantic import BaseModel as PydanticBaseModel
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Optional
 
 from rustplus.api.structures.rust_team_info import RustTeamMember, RustTeamNote
 from rustplus.api.structures.rust_marker import RustColour, RustSellOrder, RustMarker
@@ -107,7 +107,10 @@ class RustRequestItemCount(BaseModel):
     pass
 
 class RustRequestSendTeamMessage(BaseModel):
-    pass
+    steam_id: int
+    name: Optional[str] = None
+    message: str
+    time: Optional[int] = -1
 
 
 

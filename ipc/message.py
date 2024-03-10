@@ -8,20 +8,15 @@ from pydantic import ValidationError
 from .message_type import MessageType
 
 class Message:
-    def __init__(self, message_type: MessageType, message_model: BaseModel):
-        data = message_model.model_dump()
+    def __init__(self, message_type: MessageType, data: BaseModel):
         self.type = message_type
-        
-        # Access the Pydantic model directly from the MessageType enum
-        model = self.type.model
-        if model:
-            try:
-                # Validate data against the Pydantic model
-                self.data = model(**data).dict()
-            except ValidationError as e:
-                raise ValueError(f"Invalid data for message type {self.type.name}: {e}")
-        else:
-            self.data = data
+
+        # Ensure the data is an instance of the expected model
+        expected_model = self.type.model
+        if not isinstance(data, expected_model):
+            raise ValueError(f"Data must be an instance of {expected_model.__name__}")
+
+        self.data = data.model_dump()  # If you need the data as a dictionary
 
     def to_json(self):
         # Serialize each item in the data dictionary
