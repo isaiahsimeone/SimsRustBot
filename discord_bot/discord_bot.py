@@ -1,4 +1,4 @@
-from ipc.bus import BUS, Service
+from ipc.message_bus import MessageBus, Service
 from ipc.message import Message, MessageType
 import discord
 import asyncio

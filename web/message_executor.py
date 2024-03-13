@@ -3,12 +3,12 @@ from base64 import b64decode
 from io import BytesIO
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from ipc.bus import BUS
+    from ipc.message_bus import MessageBus
     from web_server import WebServer
 
 from ipc.message import MessageType as MT
 from ipc.message import Message
-from ipc.bus import Service
+from ipc.message_bus import Service
 from PIL import Image
 
 from util.loggable import Loggable 

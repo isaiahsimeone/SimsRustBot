@@ -9,7 +9,7 @@ from ipc.message import Message, MessageType
 
 if TYPE_CHECKING:
     from rust_plus_api import RustPlusAPI
-    from ipc.bus import BUS
+    from ipc.message_bus import MessageBus
     from rustplus import RustSocket
     
 from rustplus import FCMListener

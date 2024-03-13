@@ -1,4 +1,4 @@
-from ipc.bus import BUS, Service
+from ipc.message_bus import MessageBus, Service
 from ipc.data_models import RustRequestMapMonuments, RustRequestServerInfo, RustRequestServerMap, RustRequestTeamChatInitial, RustRequestTeamInfo, RustServerInfo, RustTeamInfo
 from ipc.message import Message, MessageType
 from flask import Flask, url_for
@@ -20,7 +20,7 @@ app.secret_key = 'secret'
 socketio = SocketIO(app)
 
 class WebServer:
-    def __init__(self, BUS: BUS):
+    def __init__(self, BUS: MessageBus):
         self.BUS = BUS
         self.config = self.BUS.get_config().get("web")
         if self.config.get("logging_enabled") != "true":

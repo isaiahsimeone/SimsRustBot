@@ -129,5 +129,5 @@ class RustDeviceAlarmMessage(BaseModel):
     message: str
 
 class Test(BaseModel):
-    pass
+    content: str
 

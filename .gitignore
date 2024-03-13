@@ -3,6 +3,10 @@
 
 # Config
 config/config.json
+config/*.json
+config.json
+fcm_credentials.json
+server_details.json
 
 ### Flask ###
 instance/*

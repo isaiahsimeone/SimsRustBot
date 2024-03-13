@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING
 from ipc.data_models import RustCargoDespawned, RustCargoSpawned, RustHeliDespawned, RustHeliDowned, RustHeliSpawned, RustMapMarkers
 if TYPE_CHECKING:
     from rust_plus_api import RustPlusAPI
-    from ipc.bus import BUS
+    from ipc.message_bus import MessageBus
     from rustplus import RustSocket
     
 import asyncio
-from ipc.bus import Service
+from ipc.message_bus import Service
 from ipc.message import Message, MessageType
 from ipc.serialiser import serialise_API_object
 import math

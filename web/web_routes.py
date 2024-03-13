@@ -1,7 +1,7 @@
 import re
 from flask import render_template, request, session, redirect, url_for, make_response, jsonify
 import requests
-from ipc.bus import Service
+from ipc.message_bus import Service
 import json
 import time
 import asyncio

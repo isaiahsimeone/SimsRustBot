@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from ipc.bus import BUS
+    from ipc.message_bus import MessageBus
 
-from ipc.bus import Service
+from ipc.message_bus import Service
 from ipc.message import Message, MessageType
 from ipc.serialiser import serialise_API_object
 
@@ -27,7 +27,7 @@ from rustplus_api.commands.command_executor import CommandExecutor
 import json
 
 class RustPlusAPI():
-    def __init__(self, BUS: BUS):
+    def __init__(self, BUS: MessageBus):
         self.BUS = BUS
         self.config = BUS.get_config()
         self.server = self.config.get("server_details").get("ip")

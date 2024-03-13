@@ -2,13 +2,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ipc.bus import BUS
+    from ipc.message_bus import MessageBus
     from rustplus_api.rust_plus_api import RustPlusAPI
 
 import asyncio
 import rustplus
 #from rustplus import RustSocket, ChatEvent, TeamEvent, EntityEvent, entity_type_to_string
-from ipc.bus import Service
+from ipc.message_bus import Service
 from ipc.data_models import RustTeamChange
 from ipc.message import Message, MessageType
 from ipc.serialiser import serialise_API_object

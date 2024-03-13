@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from ipc.bus import BUS
+    from ipc.message_bus import MessageBus
     from web_server import WebServer
 
 
@@ -10,7 +10,7 @@ from flask import render_template, Response, stream_with_context
 from flask_socketio import emit
 from ipc.data_models import RustChatMessage, RustRequestSendTeamMessage, RustTeamChatMessage
 from ipc.message import Message, MessageType
-from ipc.bus import Service
+from ipc.message_bus import Service
 import json
 import time
 import asyncio

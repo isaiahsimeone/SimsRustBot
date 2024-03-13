@@ -9,6 +9,7 @@ class WebMapNoteManager():
         pass
     
     def add_note(self, note, sender):
+        """"""
         print(str(note) + " from " + str(sender))
         self.map_notes.append((note, sender))
         self.notify_change("add", note, sender)

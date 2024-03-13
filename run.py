@@ -1,70 +1,64 @@
-
-import argparse
-import os
+import asyncio
 import threading
-import unittest
-
-from ipc.bus import BUS
-from rustplus_api.rust_plus_api import RustPlusAPI
-from discord_bot.discord_bot import DiscordBot
-from web.web_server import WebServer
-from config.config_manager import ConfigManager
+import loguru
+from ipc.message_bus import MessageBus
+from log.log_config import setup_logger
 from util.printer import Printer
-from util.tools import Tools
-from database.database import Database
 
+# Import your service classes
+from commands.command_executor_service import CommandExecutorService
+from config.config_manager_service import ConfigManagerService
+from database.database_service import DatabaseService
+from discord_bot.discord_bot_service import DiscordBotService
+from rustplus_api.rust_plus_api_service import RustPlusAPIService
+from rustplus_api.services.event_listener_service import EventListenerService
+from rustplus_api.services.fcm_listener_service import FCMListenerService
+from rustplus_api.services.map_poller_service import MapPollerService
+from rustplus_api.services.rust_time_manager_service import RustTimeManagerService
+from rustplus_api.services.storage_monitor_manager_service import StorageMonitorManagerService
+from rustplus_api.services.team_poller_service import TeamPollerService
+from web.web_server_service import WebServerService
+from ipc.bus_subscriber import BusSubscriber
+
+
+def start_service_threaded(service: BusSubscriber):
+    """Starts a service's execute coroutine in a new thread with its own event loop.
+
+    :param service: A BusSubscriber service
+    :type service: :class:`ipc.bus_service.BusSubscriber`
+    """
+    def thread_target():
+        asyncio.run(service.execute())
+    
+    thread = threading.Thread(target=thread_target)
+    thread.start()
+
+@loguru.logger.catch
 def main():
     Printer.print_banner()
+    setup_logger()
+
+    bus = MessageBus()
     
-    parser = argparse.ArgumentParser(description="Run the application or tests")
-    parser.add_argument('--test', action='store_true', help="Run tests instead of the application")
-    args = parser.parse_args()
-    
-    # If --test is specified, run tests
-    if args.test:
-        run_tests()
-        return
-    
-    database = Database()
-    
-    config = ConfigManager("./config/config.json")
-    config.check_fcm_credentials()
-    config.check_server_details()
-   
-    bus = BUS(config, database)
+    # Initialize services with the bus
+    services = [
+        ConfigManagerService(bus),
+        DatabaseService(bus),
+        RustPlusAPIService(bus),
+        MapPollerService(bus),
+        TeamPollerService(bus),
+        EventListenerService(bus),
+        RustTimeManagerService(bus),
+        FCMListenerService(bus),
+        StorageMonitorManagerService(bus),
+        CommandExecutorService(bus),
+        DiscordBotService(bus),
+        WebServerService(bus),
+    ]
 
-    rustplus_api = RustPlusAPI(bus)
-    discord_bot = DiscordBot(bus)
-    web_server = WebServer(bus)
-
-    # Create threads for each service
-    rustplus_thread = threading.Thread(target=start_service_threaded, args=(rustplus_api,))
-    discord_thread = threading.Thread(target=start_service_threaded, args=(discord_bot,))
-    web_server_thread = threading.Thread(target=start_service_threaded, args=(web_server,))
-
-    # Start threads
-    rustplus_thread.start()
-    discord_thread.start()
-    web_server_thread.start()
-
-    # Join thread
-    rustplus_thread.join()
-    discord_thread.join()
-    web_server_thread.join()
-
-    
-def start_service_threaded(service):
-    Printer.print("info", "Starting thread for", service)
-    service.execute()
-
-def run_tests():
-    # This will load all test cases from the tests directory
-    # Adjust the pattern or directory as needed
-    loader = unittest.TestLoader()
-    suite = loader.discover(start_dir='./tests', pattern='*_test.py')
-    print(suite)
-    runner = unittest.TextTestRunner()
-    runner.run(suite)
+    # Start each service in its own thread
+    for service in services:
+        start_service_threaded(service)
 
 if __name__ == "__main__":
     main()
