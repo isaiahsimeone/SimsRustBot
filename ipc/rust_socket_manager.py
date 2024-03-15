@@ -1,42 +1,41 @@
-"""RustSocketManager is a central component for managing connections
-to a Rust game server using the RustSocket interface. It implements a singleton pattern to
+"""RustSocketManager is responsible for managing connections to the Rust
+game server using the RustSocket interface. It implements a singleton pattern to
 ensure that only one instance of RustSocket is created and utilised throughout an application.
 
-The RustSocketManager is responsible for initializing the connection to the Rust server with
+The RustSocketManager is responsible for initialising the connection to the Rust server with
 specific server details (IP address, port, playerId, and playerToken) and provides a mechanism
 for retrieving the RustSocket instance for performing operations on the server.
 
 Usage:
-    Before using the RustSocketManager to interact with a Rust server, the singleton instance
-    must be initialised and the RustSocket configured with the server's connection details.
+-----
 
-    First, ensure the RustSocketManager is initialised:
+Before using the RustSocketManager to interact with a Rust server, the singleton instance
+must be initialised and the RustSocket configured with the server's connection details.
 
-    ```python
+First, ensure the RustSocketManager is initialised:
+
+.. code-block:: python
+
     RustSocketManager.initialise()
-    ```
 
-    Then, retrieve the instance and initialise the RustSocket with the server details:
+Then, retrieve the instance and initialise the RustSocket with the server details:
 
-    ```python
+.. code-block:: python
+
     manager = asyncio.run(RustSocketManager.get_instance())
+
     await manager.initialise_socket(ip="<server_ip>", port="<server_port>",
         playerId="<steamId>", playerToken="<playerToken>")
-    ```
 
-    With the RustSocket initialised, you can now access it via the `socket` property
-    of the RustSocketManager instance to perform various operations on the Rust server.
+With the RustSocket initialised, you can now access it via the `socket` property
+of the RustSocketManager instance to perform various operations on the Rust server.
 
-Features:
-    - Implements the singleton design pattern for managing the RustSocket instance.
-    - Provides thread-safe and asynchronous retrieval of the RustSocketManager instance.
-    - Ensures that only one connection to the Rust server is established and reused.
+Key Features:
+------------
 
-Note:
-----
-    This module relies on the 'rustplus' package for the RustSocket functionality and
-    the 'loggable' mixin for logging capabilities. Ensure these dependencies are resolved
-    to use RustSocketManager effectively.
+- Implements the singleton design pattern for managing the RustSocket instance.
+- Provides thread-safe and asynchronous retrieval of the RustSocketManager instance.
+- Ensures that only one connection to the Rust server is established and reused.
 
 """
 from __future__ import annotations
@@ -54,6 +53,7 @@ class RustSocketManager(Loggable):
 
     This class uses the singleton pattern to ensure only one instance of RustSocket is created
     and shared across the program.
+
     """
 
     instance = None
@@ -81,7 +81,7 @@ class RustSocketManager(Loggable):
         """Asynchronously retrieves the singleton instance of RustSocketManager
         If the instance has not been initialised yet, it initialises the singleton instance.
 
-        :return: The singleton instance of the :class:`RustSocketManager`
+        :return: The singleton instance of the :class:`RustSocketManager <ipc.rust_socket_manager.RustSocketManager>`
         :rtype: Self
         """
         async with cls.lock:
@@ -117,7 +117,7 @@ class RustSocketManager(Loggable):
     @property
     def socket(self: RustSocketManager) -> RustSocket:
         """Access the rust socket. The socket should be initialised
-        with :class:`initialise_socket` before access.
+        with :meth:`initialise_socket` before access.
 
         If an attempt to access the socket before initialisation is
         made, a critical error is raised, which will terminate the program

@@ -68,16 +68,14 @@ from log.loggable import Loggable
 
 class MessageBus(Loggable):
     """The MessageBus class acts as a central hub for message passing and event
-    subscription within an asynchronous application. It allows various components
-    of the system, referred to as subscribers, to publish messages to topics and
+    subscription within the bot. It allows various components of the
+    system, referred to as subscribers, to publish messages to topics and
     subscribe to receive messages from those topics.
     |
     Subscribers can publish messages to any topic, and any subscriber subscribed
     to that topic will receive the message asynchronously. The MessageBus keeps
     track of the last message published under each topic, allowing new subscribers
     or those who missed the last message to retrieve it.
-    |
-    The :class:`Loggable <logging_abc.Loggable>` base class provides structured logging methods.
     """
 
     def __init__(self: MessageBus) -> None:
