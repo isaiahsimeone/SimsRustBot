@@ -21,7 +21,7 @@ Usage:
     ```python
     manager = asyncio.run(RustSocketManager.get_instance())
     await manager.initialise_socket(ip="<server_ip>", port="<server_port>",
-                                    playerId="<steamId>", playerToken="<playerToken>")
+        playerId="<steamId>", playerToken="<playerToken>")
     ```
 
     With the RustSocket initialised, you can now access it via the `socket` property

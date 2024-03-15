@@ -10,7 +10,17 @@ Welcome to SimsRustBot's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   config
+   database
+   discord_bot
+   ipc
+   log
+   modules
+   run
+   rustplus_api.commands
+   rustplus_api
+   util
+   web
 
 Indices and tables
 ==================
