@@ -8,6 +8,8 @@ config.json
 fcm_credentials.json
 server_details.json
 
+ruff.toml
+
 ### Flask ###
 instance/*
 !instance/.gitignore

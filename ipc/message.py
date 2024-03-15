@@ -30,4 +30,4 @@ class Message:
         return message
 
     def __str__(self): 
-        return  f"Message[Id={self.id}, type={self.type}, publisher={get_colourised_name(self.publisher)}, {self.raw_data}]"
+        return f"Message[Id={self.id}, type={self.type}, publisher={get_colourised_name(self.publisher)}, {self.raw_data}]"

@@ -1,19 +1,30 @@
-from ipc.message_bus import MessageBus, Service
-from ipc.data_models import RustRequestMapMonuments, RustRequestServerInfo, RustRequestServerMap, RustRequestTeamChatInitial, RustRequestTeamInfo, RustServerInfo, RustTeamInfo
-from ipc.message import Message, MessageType
-from flask import Flask, url_for
+import asyncio
+import json
 import logging
 import threading
-from .web_routes import setup_routes
-from .web_event_streams import setup_event_streams
-from .web_routes_steam import setup_steam_routes
-from .message_executor import MessageExecutor
-import json
-import asyncio
 import time
+
+from flask import Flask, url_for
 from flask_socketio import SocketIO, emit
-from .web_map_note_manager import WebMapNoteManager
+
+from ipc.data_models import (
+    RustRequestMapMonuments,
+    RustRequestServerInfo,
+    RustRequestServerMap,
+    RustRequestTeamChatInitial,
+    RustRequestTeamInfo,
+    RustServerInfo,
+    RustTeamInfo,
+)
+from ipc.message import Message, MessageType
+from ipc.message_bus import MessageBus, Service
 from util.tools import Tools
+
+from .message_executor import MessageExecutor
+from .web_event_streams import setup_event_streams
+from .web_map_note_manager import WebMapNoteManager
+from .web_routes import setup_routes
+from .web_routes_steam import setup_steam_routes
 
 app = Flask(__name__)
 app.secret_key = 'secret'

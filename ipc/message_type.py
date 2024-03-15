@@ -3,6 +3,13 @@ from enum import Enum
 from ipc.data_models import *
 
 class MessageType(Enum):
+    TEST                    = ("test", Test)
+    GET_CONFIG              = ("get_config", Empty)
+    CONFIG                  = ("config", Config)
+    CONFIG_CHANGED          = ("config_changed", ConfigFileChanged)
+    RUST_SERVER_CHANGED     = ("rust_server_changed", RustServerChanged)
+    SOCKET_READY            = ("socket_ready", Empty)
+    """
     RUST_CHAT_MESSAGE = ("rust_chat_msg", RustTeamChatMessage)
     RUST_TEAM_CHANGE = ("rust_team_change", RustTeamChange)
     
@@ -37,6 +44,8 @@ class MessageType(Enum):
     REQUEST_SEND_TEAM_MESSAGE = ("request_send_team_message", RustRequestSendTeamMessage)
     # Items
     RUST_ITEM_COUNT = ("rust_item_count", RustItemCount)
+    
+    """
 
     # For the API to do
     #SEND_TEAM_MESSAGE = "send_team_message"
@@ -45,8 +54,6 @@ class MessageType(Enum):
     DEVICE_PAIRED = ("device_paired", RustDevicePaired)
     DEVICE_ALARM_MSG = ("device_alarm_msg", RustDeviceAlarmMessage)
     
-    TEST = ("test", Test)
-    
-    def __init__(self, value, model):
-        self._value_ = value
+    def __init__(self, topic, model):
+        self._value_ = topic
         self.model = model

@@ -10,6 +10,8 @@ from rustplus.api.structures.rust_chat_message import RustChatMessage #type:igno
 from rustplus.api.structures.rust_contents import RustContents
 from rustplus.api.structures.rust_item import RustItem
 
+from rustplus import RustSocket
+
 class BaseModel(PydanticBaseModel):
     class Config:
         arbitrary_types_allowed = True
@@ -127,7 +129,29 @@ class RustDevicePaired(BaseModel):
 class RustDeviceAlarmMessage(BaseModel):
     title: str
     message: str
+    
+
+
+class RustServerChanged(BaseModel):
+    """The model that is sent when we are connecting to a 
+    new server
+    """
+    pass
+
+class Config(BaseModel):
+    """A dictionary containing the configuration information 
+    (config.json, fcm and server json files)
+    """
+    config: Dict
+    
+class ConfigFileChanged(BaseModel):
+    config: Dict[str, Dict[str, str]]
 
 class Test(BaseModel):
+    """A model that is used for IPC development testing
+    """
     content: str
 
+
+class Empty(BaseModel):
+    pass

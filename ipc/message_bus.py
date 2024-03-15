@@ -27,8 +27,7 @@ class MessageBus(Loggable):
     track of the last message published under each topic, allowing new subscribers 
     or those who missed the last message to retrieve it.
     
-    :param Loggable: _description_
-    :type Loggable: :class:`log.loggable.Loggable`
+    The :class:`logging_abc.Loggable` base class provides structured logging methods
     """
     def __init__(self) -> None:
         """Constructor method
@@ -39,7 +38,7 @@ class MessageBus(Loggable):
         self.last_message: Dict[str, Message] = {}
         self.info("I am ready")
 
-    @loguru.logger.catch
+    @loguru.logger.catch()
     async def publish(self, topic: str, message: Message, publisher: str) -> None:
         """Publish a message to the message BUS.
 
@@ -50,7 +49,7 @@ class MessageBus(Loggable):
         :param publisher: The readable name of the publishing service
         :type publisher: str
         """
-        self.debug(get_colourised_name(publisher), "published", message, "under topic", topic)
+        self.debug(get_colourised_name(publisher), "published", repr(message), "under topic", topic)
         message.publisher = publisher
         
         self.last_message[topic] = message
