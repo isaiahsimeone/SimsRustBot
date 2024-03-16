@@ -1,20 +1,20 @@
 from abc import ABC, abstractmethod
 
 import loguru
-import asyncio
+
 from ipc.message import Message
 from ipc.message_bus import MessageBus
-from log.loggable import Loggable
+
 
 class BusSubscriber(ABC):
-    def __init__(self, bus: MessageBus, subscriber_name: str = "UnknownSubscriber"):
+    def __init__(self: "BusSubscriber", bus: MessageBus, subscriber_name: str = "UnknownSubscriber") -> None:
         self.bus = bus
         self.subscriber_name = subscriber_name
         self.bus.subscribe(self, "global")
-    
+
     @loguru.logger.catch()
-    async def subscribe(self, topic: str):
-        """Subscribe to a topic
+    async def subscribe(self: "BusSubscriber", topic: str) -> None:
+        """Subscribe to a topic.
 
         :param topic: The topic to subscribe to
         :type topic: str
@@ -22,8 +22,8 @@ class BusSubscriber(ABC):
         self.bus.subscribe(self, topic)
 
     @loguru.logger.catch()
-    async def unsubscribe(self, topic: str):
-        """Unsubscribe from a topic
+    async def unsubscribe(self: "BusSubscriber", topic: str) -> None:
+        """Unsubscribe from a topic.
 
         :param topic: The topic to unsubscribe from
         :type topic: str
@@ -31,35 +31,41 @@ class BusSubscriber(ABC):
         self.bus.unsubscribe(self, topic)
 
     @loguru.logger.catch()
-    async def publish(self, topic: str, message: Message):
-        """Publish a message to the bus
+    async def publish(self: "BusSubscriber", topic: str, message: Message) -> None:
+        """Publish a message to the bus.
 
         :param topic: The topic to publish this message under
         :type topic: str
         :param message: The message to publish to the bus
-        :type message: :class:`ipc.message.Message`
+        :type message: :class:`Message <ipc.message.Message>`
         """
         return await self.bus.publish(topic, message, self.subscriber_name)
 
     @loguru.logger.catch()
     @abstractmethod
-    async def on_message(self, topic: str, message: Message):
-        """Handle a bus message pertaining to a subscribed topic
+    async def on_message(self: "BusSubscriber", topic: str, message: Message) -> None:
+        """Handle a bus message pertaining to a subscribed topic.
 
         :param topic: The topic this bus message falls under
         :type topic: str
         :param message: The message from the bus
-        :type message: :class:`ipc.message.Message`
+        :type message: :class:`Message <ipc.message.Message>`
         """
-        pass
-    
+
     @loguru.logger.catch()
-    async def last_topic_message_or_wait(self, topic: str):
+    async def last_topic_message_or_wait(self: "BusSubscriber", topic: str) -> Message:
+        """Get the last message published under a topic, or wait
+        for the first message published under that topic.
+
+        :param topic: The topic
+        :type topic: str
+        :return: The last message under the topic
+        :rtype: :class:`Message <ipc.message.Message>`
+        """
         return await self.bus.last_topic_message_or_wait(topic)
-    
+
     @loguru.logger.catch()
     @abstractmethod
-    async def execute(self):
-        """The point of execution for the BusSubscriber class
+    async def execute(self: "BusSubscriber") -> None:
+        """The point of execution for the BusSubscriber class.
         """
-        pass

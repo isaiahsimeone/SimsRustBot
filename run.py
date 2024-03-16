@@ -3,7 +3,6 @@ import threading
 
 import loguru
 
-# Import your service classes
 from commands.command_executor_service import CommandExecutorService
 from config.config_manager_service import ConfigManagerService
 from database.database_service import DatabaseService
@@ -13,6 +12,7 @@ from ipc.message_bus import MessageBus
 from ipc.rust_socket_manager import RustSocketManager
 from log.log_config import setup_logger
 from rustplus_api.rust_plus_api_service import RustPlusAPIService
+from rustplus_api.services.chat_manager_service import ChatManagerService
 from rustplus_api.services.event_listener_service import EventListenerService
 from rustplus_api.services.fcm_listener_service import FCMListenerService
 from rustplus_api.services.map_poller_service import MapPollerService
@@ -58,6 +58,7 @@ async def main() -> None:
         CommandExecutorService(bus),
         DiscordBotService(bus),
         WebServerService(bus),
+        ChatManagerService(bus)
     ]
 
     tasks = [asyncio.create_task(service.execute()) for service in services]

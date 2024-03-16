@@ -15,6 +15,10 @@ from rustplus import RustSocket
 class BaseModel(PydanticBaseModel):
     class Config:
         arbitrary_types_allowed = True
+        
+    @property
+    def type(self) -> str:
+        return self.__class__.__name__
 
 class RustTeamChatMessage(BaseModel):
     steam_id: int
@@ -35,7 +39,7 @@ class RustServerMap(BaseModel):
     pixels: str # base64 encoded on bus
 
 class RustMapMarkers(BaseModel):
-    markers: List[Any]
+    markers: List[RustMarker]
 
 class RustMapEvents(BaseModel):
     pass
@@ -45,6 +49,8 @@ class RustMapMonuments(BaseModel):
     background: str
 
 class RustServerInfo(BaseModel):
+    server_info: RustInfo
+    """
     url: str
     name: str
     map: str
@@ -56,7 +62,7 @@ class RustServerInfo(BaseModel):
     wipe_time: int
     header_image: str
     logo_image: str
-
+    """
 class RustTeamInfo(BaseModel):
     leader_steam_id: int
     members: List[RustTeamMember]
@@ -67,16 +73,22 @@ class RustTeamChatInitial(BaseModel):
     chats: List[RustChatMessage]
 
 class RustHeliSpawned(BaseModel):
-    bearing: str
+    """The cardinal bearing (from the map center) to where heli has entered the map """
+    cardinal_bearing: str
 
 class RustHeliDowned(BaseModel):
-    position: Dict[str, int]
+    """The x-coordinate of where Heli went down"""
+    x: float
+    """The y-coordinate of where Heli went down"""
+    y: float
+    """The square on the grid of where Heli went down (e.g. D4)"""
+    square: str = '00'   
 
 class RustHeliDespawned(BaseModel):
     pass
 
 class RustCargoSpawned(BaseModel):
-    bearing: str
+    cardinal_bearing: str
 
 class RustCargoDespawned(BaseModel):
     pass

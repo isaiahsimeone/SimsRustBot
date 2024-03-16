@@ -123,7 +123,7 @@ class MessageBus(Loggable):
         """
         if topic not in self.subscriptions:
             self.subscriptions[topic] = []
-        self.info(get_colourised_name(subscriber.__class__.__name__), "subscribed to", topic)
+        self.info(get_colourised_name(subscriber.__class__.__name__), f"subscribed to topic '{topic}'")
         self.subscriptions[topic].append(subscriber.on_message)
 
     @loguru.logger.catch()

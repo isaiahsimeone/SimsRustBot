@@ -1,5 +1,9 @@
+from typing import Any
 from loguru import logger
+import logging
 import sys
+
+from log.log_interceptor import LogInterceptor
 
 """ Specifies whether debug prints should be written to stdout (True), or silenced"""
 PRINT_DEBUG = True
@@ -18,14 +22,14 @@ color_map = {
     "DiscordBotService": "#2196F3",
     "WebServerService": "#FF4081",
     "MessageBus": "#7C4DFF",
-    "placeholder2": "#8BC34A",
+    "ChatManagerService": "#8BD34A",
     "placeholder3": "#00BFA5",
     "placeholder4": "#673AB7",
-    "placeholder5": "#E040FB",
+    "RustPlus.py": "#E040FB",
     "default": "#FFFFFF",
 }
 
-def custom_formatter(record):
+def custom_formatter(record) -> str:
     """
     The custom formatting used by loguru
     """
@@ -56,7 +60,7 @@ def custom_formatter(record):
     
     message = ""
     if level == "ERROR":
-        message = f"<red>{time} [ERR!]</red> {coloured_class_name} | {record['message']}"
+        message = f"<red>{time} [ERR!]</red> {coloured_class_name} | <red>{record['message']}</red>"
     if level == "WARNING":
         message = f"<yellow>{time} [WARN]</yellow> {coloured_class_name} | <yellow>{record['message']}</yellow>"
     if level == "DEBUG":
@@ -68,19 +72,21 @@ def custom_formatter(record):
 
     return f"{message}\n"
 
-def get_colour(service_name):
+def get_colour(service_name) -> str:
     return color_map.get(service_name, "#FFFFFF")
 
-def get_colourised_name(service_name):
+def get_colourised_name(service_name) -> str:
     return f"<fg {get_colour(service_name)}>{service_name}</fg {get_colour(service_name)}>"
 
-def exception_only(record):
+def exception_only(record) -> Any:
     return record["exception"] != None
 
-def setup_logger():
-    """
-    Setup the loguru logger
+def setup_logger() -> None:
+    """Setup the loguru logger
     """
     logger.remove()
-    logger.add(sys.stderr, backtrace=True, diagnose=True, filter=exception_only)  # Enable detailed traceback and diagnosis
+
+    logging.basicConfig(handlers=[LogInterceptor()], level=logging.DEBUG)
+
+    logger.add(sys.stderr, backtrace=True, diagnose=True, filter=exception_only)
     logger.add(sys.stdout, format=custom_formatter, colorize=True)
