@@ -11,6 +11,9 @@ class LogInterceptor(logging.Handler):
             class_name = record.name.split(".")[0]
         except:
             class_name = record.name
+        # rustplus.py puts out these messages that we don't want, discard them
+        if class_name == "rustplus" and record.msg == "[RustPlus.py]":
+            return None
         
         for _, (first, second) in enumerate(LogInterceptor.intercept):
             if class_name == first:
@@ -18,6 +21,8 @@ class LogInterceptor(logging.Handler):
                 break
         else:
             return None
+        
+
             
         # map logging levels to Loguru levels
         level_map = {

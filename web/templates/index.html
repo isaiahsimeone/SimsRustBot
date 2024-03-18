@@ -1,186 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Rust Server Interface</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="static/css/style.css" />
-    <link rel="stylesheet" href="static/css/map-note.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
     <style>
-      #mousepos {
-          padding-left: 10px;
-          border-radius: 10px;
-          position: absolute;
-          user-select: none;
-          font-size: 2em;
-          width: 120px;
-          color: #EEEEEE;
-          background-color: #FD7013;
-      }
-  </style>
-  </head>
-  <body>
-    <!-- Command Modal -->
-    <div class="modal fade" id="commandModal" tabindex="-1" aria-labelledby="commandModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="commandModalLabel">Command Options</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <!-- Modal Content Here -->
-            modal content
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save Changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="container-fluid p-0">
-      <div class="row no-gutters">
-        <!-- Left Panel: Command List -->
-        <div id="left-panel" class="col-md-2 bg-dark text-light">
-          <div class="logo p-3">
-            <a target="_blank" href="https://www.github.com/isaiahsimeone/simsrustbot">
-              <img src="static/images/sims_rust_bot_logo.png" alt="Sim's Rust Bot" class="img-fluid" />
-            </a>
-          </div>
-          <div class="command-list">
-            <!-- Toggleable command -->
-            <div class="command-btn toggleable inactive">Toggleable COMMAND_1</div>
-
-            <!-- Command that opens a modal -->
-            <div class="command-btn modal-trigger" data-toggle="modal" data-target="#commandModal">Modal COMMAND_2</div>
-            <div id="mousepos"></div>
-            <!-- Repeat for other commands -->
-          </div>
-        </div>
-
-        <!-- Center Panel: Map -->
-        <div class="col-md-8">
-          
-          <!--Map note popup -->
-          <div id="map-note-dialog" class="map-note-dialog">
-            <span style="margin-left:5px">EDIT MARKER</span>
-            <div class="map-note-options-container">
-              <div class="map-note-options-table">
-                <table>
-                  <tr>
-                    <th class="note-op-name">NAME</th>
-                    <th class="note-input-cell">
-                      <input type="text" id="map-note-label" class="note-input" placeholder="Enter Text..." />
-                    </th>
-                  </tr>
-                  <tr>
-                    <td class="note-op-name">MARKER</td>
-                    <td>
-                      <div class="icon-row">
-                        <div index="0" class="note-icon selected" style="mask-image: url('static/images/markers/0.png')"></div>
-                        <div index="1" class="note-icon" style="mask-image: url('static/images/markers/1.png')"></div>
-                        <div index="2" class="note-icon" style="mask-image: url('static/images/markers/2.png')"></div>
-                        <div index="3" class="note-icon" style="mask-image: url('static/images/markers/3.png')"></div>
-                        <div index="4" class="note-icon" style="mask-image: url('static/images/markers/4.png')"></div>
-                        <div index="5" class="note-icon" style="mask-image: url('static/images/markers/5.png')"></div>
-                      </div>
-                      <!-- Second row of icons -->
-                      <div class="icon-row">
-                        <div index="6" class="note-icon" style="mask-image: url('static/images/markers/6.png')"></div>
-                        <div index="7" class="note-icon" style="mask-image: url('static/images/markers/7.png')"></div>
-                        <div index="8" class="note-icon" style="mask-image: url('static/images/markers/8.png')"></div>
-                        <div index="9" class="note-icon" style="mask-image: url('static/images/markers/9.png')"></div>
-                        <div index="10" class="note-icon" style="mask-image: url('static/images/markers/10.png')"></div>
-                        <div index="11" class="note-icon" style="mask-image: url('static/images/markers/11.png')"></div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="note-op-name">COLOUR</td>
-                    <td>
-                      <div class="icon-row">
-                        <div id="colour_yellow" class="note-icon-colour selected" data-current-color="#cbcd53"></div>
-                        <div id="colour_blue" class="note-icon-colour" data-current-color="#2e66af"></div>
-                        <div id="colour_green" class="note-icon-colour" data-current-color="#6c9835"></div>
-                        <div id="colour_red" class="note-icon-colour" data-current-color="#a73533"></div>
-                        <div id="colour_purple" class="note-icon-colour" data-current-color="#a253ae"></div>
-                        <div id="color-picker-trigger" class="note-icon-colour note-rainbow-icon" data-current-color="#ab2567" data-jscolor="{value:'#9f3ad7', onInput:'pickerColourChange(this)'}">
-
-
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-              <div id="map-note-apply" class="map-note-apply">APPLY</div>
-            </div>
-          </div>
-
-          <div id="panzoom-element" class="panzoom" onmousemove="getCursor(event)">
-            <div id="map-container" class="map-container">
-              <!-- The map image will be placed here -->
-              <img src="static/images/map.jpg" alt="RUST_MAP" id="map-image" />
-              <!-- Overlay Images go here -->
-            </div>
-          </div>
-        </div>
-        <!-- Right Panel: Player List and Chat -->
-        <div class="col-md-2 bg-light">
-          <div class="server_info p-3">
-            <p>Server info here</p>
-          </div>
-          <div class="players p-3">
-            <!-- Dynamically generate player list here -->
-            <p>Player name 1</p>
-            <!-- Repeat for other players -->
-          </div>
-          <div id="chat-area" class="chat-area">
-            <div id="chat-join-a-team-first">Join a team to chat</div>
-            <div class="chat-messages p-3" id="messages_container">
-              <!-- Dynamically generate chat messages here 
-              <div class="chat-message other">This is a chat message from someone else</div>
-              <div class="chat-message me">This is a chat message from me</div>-->
-              <!-- Repeat for other messages -->
-            </div>
-            <div class="chat-input p-3">
-              <input type="text" id="chatMessage" class="form-control" placeholder="Send message..." />
-              <input type="button" id="sendMessage" value="Send" class="btn btn-primary mt-2" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.2/jscolor.min.js"></script>
-
-
-    <script>
-        function pickerColourChange(picker) {
-            const note_icons = document.querySelectorAll(".note-icon");
-            note_icons.forEach((icon => {
-                icon.style.backgroundColor = picker.toHEXString();
-            }));
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
         }
 
-        function getCursor(event) {
-          let x = event.clientX;
-          let y = event.clientY;
-          let _position = `X: ${x}<br>Y: ${y}`;
+        #mousepos {
+            padding-left: 10px;
+            border-radius: 10px;
+            position: absolute;
+            user-select: none;
+            font-size: 2em;
+            width: 120px;
+            color: #EEEEEE;
+            background-color: #FD7013;
+            z-index: 4000;
+        }
 
-          const infoElement = document.getElementById('mousepos');
-          infoElement.innerHTML = _position;
-      }
-    </script>
-    <script type="module" src="static/js/main.js"></script>
-  </body>
+        #left-panel, #right-panel {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 15%;
+            z-index: 3000;
+        }
+
+        #left-panel {
+            left: 0;
+        }
+
+        #right-panel {
+            right: 0;
+        }
+
+        #map-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+            background-color: #0b3a4a;
+        }
+
+    </style>
+</head>
+<body>
+
+
+
+<div id="left-panel" class="bg-dark text-light">
+    <!-- Left Panel Content -->
+</div>
+
+<div id="map-container"></div>
+
+<div id="right-panel" class="bg-dark text-light">
+    <!-- Right Panel Content -->
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.2/jscolor.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<script>
+// Initialize Leaflet map with a simple CRS
+var map = L.map('map-container', {
+  crs: L.CRS.Simple,
+  minZoom: -1.5,
+  zoomControl: false,
+  zoomSnap: 0,
+  wheelPxPerZoomLevel: 70,
+  wheelDebounceTime: 30
+});
+
+// Assuming your image is 1024x1024 pixels
+var bounds = [[0, 0], [3000, 3000]];
+var image = L.imageOverlay('static/images/map.jpg', bounds).addTo(map);
+
+map.fitBounds(bounds);
+
+    function pickerColourChange(picker) {
+        const note_icons = document.querySelectorAll(".note-icon");
+        note_icons.forEach((icon => {
+            icon.style.backgroundColor = picker.toHEXString();
+        }));
+    }
+
+    function getCursor(event) {
+        let x = event.pageX;
+        let y = event.pageY;
+        let coords = `X: ${x} Y: ${y}`;
+
+        const infoElement = document.getElementById('mousepos');
+        infoElement.textContent = coords;
+    }
+</script>
+<!--<script type="module" src="static/js/main.js"></script>-->
+</body>
 </html>

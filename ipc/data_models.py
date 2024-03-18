@@ -6,9 +6,10 @@ from rustplus.api.structures.rust_team_info import RustTeamMember, RustTeamNote
 from rustplus.api.structures.rust_marker import RustColour, RustSellOrder, RustMarker
 from rustplus.api.structures.rust_info import RustInfo
 from rustplus.api.structures.rust_map import RustMonument, RustMap
-from rustplus.api.structures.rust_chat_message import RustChatMessage #type:ignore
+from rustplus.api.structures.rust_chat_message import RustChatMessage
 from rustplus.api.structures.rust_contents import RustContents
 from rustplus.api.structures.rust_item import RustItem
+from rustplus.api.structures.rust_team_info import RustTeamInfo
 
 from rustplus import RustSocket
 
@@ -63,20 +64,40 @@ class RustServerInfo(BaseModel):
     header_image: str
     logo_image: str
     """
-class RustTeamInfo(BaseModel):
-    leader_steam_id: int
-    members: List[RustTeamMember]
-    map_notes: List[RustTeamNote]
-    leader_map_notes: List[RustTeamNote]
+class TeamInfo(BaseModel):
+    team_info: RustTeamInfo
+    
+class TeamLeft(BaseModel):
+    pass
+
+class TeamJoined(BaseModel):
+    pass
+
+class TeamLeaderChange(BaseModel):
+    new_leader_steam_id: int
+    
+class TeamMemberJoin(BaseModel):
+    member: RustTeamMember
+
+class TeamMemberLeft(BaseModel):
+    member: RustTeamMember
+    
+class TeamMemberConnectivity(BaseModel):
+    steam_id: int
+    is_online: bool
+    
+class TeamMemberVital(BaseModel):
+    steam_id: int
+    is_alive: bool
 
 class RustTeamChatInitial(BaseModel):
     chats: List[RustChatMessage]
 
-class RustHeliSpawned(BaseModel):
+class HeliSpawned(BaseModel):
     """The cardinal bearing (from the map center) to where heli has entered the map """
     cardinal_bearing: str
 
-class RustHeliDowned(BaseModel):
+class HeliDowned(BaseModel):
     """The x-coordinate of where Heli went down"""
     x: float
     """The y-coordinate of where Heli went down"""
@@ -84,13 +105,13 @@ class RustHeliDowned(BaseModel):
     """The square on the grid of where Heli went down (e.g. D4)"""
     square: str = '00'   
 
-class RustHeliDespawned(BaseModel):
+class HeliDespawned(BaseModel):
     pass
 
-class RustCargoSpawned(BaseModel):
+class CargoSpawned(BaseModel):
     cardinal_bearing: str
 
-class RustCargoDespawned(BaseModel):
+class CargoDespawned(BaseModel):
     pass
 
 class RustPlayerStateChange(BaseModel):

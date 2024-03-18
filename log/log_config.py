@@ -23,7 +23,7 @@ color_map = {
     "WebServerService": "#FF4081",
     "MessageBus": "#7C4DFF",
     "ChatManagerService": "#8BD34A",
-    "placeholder3": "#00BFA5",
+    "WebRoutes": "#00BFA5",
     "placeholder4": "#673AB7",
     "RustPlus.py": "#E040FB",
     "default": "#FFFFFF",
