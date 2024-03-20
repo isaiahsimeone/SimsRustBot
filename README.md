@@ -4,6 +4,8 @@ With web map notes, how about we just translate the coordinates to JSON coordina
 
 - rust_plus_api.py should be able to translate names to steam IDs
 
+- Allow upload vid to wipe retro - JS client side compression of mp4 files. impose max file size, configurable by operator
+- Battlemetrics
 
 ## Need to:
 - Modify BUS to allow a caller to await a response
