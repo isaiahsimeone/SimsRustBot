@@ -12,6 +12,8 @@ With web map notes, how about we just translate the coordinates to JSON coordina
 - Modify BUS to allow a caller to await a response
 - Put config and database on the BUS
 - Make the bigger classes in rustplus their own service in a thread like MapPoller and TeamPoller. We can still use the rustplus bus probably
+-Implement ABC for CommandExecutor - specifies that an inheriting class can excecute commands via the CommandExecutor service?
+
 
 Next:
 - put ConfigManager and Database on the bus
