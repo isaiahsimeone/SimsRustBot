@@ -4,7 +4,8 @@ With web map notes, how about we just translate the coordinates to JSON coordina
 
 - rust_plus_api.py should be able to translate names to steam IDs
 
-- Allow upload vid to wipe retro - JS client side compression of mp4 files. impose max file size, configurable by operator
+- Allow upload vid to wipe retro - JS client side compression of mp4 files. impose max file size, configurable by operator - ffmpeg.wasm??? If we have the option for users to upload screen caps (vids or images), we can inspect the metadata
+    of that media to determine a timestamp, if we also collect the time on their machine at the time of upload, we can determine what position they were on the map when recording/capping. So, we can plot it on the web map
 - Battlemetrics
 
 ## Need to:
