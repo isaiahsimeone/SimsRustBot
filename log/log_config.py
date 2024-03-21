@@ -24,7 +24,7 @@ color_map = {
     "MessageBus": "#7C4DFF",
     "ChatManagerService": "#8BD34A",
     "WebRoutes": "#00BFA5",
-    "placeholder4": "#673AB7",
+    "BattleMetricsService": "#669101",
     "RustPlus.py": "#E040FB",
     "default": "#FFFFFF",
 }

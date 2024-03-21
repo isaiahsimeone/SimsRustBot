@@ -6,7 +6,8 @@ export let server = null;
 
 export function initialiseServer() {
     log("Server init");
-    socketio.make_request("serverinfo");
+    let sinfo = socketio.request_topic("server_info");
+    log(sinfo);
 }
 
 export function receiveServerInfo(data) {

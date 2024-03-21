@@ -11,6 +11,7 @@ import loguru
 
 from ipc.rust_socket_manager import RustSocketManager
 from web.web_routes import WebRoutes
+from web.web_socket import WebSocket
 if TYPE_CHECKING:
     pass
 from flask import Flask
@@ -98,6 +99,7 @@ class WebServerService(BusSubscriber, Loggable):
         self.monuments: List[RustMonument] = rust_map.monuments
         
         routes = WebRoutes(app, web_server=self)
+        sockio = WebSocket(app, web_server=self)
         
         await self.webserver_main()
         

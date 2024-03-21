@@ -79,7 +79,7 @@ class ConfigManagerService(BusSubscriber, Loggable):
         :type self: :class:`ConfigManagerService`
         """
         config = Config(config=self.config)
-        await self.publish("config", Message(config))
+        await self.publish("config", config)
 
     async def watch_configs_for_change(self: ConfigManagerService) -> None:
         """Watches the config file for changes.
@@ -207,4 +207,4 @@ class ConfigManagerService(BusSubscriber, Loggable):
         # A service is requesting the config
         if topic == "get_config":
             config = Config(config=self.config)
-            await self.publish("config", Message(config))
+            await self.publish("config", config)

@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 import loguru
 
+from ipc.data_models import BaseModel
 from ipc.message import Message
 from ipc.message_bus import MessageBus
 
@@ -31,15 +32,17 @@ class BusSubscriber(ABC):
         self.bus.unsubscribe(self, topic)
 
     @loguru.logger.catch()
-    async def publish(self: "BusSubscriber", topic: str, message: Message) -> None:
+    async def publish(self: "BusSubscriber", topic: str, message: BaseModel, wait_for_reply: bool = False) -> None:
         """Publish a message to the bus.
 
         :param topic: The topic to publish this message under
         :type topic: str
         :param message: The message to publish to the bus
         :type message: :class:`Message <ipc.message.Message>`
+        :param wait_for_reply: True if the caller should block until a reply to this message is received, False otherwise
+        :type wait_for_reply: bool
         """
-        return await self.bus.publish(topic, message, self.subscriber_name)
+        return await self.bus.publish(topic, Message(message), self.subscriber_name, wait_for_reply)
 
     @loguru.logger.catch()
     @abstractmethod

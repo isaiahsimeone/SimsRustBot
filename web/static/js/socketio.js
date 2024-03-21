@@ -1,14 +1,14 @@
-import { receiveTeamChatData } from "./chat.js";
+/*import { receiveTeamChatData } from "./chat.js";
 import { receiveMapMarkerData, receiveMapMonuments } from "./map.js";
 import { receiveTeamInfo } from "./team.js";
 import { receiveServerInfo } from "./server.js";
 import { receiveWebMapNoteChange, receiveWebMapNotes } from "./note.js";
-
+*/
 const DEBUG = true;
 
-export var socket = io.connect('http://' + location.host);
+export var socket = io.connect("http://" + location.host);
 
-socket.on('connect', function() {
+socket.on("connect", function() {
     log('Connected to the server');
 });
 
@@ -22,57 +22,63 @@ socket.on("broadcast", function(raw_data) {
     log("-- GOT BROADCAST FOR " + type + " --");
 
     switch (type) {
-        case "teamchat":
-            return receiveTeamChatData([data]);
-        case "markers":
-            return receiveMapMarkerData(data);
-        case "monuments":
-            return receiveMapMonuments(data);
-        case "serverinfo":
-            return receiveServerInfo(data);
-        case "teaminfo":
-            return receiveTeamInfo(data);
-        case "mapnotechange":
-            return receiveWebMapNoteChange(data);
+
         default:
             log("Encountered unknown broadcast type:", type);
     }
 });
 
+function make_topic_request(topic) {
+    return new Promise((resolve, reject) => {
+        const onResponse = (data) => {
+            cleanup();
+            resolve(data);
+        };
 
-socket.on("data_response", function(response) {
-    let type = response.type;
-    let data = response.data;
+        const onError = (error) => {
+            cleanup();
+            reject(error);
+        };
 
-    log("Got data from server with type=" + type + " : " + JSON.stringify(data));
+        const onTimeout = () => {
+            cleanup();
+            reject(new Error("Request timeout"));
+        };
 
-    switch (type) {
-        case "teamchat":
-            return receiveTeamChatData(data);
-        case "serverinfo":
-            return receiveServerInfo(data);
-        case "teaminfo":
-            return receiveTeamInfo(data);
-        case "markers":
-            return receiveMapMarkerData(data);
-        case "monuments":
-            return receiveMapMonuments(data);
-        case "mapnotesweb":
-            return receiveWebMapNotes(data.data);
-        default:
-            log("Encountered unknown request type:", type);
+        const cleanup = () => {
+            socket.off("response", onResponse);
+            socket.off("error", onError);
+            clearTimeout(timeoutId);
+        };
+
+        // 5 second timeout for the request
+        const timeoutId = setTimeout(onTimeout, 5000);
+
+        // Emit the request
+        socket.emit("request_topic", {topic: topic}, (ack) => {
+            if (!ack.success) {
+                cleanup();
+                reject(new Error("Failed to send request"));
+            }
+        });
+
+        // Setup listeners
+        socket.once("response", onResponse);
+        socket.once("error", onError);
+    });
+}
+
+export async function request_topic(topic) {
+    try {
+        const data = await make_topic_request(topic);
+        log("Received data:", data);
+    } catch (error) {
+        log("Error trying to get data for topic", topic, ":", error);
     }
-});
-
-export function send_to_server(what, data) {
-    socket.emit("client_send", {type: what, data: data});
 }
 
-export function make_request(what) {
-	socket.emit("request", {type: what});
-}
 
 function log(...args) {
 	if (DEBUG)
-		console.log("%c[socketio.js] ", "color: #FF00FF", ...args);
+		console.log("%c[socketio.js]", "color: #FF00FF", ...args);
 }

@@ -91,7 +91,7 @@ class MessageBus(Loggable):
         self.info("MessageBus initialised")
 
     @loguru.logger.catch()
-    async def publish(self: MessageBus, topic: str, message: Message, publisher: str) -> None:
+    async def publish(self: MessageBus, topic: str, message: Message, publisher: str, wait_for_reply: bool = False) -> None:
         """Publish a message to the message BUS.
 
         :param topic: The topic this message falls under
@@ -100,11 +100,15 @@ class MessageBus(Loggable):
         :type message: :class:`Message <ipc.message.Message>`
         :param publisher: The readable name of the publishing service
         :type publisher: str
+        :param wait_for_reply: True if the caller should block until a reply to this message is received, False otherwise
+        :type wait_for_reply: bool
         """
         self.debug(get_colourised_name(publisher), "published", repr(message), "under topic", topic)
         message.publisher = publisher
 
         self.last_message[topic] = message
+        
+        # TODO: check here if someone is waiting on this message, then call them back with it
 
         # Notify all subscribers of the message
         if topic in self.subscriptions:

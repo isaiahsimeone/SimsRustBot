@@ -11,14 +11,15 @@ from ipc.bus_subscriber import BusSubscriber
 from ipc.message_bus import MessageBus
 from ipc.rust_socket_manager import RustSocketManager
 from log.log_config import setup_logger
-from rustplus_api.rust_plus_api_service import RustPlusAPIService
-from rustplus_api.services.chat_manager_service import ChatManagerService
-from rustplus_api.services.event_listener_service import EventListenerService
-from rustplus_api.services.fcm_listener_service import FCMListenerService
-from rustplus_api.services.map_poller_service import MapPollerService
-from rustplus_api.services.rust_time_manager_service import RustTimeManagerService
-from rustplus_api.services.storage_monitor_manager_service import StorageMonitorManagerService
-from rustplus_api.services.team_poller_service import TeamPollerService
+from rust.rust_plus_api_service import RustPlusAPIService
+from services.battle_metrics_service import BattleMetricsService
+from services.chat_manager_service import ChatManagerService
+from services.event_listener_service import EventListenerService
+from services.fcm_listener_service import FCMListenerService
+from services.map_poller_service import MapPollerService
+from services.rust_time_manager_service import RustTimeManagerService
+from services.storage_monitor_manager_service import StorageMonitorManagerService
+from services.team_poller_service import TeamPollerService
 from util.printer import Printer
 from web.web_server_service import WebServerService
 
@@ -58,7 +59,8 @@ async def main() -> None:
         CommandExecutorService(bus),
         DiscordBotService(bus),
         WebServerService(bus),
-        ChatManagerService(bus)
+        ChatManagerService(bus),
+        BattleMetricsService(bus)
     ]
 
     tasks = [asyncio.create_task(service.execute()) for service in services]

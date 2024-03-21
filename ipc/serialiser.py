@@ -25,19 +25,14 @@ class_mappings = {
 
 
 def serialise_API_object(obj) -> Any:
-    obj_type = type(obj)
-    #print(f"Serialising object of type: {obj_type.__name__}")
-
-    if obj_type in class_mappings:
-        serialized_data = {}
-        for attr in class_mappings[obj_type]:
-            attr_value = getattr(obj, attr)
-            #print(f"Serializing attribute {attr} of type: {type(attr_value).__name__}")
-            serialized_data[attr] = serialise_API_object(attr_value)
-        return serialized_data
+    # If the object has a 'serialize' method, use it directly.
+    if hasattr(obj, 'serialize') and callable(getattr(obj, 'serialize')):
+        return obj.serialize()
     elif isinstance(obj, list):
+        # If the object is a list, recursively serialize each item in the list.
         return [serialise_API_object(item) for item in obj]
     else:
+        # For basic types that do not need serialization, return the object itself.
         return obj
 
 

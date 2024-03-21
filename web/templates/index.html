@@ -31,7 +31,7 @@
             position: absolute;
             top: 0;
             bottom: 0;
-            width: 15%;
+            width: 12.5%;
             z-index: 3000;
         }
 
@@ -53,21 +53,160 @@
             background-color: #0b3a4a;
         }
 
+        .divider {
+            border: 0;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-opt {
+            margin-top: 5px;
+            margin-bottom: 5px;
+            padding: 6px;
+            color: white;
+            text-align: center;
+            vertical-align: center;
+            transition: color 0.15s ease-out 100ms;
+        }
+
+        .menu-opt:hover {
+            color: #fd9520;
+            cursor: pointer;
+        }
+        /*****************************************/
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: calc(100vh - 160px); /* Adjust height */
+          }
+          
+          .chat-messages {
+            overflow-y: auto;
+            flex-grow: 1;
+          }
+          
+          .chat-message {
+            padding: 0.5rem;
+            word-wrap: break-word;
+            margin-right: 0.5rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            max-width: 75%;
+          }
+
+          #chatMessageInput {
+            margin-right: 5px;
+          }
+          
+          #sendMessageBtn {
+            white-space: nowrap;
+            margin: 0 !important;
+            margin-left: 2px;
+          }
+          
+          .chat-message-header {
+            display: flex; /* Aligns children (image and text) in a row */
+            align-items: center; /* Aligns children vertically in the center */
+          }
+          .chat-message-header-image {
+            height: 25px;
+            width: 25px;
+            background-size: cover;
+            background-position: center;
+            margin-right: 10px; /* Adds some space between the image and the text */
+            border-radius: 50%; /* Makes the image round */
+          }
+          .chat-message-header-name {
+            font-size: 13px;
+            font-weight: bold;
+          }
+          
+          .chat-message.other {
+            background-color: #e5e5e5;
+            color: black;
+          }
+          
+          .chat-message.me {
+            background-color: #ca7a20;
+            color: black;
+            margin-left: auto;
+          }
+          
+          .chat-input {
+            display: flex; /* Make the input and button inline */
+            align-items: center; /* Align the button and input vertically */
+            padding: 5px !important;
+          }
+
+          #chat-join-a-team-first {
+            display: none;
+            font-size: 20px;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            top: 40%;
+          }
+          .circle-image {
+            width: 100px; /* or any size you want */
+            height: 100px; /* should be the same as width to create a circle */
+            border-radius: 50%; /* this creates the circle */
+            background-size: cover; /* this ensures your image covers the circle */
+            background-position: center; /* this ensures your image is centered in the circle */
+          }
     </style>
 </head>
 <body>
 
-
-
 <div id="left-panel" class="bg-dark text-light">
-    <!-- Left Panel Content -->
+    <div class="logo p-3">
+        <a target="_blank" href="https://www.github.com/isaiahsimeone/simsrustbot">
+          <img src="static/images/sims_rust_bot_logo.png" alt="Sim's Rust Bot" class="img-fluid" />
+        </a>
+    </div>
+    <hr class="divider">
+    <div id="menu">
+        <div class="menu-opt">Menu Option 1</div>
+        <div class="menu-opt">Menu Option 2</div>
+        <div class="menu-opt">Menu Option 3</div>
+        <div class="menu-opt">Menu Option 4</div>
+    </div>
+    <hr class="divider">
 </div>
+
 
 <div id="map-container"></div>
 
+
 <div id="right-panel" class="bg-dark text-light">
-    <!-- Right Panel Content -->
+    <div id="server-info">
+        Server Info
+    </div>
+    <hr class="divider">
+    <div id="team-info">
+        <div class="players p-3">
+            <!-- Dynamically generate player list here -->
+            <p>Player name 1</p>
+            <!-- Repeat for other players -->
+        </div>
+    </div>
+    <hr class="divider">
+    <div id="game-chat" class="chat-area">
+        <div id="chat-join-a-team-first">Join a team to chat</div>
+        <div class="chat-messages p-3" id="messages_container">
+            <!-- Dynamically generate chat messages here 
+            <div class="chat-message other">This is a chat message from someone else</div>
+            <div class="chat-message me">This is a chat message from me</div>-->
+            <!-- Repeat for other messages -->
+        </div>
+        <div class="chat-input p-3">
+            <input type="text" id="chatMessageInput" class="form-control" placeholder="Send message..." />
+            <input type="button" id="sendMessageBtn" value="Send" class="btn btn-primary mt-2" />
+        </div>
+    </div>
 </div>
+
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -109,6 +248,6 @@ map.fitBounds(bounds);
         infoElement.textContent = coords;
     }
 </script>
-<!--<script type="module" src="static/js/main.js"></script>-->
+<script type="module" src="static/js/main.js"></script>
 </body>
 </html>
