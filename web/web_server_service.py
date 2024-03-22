@@ -6,7 +6,6 @@ import threading
 from typing import TYPE_CHECKING, List
 
 from flask import app
-from flask_socketio import SocketIO
 import loguru
 
 from ipc.rust_socket_manager import RustSocketManager
@@ -28,7 +27,6 @@ from rustplus.api.structures.rust_map import RustMap, RustMonument
 
 app = Flask(__name__)
 app.secret_key = 'secret'
-socketio = SocketIO(app)
 
 class WebServerService(BusSubscriber, Loggable):
     def __init__(self: WebServerService, bus: MessageBus):

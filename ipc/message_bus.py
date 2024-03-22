@@ -158,6 +158,12 @@ class MessageBus(Loggable):
         while topic not in self.last_message:
             await asyncio.sleep(0.5)
         return self.last_message[topic]
+    
+    @loguru.logger.catch()
+    def last_topic_message(self: MessageBus, topic: str) -> Message | None:
+        if topic not in self.last_message:
+            return None
+        return self.last_message[topic]
 
     @loguru.logger.catch
     def get_subscriber_topics(self: MessageBus, subscriber: BusSubscriber) -> list[str]:

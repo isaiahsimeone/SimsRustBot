@@ -72,7 +72,6 @@ class WebRoutes(Loggable):
                 
                 #If this user is not in the rust team, they may not access the page
                 if int(steam_id) not in self.web_server.permissions:
-                    print("PERMS:",self.web_server.permissions)
                     self.warning(f"Someone (steamId: {steam_id}) outside of the team attempted to access the web service")
                     return "You are not part of the team. You may not access this", 403
                 

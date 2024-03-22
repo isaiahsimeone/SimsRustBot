@@ -68,6 +68,10 @@ class BusSubscriber(ABC):
         return await self.bus.last_topic_message_or_wait(topic)
 
     @loguru.logger.catch()
+    def last_topic_message(self: "BusSubscriber", topic: str) -> Message | None:
+        return self.bus.last_topic_message(topic)
+
+    @loguru.logger.catch()
     @abstractmethod
     async def execute(self: "BusSubscriber") -> None:
         """The point of execution for the BusSubscriber class.

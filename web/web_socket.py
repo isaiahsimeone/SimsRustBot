@@ -7,11 +7,11 @@ if TYPE_CHECKING:
 from flask_socketio import SocketIO, emit
 from log.loggable import Loggable
 
-
+import json
 class WebSocket(Loggable):
     def __init__(self, app: Flask, web_server: WebServerService) -> None:
         self.web_server = web_server
-        self.socketio = SocketIO(app, async_mode="asyncio")
+        self.socketio = SocketIO(app, async_mode="threading")
         
         self.socketio_init()
         
@@ -20,22 +20,25 @@ class WebSocket(Loggable):
         self.socketio.on_event("disconnect", self.socketio_disconnect)
         self.socketio.on_event("request_topic", self.socketio_request_topic)
 
-    async def socketio_connect(self, _ = None) -> None:
+    def socketio_connect(self, _ = None) -> None:
         self.debug("Client connected")
     
-    async def socketio_disconnect(self, _ = None) -> None:
+    def socketio_disconnect(self, _ = None) -> None:
         self.debug("Client disconnected")
         
     def broadcast_socketio(self, data: str) -> None:
         pass
         
-    async def socketio_request_topic(self, json: dict[str, str]) -> None:
-        print("Request:", str(json))
-        topic = json.get("topic", None)
-        if not topic:
-            return None
-        #data = await self.web_server.last_topic_message_or_wait("topic")
+    def socketio_request_topic(self, sent_data: dict[str, str]) -> None:
+        print("Request:", str(sent_data))
+        topic = sent_data.get("topic", None)
+        last_message = None
+        if topic:
+            last_message = self.web_server.last_topic_message(topic)
         
-        last_message = await self.web_server.last_topic_message_or_wait(topic)
-        data = last_message.to_json()
+        if last_message:
+            data = last_message.to_json()
+        else:
+            data = ""
+
         emit("topic_response", {"type": topic, "data": data})

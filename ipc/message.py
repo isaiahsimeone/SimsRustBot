@@ -20,7 +20,7 @@ class Message:
         self.model_data: dict[str, Any] = data.model_dump()
         self.model_type = data.__class__.__name__
 
-    def to_json(self: Message) -> str:
+    def to_json(self: Message) -> str | None:
         """Convert the provided :class:`Message <ipc.message.Message> to
         JSON formatted string.
 

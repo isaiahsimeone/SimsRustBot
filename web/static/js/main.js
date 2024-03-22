@@ -1,10 +1,9 @@
 //import { initialiseChat } from "./chat.js";
 //import { initialiseMap } from "./map.js";
-//import { initialiseTeam } from "./team.js";
 //import { initialiseCommands } from "./command.js";
-import { initialiseServer, server } from "./server.js";
+import { initialiseTeam, teamInfoInstance } from "./team.js";
+import { initialiseServer } from "./server.js";
 //import { initialiseDialogs } from "./dialogs.js";
-//import { awaitVariableSet } from "./util.js";
 
 const DEBUG = true;
 
@@ -17,12 +16,12 @@ $(document).ready(function () {
 async function init() {
 	console.log('%cSimsRustBot', 'font-size: 40px; color: #c33e29; text-shadow: 3px 3px #000; font-weight: bold;');
 	
-	initialiseServer();
+	await initialiseServer();
 
-    /*Wait for server to be defined */
-	await awaitVariableSet(() => server !== null); // Wait for 'server' to be defined
-	
-	//initialiseTeam();
+
+	await initialiseTeam();
+
+	log(teamInfoInstance.map_notes)
 
 	//initialiseMap();
 
@@ -33,7 +32,10 @@ async function init() {
 	//initialiseDialogs();
 }
 
-
+/**
+ * Log a message for this class, if the DEBUG variable is defined.
+ * @param  {...any} args A variable number of objects to include in the log
+ */
 function log(...args) {
 	if (DEBUG)
 		console.log("%c[main.js] ", "color: #C70039", ...args);
