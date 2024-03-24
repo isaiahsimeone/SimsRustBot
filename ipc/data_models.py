@@ -42,28 +42,15 @@ class RustServerMap(BaseModel):
 class RustMapMarkers(BaseModel):
     markers: List[RustMarker]
 
-class RustMapEvents(BaseModel):
-    pass
-
-class RustMapMonuments(BaseModel):
+class RustMonuments(BaseModel):
     monuments: List[RustMonument]
+    
+class RustBackground(BaseModel):
     background: str
 
 class RustServerInfo(BaseModel):
     server_info: RustInfo
-    """
-    url: str
-    name: str
-    map: str
-    size: int
-    players: int
-    max_players: int
-    queued_players: int
-    seed: int
-    wipe_time: int
-    header_image: str
-    logo_image: str
-    """
+
 class TeamInfo(BaseModel):
     team_info: RustTeamInfo
     
@@ -117,38 +104,12 @@ class CargoDespawned(BaseModel):
 class RustPlayerStateChange(BaseModel):
     pass
 
-class RustRequestMapMarkers(BaseModel):
-    pass
-
-class RustRequestMapMonuments(BaseModel):
-    pass
-
-class RustRequestMapEvents(BaseModel):
-    pass
-
-class RustRequestServerMap(BaseModel):
-    pass
-
-class RustRequestServerInfo(BaseModel):
-    pass
-
-class RustRequestTeamInfo(BaseModel):
-    pass
-
-class RustRequestTeamChatInitial(BaseModel):
-    pass
-
-class RustRequestItemCount(BaseModel):
-    pass
 
 class RustRequestSendTeamMessage(BaseModel):
     steam_id: int
     name: Optional[str] = None
     message: str
     time: Optional[int] = -1
-
-
-
 
 class RustItemCount(BaseModel):
     pass

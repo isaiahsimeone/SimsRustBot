@@ -50,7 +50,7 @@
             right: 0;
             bottom: 0;
             z-index: 2000;
-            background-color: #0b3a4a;
+            background-color: #fff; /*#0b3a4a;*/
         }
 
         .divider {
@@ -216,21 +216,7 @@
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
 <script>
-// Initialize Leaflet map with a simple CRS
-var map = L.map('map-container', {
-  crs: L.CRS.Simple,
-  minZoom: -1.5,
-  zoomControl: false,
-  zoomSnap: 0,
-  wheelPxPerZoomLevel: 70,
-  wheelDebounceTime: 30
-});
 
-// Assuming your image is 1024x1024 pixels
-var bounds = [[0, 0], [3000, 3000]];
-var image = L.imageOverlay('static/images/map.jpg', bounds).addTo(map);
-
-map.fitBounds(bounds);
 
     function pickerColourChange(picker) {
         const note_icons = document.querySelectorAll(".note-icon");

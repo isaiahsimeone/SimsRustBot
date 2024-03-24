@@ -1,10 +1,10 @@
 //@ts-check
-/*import { receiveTeamChatData } from "./chat.js";
-import { receiveMapMarkerData, receiveMapMonuments } from "./map.js";
-import { receiveTeamInfo } from "./team.js";
-import { receiveServerInfo } from "./server.js";
-import { receiveWebMapNoteChange, receiveWebMapNotes } from "./note.js";
-*/
+//import { receiveTeamChatData } from "./chat.js";
+import { receiveMarkers } from "./map.js";
+//import { receiveTeamInfo } from "./team.js";
+//import { receiveServerInfo } from "./server.js";
+//import { receiveWebMapNoteChange, receiveWebMapNotes } from "./note.js";
+
 const DEBUG = true;
 
 // @ts-ignore
@@ -19,12 +19,12 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
         return ;
 
     let type = raw_data.type;
-    let data = raw_data.data;
-
-    log("-- GOT BROADCAST FOR " + type + " --");
-
+    let data = JSON.parse(raw_data["data"])["data"];
     switch (type) {
-
+        case "map_markers":
+            log("ADD");
+            receiveMarkers(data["markers"]);
+            break;
         default:
             log("Encountered unknown broadcast type:", type);
     }

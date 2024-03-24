@@ -1,5 +1,5 @@
 //import { initialiseChat } from "./chat.js";
-//import { initialiseMap } from "./map.js";
+import { initialiseMap } from "./map.js";
 //import { initialiseCommands } from "./command.js";
 import { initialiseTeam, teamInfoInstance } from "./team.js";
 import { initialiseServer } from "./server.js";
@@ -18,12 +18,9 @@ async function init() {
 	
 	await initialiseServer();
 
-
 	await initialiseTeam();
 
-	log(teamInfoInstance.map_notes)
-
-	//initialiseMap();
+	await initialiseMap();
 
 	//initialiseChat();
 

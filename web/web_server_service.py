@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, List
 from flask import app
 import loguru
 
+from ipc.data_models import RustBackground, RustMonuments
 from ipc.rust_socket_manager import RustSocketManager
 from web.web_routes import WebRoutes
 from web.web_socket import WebSocket
@@ -48,6 +49,9 @@ class WebServerService(BusSubscriber, Loggable):
         self._host: str = "localhost"
         """Port that the server runs on"""
         self._port: int = 5000
+        
+        self.routes: WebRoutes
+        self.sockio: WebSocket
     
     @loguru.logger.catch
     async def execute(self: WebServerService) -> None:
@@ -55,6 +59,7 @@ class WebServerService(BusSubscriber, Loggable):
         await self.subscribe("team_left")
         await self.subscribe("team_member_join")
         await self.subscribe("team_member_left")
+        await self.subscribe("map_markers")
         
         # Get config
         self.config = (await self.last_topic_message_or_wait("config")).data["config"]
@@ -89,15 +94,18 @@ class WebServerService(BusSubscriber, Loggable):
         # Download the server map and monuments
         rust_map: RustMap = await self.socket.get_raw_map_data()
         
+        # Monuments
+        await self.publish("monuments", RustMonuments(monuments=rust_map.monuments))
+        
+        # Background colour of map
+        await self.publish("background", RustBackground(background=rust_map.background))
+        
         # Save the map image
         map_image = Image.open(BytesIO(rust_map.jpg_image))
         map_image.save("web/static/images/map.jpg")
         
-        # Monuments
-        self.monuments: List[RustMonument] = rust_map.monuments
-        
-        routes = WebRoutes(app, web_server=self)
-        sockio = WebSocket(app, web_server=self)
+        self.routes = WebRoutes(app, web_server=self)
+        self.sockio = WebSocket(app, web_server=self)
         
         await self.webserver_main()
         
@@ -123,10 +131,6 @@ class WebServerService(BusSubscriber, Loggable):
     def steam_api_key(self: WebServerService) -> str:
         return self._steam_api_key
     
-    @property
-    def rust_monuments(self: WebServerService) -> List[RustMonument]:
-        return self.monuments
-    
     async def on_message(self: WebServerService, topic: str, message: Message):
         match topic:
             case "team_joined":
@@ -148,5 +152,11 @@ class WebServerService(BusSubscriber, Loggable):
                 self.debug("team member left")
                 member: RustTeamMember = message.data["member"]
                 del self._permissions[member.steam_id]
-
-        self.debug(f"Bus message ({topic}):", message)
+            case "map_markers":
+                pass
+            case "team_info":
+                pass
+            case _:
+                self.error(f"Got a message (topic {topic}) from bus that doesn't have an implementation")
+            
+        self.sockio.broadcast_socketio(topic, message.to_json())

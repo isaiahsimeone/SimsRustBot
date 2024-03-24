@@ -26,11 +26,13 @@ class WebSocket(Loggable):
     def socketio_disconnect(self, _ = None) -> None:
         self.debug("Client disconnected")
         
-    def broadcast_socketio(self, data: str) -> None:
-        pass
+    def broadcast_socketio(self, topic: str, data: str | None) -> None:
+        if not data:
+            return None
+        self.socketio.emit("broadcast", {"type": topic, "data": data})
         
     def socketio_request_topic(self, sent_data: dict[str, str]) -> None:
-        print("Request:", str(sent_data))
+        print("Client requested:", str(sent_data))
         topic = sent_data.get("topic", None)
         last_message = None
         if topic:
@@ -40,5 +42,6 @@ class WebSocket(Loggable):
             data = last_message.to_json()
         else:
             data = ""
+            self.error("Unable to fulfill socketio request for topic", topic)
 
         emit("topic_response", {"type": topic, "data": data})

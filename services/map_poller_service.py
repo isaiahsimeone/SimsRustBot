@@ -19,7 +19,7 @@ from rustplus import RustSocket
 
 from rustplus.api.structures.rust_marker import RustMarker
 from rustplus.api.structures.rust_info import RustInfo
-from rustplus.api.remote.rustplus_proto import AppMarker
+from rustplus.api.structures.rust_map import RustMonument
 
 class MapPollerService(BusSubscriber, Loggable):
     
