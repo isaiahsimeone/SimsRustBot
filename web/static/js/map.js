@@ -2,6 +2,7 @@
 import * as socketio from "./socketio.js";
 import { Marker, Monument } from "./structures.js";
 import * as markerFactory from "./marker.js";
+import { serverInfoInstance } from "./server.js";
 //import { receiveMapNotes } from "./note.js";
 //import { receiveTeamMembers } from "./steam.js";
 //import { toggleChatAvailability } from "./chat.js";
@@ -29,6 +30,11 @@ export let leaflet_map_markers;
 
 export let leaflet_monument_names;
 
+// The size of the map image 
+export const MAP_IMAGE_SZ = 2000;
+
+export let map_sz = -9999;
+
 /**
  * Get monument and first map marker data from server.
  * After this, map markers will be received every time
@@ -36,6 +42,8 @@ export let leaflet_monument_names;
  * broadcast at receiveMarkers()
  */
 export async function initialiseMap() {
+    map_sz = serverInfoInstance.map_size;
+    log("Map size is", map_sz);
     // Prepare leaflet
     initLeaflet();
 
@@ -55,6 +63,8 @@ export async function initialiseMap() {
     // Request first set of map markers from server
     const markerData = (await socketio.request_topic("map_markers")).markers;
     receiveMarkers(markerData);
+
+
 }
 
 /**
@@ -63,32 +73,31 @@ export async function initialiseMap() {
  */
 function createMarker(marker) {
     log(marker);
-    let x = marker.x;
-    let y = marker.y;
+    let scale = MAP_IMAGE_SZ / map_sz;
     switch (marker.typeName) {
         case "PLAYER":
-            markerFactory.createPlayerMarker(x, y, marker.steam_id);
+            markerFactory.createPlayerMarker(marker, scale);
             break;
         case "EXPLOSION":
-            markerFactory.createExplosionMarker();
+            markerFactory.createExplosionMarker(marker, scale);
             break;
         case "SHOP":
-            markerFactory.createShopMarker(x, y, marker.out_of_stock);
+            markerFactory.createShopMarker(marker, scale);
             break;
         case "CHINOOK":
-            markerFactory.createChinookMarker();
+            markerFactory.createChinookMarker(marker, scale);
             break;
         case "CARGOSHIP":
-            markerFactory.createCargoMarker();
+            markerFactory.createCargoMarker(marker, scale);
             break;
         case "CRATE":
-            markerFactory.createCrateMarker();
+            markerFactory.createCrateMarker(marker, scale);
             break;
         case "RADIUS":
-            markerFactory.createRadiusMarker();
+            markerFactory.createRadiusMarker(marker, scale);
             break;
         case "ATTACKHELI":
-            markerFactory.createHeliMarker();
+            markerFactory.createHeliMarker(marker, scale);
             break;
         default:
             log("Error: Unknown marker type in createMarker()");
@@ -102,17 +111,19 @@ function initLeaflet() {
         // @ts-ignore
         crs: L.CRS.Simple,
         minZoom: -1.5,
+        maxZoom: 2,
         zoomControl: false,
         zoomSnap: 0,
         wheelPxPerZoomLevel: 70,
         wheelDebounceTime: 30
     });
-    // 3000x3000 == rust map image size
-    var bounds = [[0, 0], [3000, 3000]];
+    
+    var bounds = [[0, 0], [MAP_IMAGE_SZ, MAP_IMAGE_SZ]];
     // @ts-ignore
     var image = L.imageOverlay('static/images/map.jpg', bounds).addTo(leaflet_map);
     
     leaflet_map.fitBounds(bounds);
+    leaflet_map.setZoom(-1.3);
 
     leaflet_map_markers = L.featureGroup().addTo(leaflet_map);
     leaflet_monument_names = L.featureGroup().addTo(leaflet_map);
@@ -127,12 +138,15 @@ function drawMonuments(monumentData) {
  * @param {any} markerData 
  */
 export function receiveMarkers(markerData) {
-    log(markerData);
+    //log(markerData);
     markerFactory.deleteAllMapMarkers();
     for (let i = 0; i < markerData.length; i++) {
         markers[i] = new Marker(markerData[i]);
-        log(markers[i]);
-        createMarker(markers[i]);
+        //log(markers[i]);
+        if (markers[i].typeName == "PLAYER") {
+            createMarker(markers[i]);
+            log("player at", markers[i].x, " ", markers[i].y);
+        }
     }
 }
 

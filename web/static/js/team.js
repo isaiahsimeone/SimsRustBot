@@ -2,7 +2,7 @@
 import * as socketio from "./socketio.js";
 import { TeamInfo } from "./structures.js";
 //import { receiveMapNotes } from "./note.js";
-//import { receiveTeamMembers } from "./steam.js";
+import { receiveTeamMembers } from "./steam.js";
 //import { toggleChatAvailability } from "./chat.js";
 
 const DEBUG = true;
@@ -20,6 +20,13 @@ export let teamInfoInstance;
 export async function initialiseTeam() {
     const teamData = await socketio.request_topic("team_info");
     teamInfoInstance = new TeamInfo(teamData.team_info);
+    // Initialise steam id's and names
+    receiveTeamMembers(teamInfoInstance.members);    
+}
+
+export async function receiveTeam() {
+    
+    receiveTeamMembers(teamInfoInstance.members);
 }
 
 /**

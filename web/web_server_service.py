@@ -102,7 +102,10 @@ class WebServerService(BusSubscriber, Loggable):
         
         # Save the map image
         map_image = Image.open(BytesIO(rust_map.jpg_image))
-        map_image.save("web/static/images/map.jpg")
+        cropped = map_image.crop((500, 500, rust_map.width - 500, rust_map.height - 500))
+        resized = cropped.resize((2000, 2000), Image.LANCZOS).convert("RGB")
+        
+        resized.save("web/static/images/map.jpg")
         
         self.routes = WebRoutes(app, web_server=self)
         self.sockio = WebSocket(app, web_server=self)

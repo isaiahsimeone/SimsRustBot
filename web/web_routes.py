@@ -29,7 +29,7 @@ class WebRoutes(Loggable):
         self.app.add_url_rule("/", "index", self.index, methods=["GET"])
         self.app.add_url_rule("/auth", "steam_auth", self.steam_auth, methods=["GET"])
         self.app.add_url_rule("/auth/response", "steam_auth_response", self.steam_auth_response, methods=["GET"])
-        self.app.add_url_rule("/downloadsteamimage/<steam_id>", "download_steam_image", methods=["POST"])
+        self.app.add_url_rule("/downloadsteamimage/<steam_id>", "download_steam_image", self.download_steam_image, methods=["POST"])
 
     def index(self):
         steam_id = session.get("steam_id", None)
