@@ -1,0 +1,12 @@
+
+.leaflet-popup-tip {
+    background: rgba(0, 0, 0, 0) !important;
+    box-shadow: none !important;
+}
+
+
+.player-map-popup .leaflet-popup-content-wrapper {
+    background: #e93434;
+    color: #ffffff;
+    border-radius: 0px;
+}
