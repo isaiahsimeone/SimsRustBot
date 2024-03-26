@@ -46,6 +46,8 @@ export function createPlayerMarker(player, scale) {
         className: "circular-icon"
     });
     var marker = L.marker([player.y * scale, player.x * scale], {icon: playerIcon}).addTo(map_markers);
+    if (iconImg !== "default")
+        marker.image_loaded = true;
     marker.marker = player;
     return marker
 }

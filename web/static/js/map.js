@@ -3,6 +3,7 @@ import * as socketio from "./socketio.js";
 import { Marker, Monument } from "./structures.js";
 import * as markerFactory from "./marker.js";
 import { serverInfoInstance } from "./server.js";
+import { steamImageExists } from "./steam.js";
 //import { receiveMapNotes } from "./note.js";
 //import { receiveTeamMembers } from "./steam.js";
 //import { toggleChatAvailability } from "./chat.js";
@@ -57,10 +58,7 @@ export async function initialiseMap() {
     // Request monument data from server
     const monumentData = (await socketio.request_topic("monuments")).monuments;
     log("MONUMENTS:", monumentData);
-
-
-    const monuments = monumentData.map(data => new Monument(data));
-    
+    monuments = monumentData.map(data => new Monument(data));
     drawMonuments();
 
     // Request first set of map markers from server
@@ -119,11 +117,11 @@ function initLeaflet() {
     leaflet_map.setZoom(-1.1);
 
     map_markers = L.featureGroup().addTo(leaflet_map);
-
     leaflet_monument_names = L.featureGroup().addTo(leaflet_map);
 }
 
 function drawMonuments() {
+    log("monuments are:", monuments);
     let scale = MAP_IMAGE_SZ / map_sz;
     // Create text for each monument
     for (let i = 0; i < monuments.length; i++) {
@@ -163,6 +161,24 @@ export function receiveMarkers(markerData) {
 function updateMarker(marker) {
     let scale = MAP_IMAGE_SZ / map_sz;
     var leaflet_marker = plotted_markers.get(marker.id);
+    var stored_marker = leaflet_marker.marker;
+
+    if (stored_marker.id != marker.id) {
+        log("ERROR: Marker Id doesn't match the stored marker id");
+        return ;
+    }
+
+
+    // Load a steam image for player markers
+    if (marker.typeName == "PLAYER" && !marker.image_loaded) {
+        if (!steamImageExists(marker.steam_id))
+            return ;
+
+        leaflet_marker.remove();
+        // createMarker will load the steam image
+        plotted_markers.set(marker.id, createMarker(marker));
+    }
+
     leaflet_marker.setLatLng(new L.latLng(marker.y * scale, marker.x * scale));
     leaflet_marker.setRotationAngle(360 - marker.rotation);
 }
