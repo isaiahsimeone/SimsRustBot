@@ -1077,7 +1077,12 @@ export class Monument {
 export class Marker {
     constructor(markerData) { 
         this._data = markerData;
+        this._image_loaded = false;
     }
+
+    set image_loaded(has_loaded) { this._image_loaded = has_loaded; }
+
+    get image_loaded() { return this._image_loaded; }
 
     get alpha() { return this._data.alpha; }
 
@@ -1089,7 +1094,7 @@ export class Marker {
 
     get name() { return this._data.name; }
 
-    get out_of_stock() { return this._data.out_of_stock; }
+    get out_of_stock() { return this._data.out_of_stock.toLowerCase() === "False"; }
 
     get radius() { return this._data.radius; }
 

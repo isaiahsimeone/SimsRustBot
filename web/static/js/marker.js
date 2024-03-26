@@ -1,20 +1,32 @@
-import { leaflet_map_markers } from "./map.js";
+import { map_markers } from "./map.js";
 import { Marker } from "./structures.js";
-import { nameFromSteamId, steamImageExists } from "./steam.js";
-
-
+import { steamImageExists } from "./steam.js";
 
 var shopInStockIcon = L.icon({
     iconUrl: "static/images/rust/shop_green.png",
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
+    iconSize: [15, 15],
+    iconAnchor: [7.5, 7.5],
     popupAnchor: [0, -25]
 });
 
 var shopOutOfStockIcon = L.icon({
     iconUrl: "static/images/rust/shop_orange.png",
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
+    iconSize: [15, 15],
+    iconAnchor: [7.5, 7.5],
+    popupAnchor: [0, -25]
+});
+
+var cargoShipIcon = L.icon({
+    iconUrl: "static/images/rust/cargo_ship_body.png",
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -25]
+});
+
+var crateIcon = L.icon({
+    iconUrl: "static/images/rust/crate.png",
+    iconSize: [15, 15],
+    iconAnchor: [7.5, 7.5],
     popupAnchor: [0, -25]
 });
 
@@ -24,25 +36,18 @@ var shopOutOfStockIcon = L.icon({
  * @param {float} scale - The amount to scale the marker coordinates by
  */
 export function createPlayerMarker(player, scale) {
+    const iconImg = steamImageExists(player.steam_id) ? player.steam_id : "default";
 
     var playerIcon = L.icon({
-        iconUrl: "static/images/rust/player.png",
-        iconSize: [15, 15],
-        iconAnchor: [7.5, 7.5],
-        popupAnchor: [0, -20]
+        iconUrl: "static/images/steam_pics/" + iconImg + ".png",
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+        popupAnchor: [0, -20],
+        className: "circular-icon"
     });
-
-    if (steamImageExists(player.steam_id)) {
-        console.log("exists. yes");
-
-        playerIcon = L.icon({
-            iconUrl: "static/images/steam_pics/" + player.steam_id + ".png",
-            iconSize: [15, 15],
-            iconAnchor: [7.5, 7.5],
-            popupAnchor: [0, -20]
-        });
-    }
-    L.marker([player.y * scale, player.x * scale], {icon: playerIcon}).addTo(leaflet_map_markers);
+    var marker = L.marker([player.y * scale, player.x * scale], {icon: playerIcon}).addTo(map_markers);
+    marker.marker = player;
+    return marker
 }
 
 /**
@@ -59,13 +64,13 @@ export function createExplosionMarker(marker, scale) {
  * @param {float} scale - The amount to scale the marker coordinates by
  */
 export function createShopMarker(marker, scale) {
-    let x = marker.x;
-    let y = marker.y;
-
+    var m;
     if (marker.out_of_stock)
-        L.marker([y * scale, x * scale], {icon: shopOutOfStockIcon}).addTo(leaflet_map_markers);
+        m = L.marker([marker.y * scale, marker.x * scale], {marker: marker, icon: shopOutOfStockIcon}).addTo(map_markers);
     else
-        L.marker([y * scale, x * scale], {icon: shopInStockIcon}).addTo(leaflet_map_markers);
+        m = L.marker([marker.y * scale, marker.x * scale], {marker: marker, icon: shopInStockIcon}).addTo(map_markers);
+    m.marker = marker;
+    return m;
 }
 
 /**
@@ -83,7 +88,11 @@ export function createChinookMarker(marker, scale) {
  * @param {float} scale - The amount to scale the marker coordinates by
  */
 export function createCargoMarker(marker, scale) {
-
+    console.log("ROT", marker.rotation);
+    return L.marker([marker.y * scale, marker.x * scale], {
+        icon: cargoShipIcon,
+        rotationAngle: 360 - marker.rotation
+    }).addTo(map_markers);
 }
 
 /**
@@ -93,7 +102,7 @@ export function createCargoMarker(marker, scale) {
  * @param {float} scale - The amount to scale the marker coordinates by
  */
 export function createCrateMarker(marker, scale) {
-
+    return L.marker([y * scale, x * scale], {icon: crateIcon}).addTo(map_markers);
 }
 
 /**
@@ -112,9 +121,4 @@ export function createRadiusMarker(marker, scale) {
  */
 export function createHeliMarker(marker, scale) {
 
-}
-
-
-export function deleteAllMapMarkers() {
-    leaflet_map_markers.clearLayers();
 }

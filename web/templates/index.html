@@ -155,6 +155,29 @@
             background-size: cover; /* this ensures your image covers the circle */
             background-position: center; /* this ensures your image is centered in the circle */
           }
+          
+          /*Leaflet */
+
+          .circular-icon {
+            border-radius: 50%; /* This makes the icon circular */
+            overflow: hidden; /* Ensures no overflow outside the circular shape */
+          }
+          
+          @font-face {
+            font-family: permanentMarker;
+            src: url("static/fonts/PermanentMarker-Regular.ttf")
+          }
+          .monument-label {
+            position: absolute;
+            z-index: -997;
+            font-family: permanentMarker;
+            font-size: 9px;
+            white-space: nowrap;
+            text-align: center;
+            width: fit-content;
+          }
+
+
     </style>
 </head>
 <body>
@@ -214,6 +237,7 @@
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.2/jscolor.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="static/js/leaflet.rotatedMarker.js"></script>
 
 <script>
 

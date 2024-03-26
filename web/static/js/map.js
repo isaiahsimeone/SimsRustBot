@@ -20,20 +20,21 @@ export let background_colour;
 export let monuments = [];
 
 /**
- * @type {Marker[]}
+ * @type {Map}
  */
-export let markers = [];
+export let plotted_markers = new Map();
 
 export let leaflet_map;
 
-export let leaflet_map_markers;
+export let map_markers;
+
 
 export let leaflet_monument_names;
 
 // The size of the map image 
 export const MAP_IMAGE_SZ = 2000;
 
-export let map_sz = -9999;
+export let map_sz = -1;
 
 /**
  * Get monument and first map marker data from server.
@@ -50,55 +51,47 @@ export async function initialiseMap() {
     // Request background colour from server
     background_colour = (await socketio.request_topic("background")).background;
     log("background colour is", background_colour);
+    //@ts-ignore possibly null
+    document.getElementById("map-container").style.backgroundColor = background_colour;
 
     // Request monument data from server
     const monumentData = (await socketio.request_topic("monuments")).monuments;
     log("MONUMENTS:", monumentData);
 
-    for (let i = 0; i < monumentData.length; i++)
-        monuments[i] = new Monument(monumentData[i]);
+
+    const monuments = monumentData.map(data => new Monument(data));
     
-    drawMonuments(monumentData);
+    drawMonuments();
 
     // Request first set of map markers from server
     const markerData = (await socketio.request_topic("map_markers")).markers;
     receiveMarkers(markerData);
-
-
 }
 
 /**
- * 
- * @param {Marker} marker 
+ * Creates a leaflet marker object from the specified rust marker.
+ * @param {Marker} marker - The marker object to plot on the map
+ * @returns {L.Marker} A leaflet marker object
  */
 function createMarker(marker) {
-    log(marker);
     let scale = MAP_IMAGE_SZ / map_sz;
     switch (marker.typeName) {
         case "PLAYER":
-            markerFactory.createPlayerMarker(marker, scale);
-            break;
+            return markerFactory.createPlayerMarker(marker, scale);
         case "EXPLOSION":
-            markerFactory.createExplosionMarker(marker, scale);
-            break;
+            return markerFactory.createExplosionMarker(marker, scale);
         case "SHOP":
-            markerFactory.createShopMarker(marker, scale);
-            break;
+            return markerFactory.createShopMarker(marker, scale);
         case "CHINOOK":
-            markerFactory.createChinookMarker(marker, scale);
-            break;
+            return markerFactory.createChinookMarker(marker, scale);
         case "CARGOSHIP":
-            markerFactory.createCargoMarker(marker, scale);
-            break;
+            return markerFactory.createCargoMarker(marker, scale);
         case "CRATE":
-            markerFactory.createCrateMarker(marker, scale);
-            break;
+            return markerFactory.createCrateMarker(marker, scale);
         case "RADIUS":
-            markerFactory.createRadiusMarker(marker, scale);
-            break;
+            return markerFactory.createRadiusMarker(marker, scale);
         case "ATTACKHELI":
-            markerFactory.createHeliMarker(marker, scale);
-            break;
+            return markerFactory.createHeliMarker(marker, scale);
         default:
             log("Error: Unknown marker type in createMarker()");
     }
@@ -110,7 +103,7 @@ function initLeaflet() {
     leaflet_map = L.map('map-container', {
         // @ts-ignore
         crs: L.CRS.Simple,
-        minZoom: -1.5,
+        minZoom: -1.4,
         maxZoom: 2,
         zoomControl: false,
         zoomSnap: 0,
@@ -119,35 +112,59 @@ function initLeaflet() {
     });
     
     var bounds = [[0, 0], [MAP_IMAGE_SZ, MAP_IMAGE_SZ]];
-    // @ts-ignore
-    var image = L.imageOverlay('static/images/map.jpg', bounds).addTo(leaflet_map);
+
+    L.imageOverlay('static/images/map.jpg', bounds).addTo(leaflet_map);
     
     leaflet_map.fitBounds(bounds);
-    leaflet_map.setZoom(-1.3);
+    leaflet_map.setZoom(-1.1);
 
-    leaflet_map_markers = L.featureGroup().addTo(leaflet_map);
+    map_markers = L.featureGroup().addTo(leaflet_map);
+
     leaflet_monument_names = L.featureGroup().addTo(leaflet_map);
 }
 
-function drawMonuments(monumentData) {
-
+function drawMonuments() {
+    let scale = MAP_IMAGE_SZ / map_sz;
+    // Create text for each monument
+    for (let i = 0; i < monuments.length; i++) {
+        let mon = monuments[i];
+        /* Don't draw monuments that have no name
+        (they weren't specified in the MonumentNames map) */
+        if (!mon.name)
+            continue;
+        
+        L.marker([mon.y * scale, mon.x * scale], {
+            icon: L.divIcon({
+                className: "monument-label",
+                html: "<div style='text-align: center;'>" + mon.name + "</div>",
+                iconSize: [100, 20],
+                iconAnchor: [50, 10]
+            })
+        }).addTo(leaflet_monument_names);
+    }
 }
 
 /**
  * Receive a raw marker list in json format.
- * @param {any} markerData 
+ * @param {any} markerData - A JSON object containing map marker data
  */
 export function receiveMarkers(markerData) {
-    //log(markerData);
-    markerFactory.deleteAllMapMarkers();
     for (let i = 0; i < markerData.length; i++) {
-        markers[i] = new Marker(markerData[i]);
-        //log(markers[i]);
-        if (markers[i].typeName == "PLAYER") {
-            createMarker(markers[i]);
-            log("player at", markers[i].x, " ", markers[i].y);
-        }
+        let marker = new Marker(markerData[i]);
+        
+        if (plotted_markers.get(marker.id))
+            updateMarker(marker);
+        else 
+            plotted_markers.set(marker.id, createMarker(marker));
     }
+}
+
+
+function updateMarker(marker) {
+    let scale = MAP_IMAGE_SZ / map_sz;
+    var leaflet_marker = plotted_markers.get(marker.id);
+    leaflet_marker.setLatLng(new L.latLng(marker.y * scale, marker.x * scale));
+    leaflet_marker.setRotationAngle(360 - marker.rotation);
 }
 
 /**
