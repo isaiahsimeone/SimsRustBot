@@ -137,7 +137,8 @@ function drawMonuments() {
                 html: "<div style='text-align: center;'>" + mon.name + "</div>",
                 iconSize: [100, 20],
                 iconAnchor: [50, 10]
-            })
+            }),
+            zIndexOffset: -10 // Appear behind map icons
         }).addTo(leaflet_monument_names);
     }
 }
@@ -161,6 +162,8 @@ export function receiveMarkers(markerData) {
 function updateMarker(marker) {
     let scale = MAP_IMAGE_SZ / map_sz;
     var leaflet_marker = plotted_markers.get(marker.id);
+    if (!leaflet_marker)
+        return ;
     var stored_marker = leaflet_marker.marker;
 
     if (stored_marker.id != marker.id) {
@@ -170,7 +173,8 @@ function updateMarker(marker) {
 
 
     // Load a steam image for player markers
-    if (marker.typeName == "PLAYER" && !marker.image_loaded) {
+    if (marker.typeName == "PLAYER" && !leaflet_marker.image_loaded) {
+        log("a");
         if (!steamImageExists(marker.steam_id))
             return ;
 

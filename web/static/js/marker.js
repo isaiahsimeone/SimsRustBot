@@ -1,6 +1,7 @@
 import { map_markers } from "./map.js";
 import { Marker } from "./structures.js";
 import { steamImageExists } from "./steam.js";
+import { bindMarkerPopup } from "./map_popup.js";
 
 var shopInStockIcon = L.icon({
     iconUrl: "static/images/rust/shop_green.png",
@@ -45,10 +46,18 @@ export function createPlayerMarker(player, scale) {
         popupAnchor: [0, -20],
         className: "circular-icon"
     });
+
     var marker = L.marker([player.y * scale, player.x * scale], {icon: playerIcon}).addTo(map_markers);
-    if (iconImg !== "default")
+    
+    if (iconImg !== "default") {
+        console.log("image loaded set");
         marker.image_loaded = true;
+    }
+
     marker.marker = player;
+
+    bindMarkerPopup(marker);
+    
     return marker
 }
 

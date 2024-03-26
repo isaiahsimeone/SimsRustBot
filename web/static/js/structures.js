@@ -1077,12 +1077,7 @@ export class Monument {
 export class Marker {
     constructor(markerData) { 
         this._data = markerData;
-        this._image_loaded = false;
     }
-
-    set image_loaded(has_loaded) { this._image_loaded = has_loaded; }
-
-    get image_loaded() { return this._image_loaded; }
 
     get alpha() { return this._data.alpha; }
 
