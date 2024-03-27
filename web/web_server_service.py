@@ -59,6 +59,9 @@ class WebServerService(BusSubscriber, Loggable):
         await self.subscribe("team_left")
         await self.subscribe("team_member_join")
         await self.subscribe("team_member_left")
+        await self.subscribe("team_member_vital")
+        await self.subscribe("team_member_connectivity")
+        await self.subscribe("team_leader_changed")
         await self.subscribe("map_markers")
         
         # Get config
@@ -155,9 +158,13 @@ class WebServerService(BusSubscriber, Loggable):
                 self.debug("team member left")
                 member: RustTeamMember = message.data["member"]
                 del self._permissions[member.steam_id]
-            case "map_markers":
+            case "team_member_vital":
                 pass
-            case "team_info":
+            case "team_member_connectivity":
+                pass
+            case "team_leader_changed":
+                pass
+            case "map_markers":
                 pass
             case _:
                 self.error(f"Got a message (topic {topic}) from bus that doesn't have an implementation")

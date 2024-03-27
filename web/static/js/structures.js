@@ -1005,6 +1005,12 @@ export class TeamInfo {
      */
     constructor(teamData) {
         this._data = teamData;
+        this._member_map = new Map();
+
+        this._data.members.forEach((memberData) => {
+            const member = new Member(memberData);
+            this._member_map.set(member.steam_id, member);
+        });
     }
 
     get leader_map_notes() { return this._data.map_notes.map((/** @type {any} */ note) => new MapNote(note)); }
@@ -1012,8 +1018,12 @@ export class TeamInfo {
     get leader_steam_id() { return this._data.leader_steam_id; }
 
     get map_notes() { return this._data.map_notes.map((/** @type {any} */ note) => new MapNote(note)); }
+    
+    /** @returns {Member[]} */
+    get members() { return Array.from(this._member_map.values()); }
 
-    get members() { return this._data.members.map((/** @type {any} */ member) => new Member(member)); }
+    /** @returns {Member} */
+    getMemberBySteamId(steam_id) { return this._member_map.get(steam_id); }
 }
 
 export class MapNote {
@@ -1096,10 +1106,10 @@ export class Marker {
     get rotation() { return this._data.rotation; }
 
     get sell_orders() { 
-        let sell_orders = [];
-        for (let i = 0; i < this._data.sell_orders; i++)
-            sell_orders[i] = new SellOrder(this._data.sell_orders[i]);
-        return sell_orders;
+        let _sell_orders = [];
+        for (let i = 0; i < this._data.sell_orders.length; i++)
+            _sell_orders[i] = new SellOrder(this._data.sell_orders[i]);
+        return _sell_orders;
     }
 
     get steam_id() { return this._data.steam_id; }

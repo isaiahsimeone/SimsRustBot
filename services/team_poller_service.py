@@ -99,7 +99,7 @@ class TeamPollerService(BusSubscriber, Loggable):
                     for change_key, change_detail in specific_changes.items():
                         match change_key:
                             case "steam_id_changed":
-                                self.critical("A members steamID changed?")
+                                self.debug("A members steamID changed?")
                             case 'name_changed':
                                 self.debug(f"  Name changed from '{change_detail['from']}' to '{change_detail['to']}'")
                             case 'is_online_changed':

@@ -4,6 +4,7 @@ import { Marker, Monument } from "./structures.js";
 import * as markerFactory from "./marker.js";
 import { serverInfoInstance } from "./server.js";
 import { steamImageExists } from "./steam.js";
+import { bindMarkerPopup } from "./map_popup.js";
 //import { receiveMapNotes } from "./note.js";
 //import { receiveTeamMembers } from "./steam.js";
 //import { toggleChatAvailability } from "./chat.js";
@@ -73,26 +74,30 @@ export async function initialiseMap() {
  */
 function createMarker(marker) {
     let scale = MAP_IMAGE_SZ / map_sz;
+    var m;
     switch (marker.typeName) {
         case "PLAYER":
-            return markerFactory.createPlayerMarker(marker, scale);
+            m = markerFactory.createPlayerMarker(marker, scale); break;
         case "EXPLOSION":
-            return markerFactory.createExplosionMarker(marker, scale);
+            m = markerFactory.createExplosionMarker(marker, scale); break;
         case "SHOP":
-            return markerFactory.createShopMarker(marker, scale);
+            m = markerFactory.createShopMarker(marker, scale);
+            break;
         case "CHINOOK":
-            return markerFactory.createChinookMarker(marker, scale);
+            m = markerFactory.createChinookMarker(marker, scale); break;
         case "CARGOSHIP":
-            return markerFactory.createCargoMarker(marker, scale);
+            m = markerFactory.createCargoMarker(marker, scale); break;
         case "CRATE":
-            return markerFactory.createCrateMarker(marker, scale);
+            m = markerFactory.createCrateMarker(marker, scale); break;
         case "RADIUS":
-            return markerFactory.createRadiusMarker(marker, scale);
+            m = markerFactory.createRadiusMarker(marker, scale); break;
         case "ATTACKHELI":
-            return markerFactory.createHeliMarker(marker, scale);
+            m = markerFactory.createHeliMarker(marker, scale); break;
         default:
             log("Error: Unknown marker type in createMarker()");
     }
+    bindMarkerPopup(m);
+    return m;
 }
 
 function initLeaflet() {
@@ -150,7 +155,7 @@ function drawMonuments() {
 export function receiveMarkers(markerData) {
     for (let i = 0; i < markerData.length; i++) {
         let marker = new Marker(markerData[i]);
-        
+
         if (plotted_markers.get(marker.id))
             updateMarker(marker);
         else 
@@ -162,7 +167,7 @@ export function receiveMarkers(markerData) {
 function updateMarker(marker) {
     let scale = MAP_IMAGE_SZ / map_sz;
     var leaflet_marker = plotted_markers.get(marker.id);
-    if (!leaflet_marker)
+    if (!leaflet_marker || !leaflet_marker.marker)
         return ;
     var stored_marker = leaflet_marker.marker;
 
@@ -171,10 +176,8 @@ function updateMarker(marker) {
         return ;
     }
 
-
     // Load a steam image for player markers
     if (marker.typeName == "PLAYER" && !leaflet_marker.image_loaded) {
-        log("a");
         if (!steamImageExists(marker.steam_id))
             return ;
 
@@ -185,6 +188,7 @@ function updateMarker(marker) {
 
     leaflet_marker.setLatLng(new L.latLng(marker.y * scale, marker.x * scale));
     leaflet_marker.setRotationAngle(360 - marker.rotation);
+    leaflet_marker.marker = marker;
 }
 
 /**

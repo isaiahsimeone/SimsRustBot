@@ -2,7 +2,7 @@
 import * as socketio from "./socketio.js";
 import { TeamInfo } from "./structures.js";
 //import { receiveMapNotes } from "./note.js";
-import { receiveTeamMembers } from "./steam.js";
+import { receiveTeamMembers, nameFromSteamId } from "./steam.js";
 //import { toggleChatAvailability } from "./chat.js";
 
 const DEBUG = true;
@@ -11,7 +11,6 @@ const DEBUG = true;
  * @type {TeamInfo}
  */
 export let teamInfoInstance;
-
 
 /**
  * Initialises the variable 'team_info' by requesting 
@@ -25,8 +24,42 @@ export async function initialiseTeam() {
 }
 
 export async function receiveTeam() {
-    
     receiveTeamMembers(teamInfoInstance.members);
+}
+
+export async function removeTeamMember(removedMemberData) {
+
+}
+
+export async function addTeamMember(newMemberData) {
+
+}
+
+export async function updateTeamMember() {
+    
+}
+
+
+export function getSpawnTime(steam_id) {
+    var target = teamInfoInstance.getMemberBySteamId(steam_id);
+    if (!target || !target.spawn_time)
+        return -1;
+    return target.spawn_time;
+}
+
+export function getDeathTime(steam_id) {
+    var target = teamInfoInstance.getMemberBySteamId(steam_id);
+    if (!target || !target.death_time)
+        return -1;
+    return target.death_time;
+}
+
+export function getName(steam_id) {
+    return nameFromSteamId(steam_id);
+}
+
+export function leaderSteamId(steam_id) {
+    return teamInfoInstance.leader_steam_id;
 }
 
 /**

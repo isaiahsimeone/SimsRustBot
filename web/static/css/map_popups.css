@@ -4,9 +4,80 @@
     box-shadow: none !important;
 }
 
+.leaflet-popup-content {
+    margin: 0 !important;
+}
 
+/* Player */
 .player-map-popup .leaflet-popup-content-wrapper {
+    position: absolute;
+    width: 160px;
+    height: 50px;
+    z-index: 999;
+    
+    /* From https://css.glass */
+    background: rgba(50, 47, 47, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10.7px);
+    -webkit-backdrop-filter: blur(10.7px);
+    color: #cccbcb;
+    font-family: RobotoBold;
+    cursor: pointer;
+}
+
+.player-popup-info-container {
+    background: rgba(20, 21, 18, 0.8);
+    width: 160px;
+    height: 50px;
+    margin-top: 2px;
+}
+
+.player-popup-info-table {
+    padding: 2px;
+    background: rgba(20, 23, 22, 0.4);
+    width: 160px;
+    height: 50px;
+    top: 1px;
+    position: relative;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+  
+.player-popup-info-table table {
+    width: 100%;
+}
+  
+.player-popup-info-table th.note-name {
+    width: 100%;
+    padding: 0 5px;
+    box-sizing: border-box;
+}
+  
+.player-popup-info-table th.note-name input {
+    width: calc(100% - 10px);
+    padding: 5px;
+    margin-left: auto;
+    display: block;
+}
+
+
+
+
+/* Shop */
+.shop-map-popup .leaflet-popup-content-wrapper {
     background: #e93434;
     color: #ffffff;
     border-radius: 0px;
+}
+
+
+/* Misc */
+@font-face {
+    font-family: RobotoRegular;
+    src: url("../fonts/RobotoCondensed-Regular.ttf")
+}
+
+@font-face {
+    font-family: RobotoBold;
+    src: url("../fonts/RobotoCondensed-Bold.ttf")
 }
