@@ -8,6 +8,8 @@ With web map notes, how about we just translate the coordinates to JSON coordina
     of that media to determine a timestamp, if we also collect the time on their machine at the time of upload, we can determine what position they were on the map when recording/capping. So, we can plot it on the web map
 - Battlemetrics
 
+- ### Dockerise the project. Probably first need a way to allow configuration without access to the config json files. Maybe spawn a second flask server, in a different thread that can take care of that. It can run the whole time(?) and proably be responsible for initiating server switching. Maybe we could spawn this web server as part of the config manager service
+
 ## Need to:
 - Modify BUS to allow a caller to await a response
 - Put config and database on the BUS
