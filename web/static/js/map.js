@@ -81,8 +81,7 @@ function createMarker(marker) {
         case "EXPLOSION":
             m = markerFactory.createExplosionMarker(marker, scale); break;
         case "SHOP":
-            m = markerFactory.createShopMarker(marker, scale);
-            break;
+            m = markerFactory.createShopMarker(marker, scale); break;
         case "CHINOOK":
             m = markerFactory.createChinookMarker(marker, scale); break;
         case "CARGOSHIP":

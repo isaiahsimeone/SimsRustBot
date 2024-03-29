@@ -181,6 +181,25 @@
           }
 
 
+
+          .helicopter-marker img {
+            width: 100%;
+            height: auto;
+          }
+          
+          .helicopter-blades {
+            position: absolute;
+            top: -10px;
+
+            transform-origin: 50% 50%; /* Adjust so the blades rotate around the correct point */
+            animation: rotate 1.5s linear infinite;
+          }
+          
+          @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+
     </style>
 </head>
 <body>

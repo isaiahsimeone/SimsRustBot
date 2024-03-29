@@ -63,7 +63,8 @@ export function bindMarkerPopup(leaflet_marker) {
         case "RADIUS":
             return //markerFactory.createRadiusMarker(marker, scale);
         case "ATTACKHELI":
-            return //markerFactory.createHeliMarker(marker, scale);
+            leaflet_marker.bindTooltip("A Patrol Helicopter", { className: "leaflet-tooltip", direction: "top" });
+            break; //markerFactory.createHeliMarker(marker, scale);
         default:
             log("Error: Unknown marker type in createMarker()");
     }
