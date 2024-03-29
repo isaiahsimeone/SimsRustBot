@@ -59,7 +59,6 @@ class TeamPollerService(BusSubscriber, Loggable):
             
     async def poll_team(self) -> None:
         team_info = await self.socket.get_team_info()
-        print(team_info)
         # Publish it to the bus, another service will probably use it
         await self.publish("team_info", TeamInfo(team_info=team_info))
         
@@ -69,6 +68,7 @@ class TeamPollerService(BusSubscriber, Loggable):
       
         # Currently not in a team
         if team_info.leader_steam_id == 0:
+            # Was in a team before
             if self.last_team_info.leader_steam_id != 0:
                 # Left a team
                 self.debug("Team left")

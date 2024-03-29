@@ -67,7 +67,12 @@ class WebServerService(BusSubscriber, Loggable):
         await self.subscribe("heli_spawned")
         await self.subscribe("heli_despawned")
         await self.subscribe("heli_downed")
-        await self.subscribe("explosion_expired")
+        await self.subscribe("chinook_spawned")
+        await self.subscribe("chinook_despawned")
+        await self.subscribe("chinook_downed")
+        await self.subscribe("explosion")
+        await self.subscribe("crate_dropped")
+        await self.subscribe("marker_expired")
         await self.subscribe("map_markers")
         
         # Get config
@@ -176,7 +181,9 @@ class WebServerService(BusSubscriber, Loggable):
                 pass
             case "cargo_spawned" | "cargo_despawned":
                 pass
-            case "heli_explosion_expired":
+            case "explosion" | "marker_expired":
+                pass
+            case "chinook_spawned" | "chinook_downed" | "chinook_despawned" | "crate_dropped":
                 pass
             case _:
                 self.error(f"Got a message (topic {topic}) from bus that doesn't have an implementation")

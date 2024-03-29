@@ -21,7 +21,6 @@ from ipc.bus_subscriber import BusSubscriber
 from ipc.data_models import Config
 from ipc.message import Message
 from log.loggable import Loggable
-from util.file_watchdog import FileWatchdog
 from util.tools import Tools
 
 if TYPE_CHECKING:
@@ -66,9 +65,6 @@ class ConfigManagerService(BusSubscriber, Loggable):
         await self.subscribe("get_config")
         await self.load_config()
 
-        # Watch for changes to config files
-        await self.watch_configs_for_change()
-
         # Run forever
         await asyncio.Future()
 
@@ -80,23 +76,6 @@ class ConfigManagerService(BusSubscriber, Loggable):
         """
         config = Config(config=self.config)
         await self.publish("config", config)
-
-    async def watch_configs_for_change(self: ConfigManagerService) -> None:
-        """Watches the config file for changes.
-
-        When the file specified by `self.config_filepath` changes, this method
-        will call the `self.load_config` callback, indicating that the config
-        file has changed, and thus reloading the config file.
-
-        :param self: This instance
-        :type self: :class:`ConfigManagerService`
-        """
-        config_file_watcher = FileWatchdog(self.config_filepath, callback=self.load_config)
-
-        observer = Observer()
-        observer.schedule(config_file_watcher, path=Path(self.config_filepath).parent, recursive=False)
-        observer_thread = threading.Thread(target=observer.start, daemon=True)
-        observer_thread.start()
 
     async def load_config(self: ConfigManagerService) -> None:
         """Load the config.json file.

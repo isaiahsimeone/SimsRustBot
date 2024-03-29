@@ -100,8 +100,36 @@ class HeliDespawned(BaseModel):
     """The Rust Marker Id of the heli"""
     id: str
 
-class ExplosionExpired(BaseModel):
-    """The Rust Marker id of the explosion"""
+class ChinookSpawned(BaseModel):
+    """The Rust Marker Id of the chinook"""
+    id: str
+    """The cardinal bearing (from the map center) to where chinook has entered the map """
+    cardinal_bearing: str
+
+class ChinookDowned(BaseModel):
+    """The Rust Marker Id of the chinook"""
+    id: str
+    """The x-coordinate of where chinook went down"""
+    x: float
+    """The y-coordinate of where chinook went down"""
+    y: float
+    """The square on the grid of where chinook went down (e.g. D4)"""
+    square: str
+
+class ChinookDespawned(BaseModel):
+    """The Rust Marker Id of the chinook"""
+    id: str
+
+class ExplosionMarker(BaseModel):
+    """The Rust Marker Id of the explosion"""
+    id: str
+    """The x-coordinate of the explosion"""
+    x: float
+    """The y-coordinate of the explosion"""
+    y: float
+
+class MarkerExpired(BaseModel):
+    """The Rust Marker id of the Marker"""
     id: str
 
 class EventStartTimes(BaseModel):

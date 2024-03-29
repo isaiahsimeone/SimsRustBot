@@ -26,15 +26,15 @@ function updatePopups() {
             case "PLAYER":
                 popup.setContent(genPlayerPopupContent(leaflet_marker)); break;
             case "EXPLOSION":
-                break;
+                popup.setContent(genExplosionPopupContent(leaflet_marker)); break;
             case "SHOP":
                 popup.setContent(genShopPopupContent(leaflet_marker)); break;
             case "CHINOOK":
-                break;
+                popup.setContent(genChinookPopupContent(leaflet_marker)); break;
             case "CARGOSHIP":
                 popup.setContent(genCargoPopupContent(leaflet_marker)); break;
             case "CRATE":
-                break;
+                popup.setContent(genCratePopupContent(leaflet_marker)); break;
             case "RADIUS":
                 break;
             case "ATTACKHELI":
@@ -56,6 +56,7 @@ export function bindMarkerPopup(leaflet_marker) {
             leaflet_marker.bindTooltip(nameFromSteamId(marker.steam_id), { className: "leaflet-tooltip", direction: "top" });
             break;
         case "EXPLOSION":
+            leaflet_marker.bindPopup(genExplosionPopupContent(leaflet_marker), { className: "generic-map-popup" });
             leaflet_marker.bindTooltip("A debris field", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "SHOP":
@@ -63,6 +64,7 @@ export function bindMarkerPopup(leaflet_marker) {
             leaflet_marker.bindTooltip("A Vending Machine", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "CHINOOK":
+            leaflet_marker.bindPopup(genChinookPopupContent(leaflet_marker), { className: "generic-map-popup" });
             leaflet_marker.bindTooltip("A Military Transport Helicopter", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "CARGOSHIP":
@@ -70,6 +72,7 @@ export function bindMarkerPopup(leaflet_marker) {
             leaflet_marker.bindTooltip("A Cargo Ship", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "CRATE":
+            leaflet_marker.bindPopup(genCratePopupContent(leaflet_marker), { className: "generic-map-popup" });
             leaflet_marker.bindTooltip("A Locked Crate", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "RADIUS":
@@ -111,8 +114,6 @@ function genPlayerPopupContent(leaflet_marker) {
         </div>
     </div>
     `;
-    //<img width='15px' height='15px' src='static/images/rust/${is_online}.png'/>
-    //var popup = "<h3>" + team.getName(player.steam_id) + "</h3>" + "<p>" + spawn_time + "</p>";
 
     return popup;
 }
@@ -151,6 +152,50 @@ function genCargoPopupContent(leaflet_marker) {
     return popup;
 }
 
+function genCratePopupContent(leaflet_marker) {
+    /** @type {Marker} */
+
+    var creation_time = "N/A";
+    if (leaflet_marker.creation_time)
+        creation_time = util.formatTime(util.timeNow() - leaflet_marker.creation_time);
+
+    var popup = `
+    <span style='margin-left:3px; padding-top:3px;'>CRATE</span>
+    
+    <div class='generic-popup-info-container' style='height: 25px'>
+        <div class='generic-popup-info-table' style='height: 25px'>
+            <table>
+                <tr><th>APPEARED</th><th>${creation_time}</th><th>AGO</th></tr>
+            </table>
+        </div>
+    </div>
+    `;
+
+    return popup;
+}
+
+function genExplosionPopupContent(leaflet_marker) {
+    /** @type {Marker} */
+
+    var creation_time = "N/A";
+    if (leaflet_marker.creation_time)
+        creation_time = util.formatTime(util.timeNow() - leaflet_marker.creation_time);
+
+    var popup = `
+    <span style='margin-left:3px; padding-top:3px;'>EXPLOSION</span>
+    
+    <div class='generic-popup-info-container' style='height: 25px'>
+        <div class='generic-popup-info-table' style='height: 25px'>
+            <table>
+                <tr><th>APPEARED</th><th>${creation_time}</th><th>AGO</th></tr>
+            </table>
+        </div>
+    </div>
+    `;
+
+    return popup;
+}
+
 function genHeliPopupContent(leaflet_marker) {
     /** @type {Marker} */
 
@@ -160,6 +205,28 @@ function genHeliPopupContent(leaflet_marker) {
 
     var popup = `
     <span style='margin-left:3px; padding-top:3px;'>PATROL HELICOPTER</span>
+    
+    <div class='generic-popup-info-container' style='height: 25px'>
+        <div class='generic-popup-info-table' style='height: 25px'>
+            <table>
+                <tr><th>SPAWNED</th><th>${creation_time}</th><th>AGO</th></tr>
+            </table>
+        </div>
+    </div>
+    `;
+
+    return popup;
+}
+
+function genChinookPopupContent(leaflet_marker) {
+    /** @type {Marker} */
+
+    var creation_time = "N/A";
+    if (leaflet_marker.creation_time)
+        creation_time = util.formatTime(util.timeNow() - leaflet_marker.creation_time);
+
+    var popup = `
+    <span style='margin-left:3px; padding-top:3px;'>CHINOOK</span>
     
     <div class='generic-popup-info-container' style='height: 25px'>
         <div class='generic-popup-info-table' style='height: 25px'>

@@ -64,9 +64,29 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
             log("heli downed", data["id"]);
             removeMarker(data["id"]);
             break;
-        case "explosion_expired":
-            log("Explosion expired", data["id"]);
+        case "chinook_spawned":
+            log("chinook spawned");
+            setCreationTime(data["id"], util.timeNow());
+            break;
+        case "chinook_despawned":
+            log("chinook despawned");
             removeMarker(data["id"]);
+            break;
+        case "chinook_downed":
+            log("chinook downed", data["id"]);
+            removeMarker(data["id"]);
+            break;
+        case "marker_expired":
+            log("Marker expired", data["id"]);
+            removeMarker(data["id"]);
+            break;
+        case "explosion":
+            log("explosion");
+            setCreationTime(data["id"], util.timeNow());
+            break;
+        case "crate_dropped":
+            log("Crate");
+            setCreationTime(data["id"], util.timeNow());
             break;
         case "cargo_spawned":
             log("cargo spawned");
