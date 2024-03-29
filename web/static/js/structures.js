@@ -1,3 +1,5 @@
+import { timeNow } from "./util.js";
+
 
 const MarkerNames = {
     "1": "PLAYER",
@@ -1087,6 +1089,7 @@ export class Monument {
 export class Marker {
     constructor(markerData) { 
         this._data = markerData;
+        this._spawn_time = timeNow();
     }
 
     get alpha() { return this._data.alpha; }
@@ -1121,6 +1124,8 @@ export class Marker {
     get x() { return this._data.x; }
     
     get y() { return this._data.y; }
+
+    get spawn_time() { return this._spawn_time; }
 
 }
 

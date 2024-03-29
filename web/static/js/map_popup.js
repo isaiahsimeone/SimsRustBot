@@ -15,17 +15,24 @@ function updatePopups() {
 
     for (let i = 0; i < bound_popups.length; i++) {
         var leaflet_marker = bound_popups[i];
+        var popup = leaflet_marker.getPopup();
+        if (!popup)
+            continue;
+        // Don't update if it's open
+        if (popup.isOpen())
+            continue;
+
         switch (leaflet_marker.marker.typeName) {
             case "PLAYER":
-                leaflet_marker.getPopup().setContent(genPlayerPopupContent(leaflet_marker)); break;
+                popup.setContent(genPlayerPopupContent(leaflet_marker)); break;
             case "EXPLOSION":
                 return //markerFactory.createExplosionMarker(marker, scale);
             case "SHOP":
-                leaflet_marker.getPopup().setContent(genShopPopupContent(leaflet_marker)); break;
+                popup.setContent(genShopPopupContent(leaflet_marker)); break;
             case "CHINOOK":
                 return //markerFactory.createChinookMarker(marker, scale);
             case "CARGOSHIP":
-                return //markerFactory.createCargoMarker(marker, scale);
+                popup.setContent(genCargoPopupContent(leaflet_marker)); break;
             case "CRATE":
                 return //markerFactory.createCrateMarker(marker, scale);
             case "RADIUS":
@@ -45,7 +52,7 @@ export function bindMarkerPopup(leaflet_marker) {
     var marker = leaflet_marker.marker;
     switch (marker.typeName) {
         case "PLAYER":
-            leaflet_marker.bindPopup(genPlayerPopupContent(leaflet_marker), { className: "player-map-popup" });
+            leaflet_marker.bindPopup(genPlayerPopupContent(leaflet_marker), { className: "generic-map-popup" });
             leaflet_marker.bindTooltip(nameFromSteamId(marker.steam_id), { className: "leaflet-tooltip", direction: "top" });
             break;
         case "EXPLOSION":
@@ -58,12 +65,15 @@ export function bindMarkerPopup(leaflet_marker) {
         case "CHINOOK":
             return //markerFactory.createChinookMarker(marker, scale);
         case "CARGOSHIP":
-            return //markerFactory.createCargoMarker(marker, scale);
+            leaflet_marker.bindPopup(genCargoPopupContent(leaflet_marker), { className: "generic-map-popup" });
+            leaflet_marker.bindTooltip("A Cargo Ship", { className: "leaflet-tooltip", direction: "top" });
+            break;
         case "CRATE":
             return //markerFactory.createCrateMarker(marker, scale);
         case "RADIUS":
             return //markerFactory.createRadiusMarker(marker, scale);
         case "ATTACKHELI":
+            leaflet_marker.bindPopup(genCargoPopupContent(leaflet_marker), { className: "generic-map-popup" });
             leaflet_marker.bindTooltip("A Patrol Helicopter", { className: "leaflet-tooltip", direction: "top" });
             break;
         default:
@@ -88,19 +98,13 @@ function genPlayerPopupContent(leaflet_marker) {
     if (death_time > 0)
         died_at_time = util.formatTime(util.timeNow() - death_time);
     
-    var is_online = player.is_online ? "online" : "offline";
-
     var popup = `
-    <span style='margin-left:5px; padding-top:3px;'>${player_name.toUpperCase()}
-        <span style='float:right; padding-right: 5px;'>
-            <div class='${is_online}-circle'></div>
-        </span>
-    </span>
-    <div class='player-popup-info-container'>
-        <div class='player-popup-info-table'>
+    <span style='margin-left:3px; padding-top:3px;'>${player_name.toUpperCase()}</span>
+    <div class='generic-popup-info-container'>
+        <div class='generic-popup-info-table'>
             <table>
-                <tr><th>SPAWN TIME</th><th>${spawned_at_time}</th></tr>
-                <tr><th>DEATH TIME</th><th>${died_at_time}</th></tr>
+                <tr><th>SPAWNED</th><th>${spawned_at_time}</th><th>AGO</th></tr>
+                <tr><th>DIED</th><th>${died_at_time}</th><th>AGO</th></tr>
             </table>
         </div>
     </div>
@@ -121,6 +125,27 @@ function genShopPopupContent(leaflet_marker) {
    // log(num_sale);
 
     return "<h3>" + shop.sell_orders[0].cost_per_item + "</h3>";
+}
+
+function genCargoPopupContent(leaflet_marker) {
+    /** @type {Marker} */
+    var cargo = leaflet_marker.marker;
+
+    var spawn_time = util.formatTime(util.timeNow() - cargo.spawn_time);
+
+    var popup = `
+    <span style='margin-left:3px; padding-top:3px;'>CARGOSHIP</span>
+    
+    <div class='generic-popup-info-container' style='height: 25px'>
+        <div class='generic-popup-info-table' style='height: 25px'>
+            <table>
+                <tr><th>SPAWNED</th><th>${spawn_time}</th><th>AGO</th></tr>
+            </table>
+        </div>
+    </div>
+    `;
+
+    return popup;
 }
 
 /**

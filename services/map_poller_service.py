@@ -157,13 +157,13 @@ class MapPollerService(BusSubscriber, Loggable):
                 # This cargo left the map
                 await self.publish("cargo_despawned", CargoDespawned(id=str(cargo.id)))
                 
-        # Update cargo positions
         for cargo in cargo_markers:
-            self.active_cargos[cargo.id] = cargo
-            # A heli just spawned
-            if cargo not in self.active_cargos.keys():
+            # A cargo ship just spawned
+            if cargo.id not in self.active_cargos:
                 cardinal_bearing = self.cardinal_bearing_to_marker(cargo)
                 await self.publish("cargo_spawned", CargoSpawned(id=str(cargo.id), cardinal_bearing=cardinal_bearing))
+            # Update positions of cargo ships
+            self.active_cargos[cargo.id] = cargo
     
     
     def find_markers_with_type(self, markers: List[RustMarker], marker_type: int) -> List[RustMarker]:

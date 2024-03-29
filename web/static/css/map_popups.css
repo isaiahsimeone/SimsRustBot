@@ -29,8 +29,8 @@
     margin: none;
 }
 
-/******************************************************************* Player */
-.player-map-popup .leaflet-popup-content-wrapper {
+/******************************************************************* Generic */
+.generic-map-popup .leaflet-popup-content-wrapper {
     position: absolute;
     width: 160px;
     height: 50px;
@@ -46,14 +46,15 @@
     cursor: pointer;
 }
 
-.player-popup-info-container {
+
+.generic-popup-info-container {
     background: rgba(20, 21, 18, 0.8);
     width: 160px;
     height: 50px;
     margin-top: 2px;
 }
 
-.player-popup-info-table {
+.generic-popup-info-table {
     padding: 2px;
     background: rgba(20, 23, 22, 0.4);
     width: 160px;
@@ -64,41 +65,22 @@
     margin-right: 1px;
 }
   
-.player-popup-info-table table {
+.generic-popup-info-table table {
     width: 100%;
 }
   
-.player-popup-info-table th.note-name {
+.generic-popup-info-table th.note-name {
     width: 100%;
     padding: 0 5px;
     box-sizing: border-box;
 }
   
-.player-popup-info-table th.note-name input {
+.generic-popup-info-table th.note-name input {
     width: calc(100% - 10px);
     padding: 5px;
     margin-left: auto;
     display: block;
 }
-
-/*Green circle*/
-.online-circle {
-    width: 10px; /* adjust size as needed */
-    height: 10px; /* adjust size as needed */
-    background-color: #00FF00; /* the green color */
-    border-radius: 50%; /* makes it a circle */
-    border: 1px #000;
-}
-
-/*Black circle*/
-.offline-circle {
-    width: 10px; /* adjust size as needed */
-    height: 10px; /* adjust size as needed */
-    border: 1px #000000;
-    border-radius: 50%; /* makes it a circle */
-    background-color: transparent; /* transparent inside */
-  }
-
 
 
 
