@@ -221,6 +221,46 @@
             animation: rotate 0.8s linear infinite;
           }
 
+
+
+
+
+
+/* Cluster Marker Style */
+.cluster-marker {
+  background-color: rgba(241, 196, 15, 0.9);
+  border-radius: 50%;
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  border: 2px solid #d35400;
+  font-weight: bold;
+}
+
+/* Ensures the text size scales well from a small number of shops to a larger cluster */
+.cluster-marker b {
+  font-size: 14px;
+}
+
+/* Optional: Adjust the size of the cluster marker based on the content */
+.cluster-marker {
+  white-space: nowrap;
+  min-width: 20px;
+  height: 20px;
+  line-height: 20px; /* Aligns text vertically */
+  display: inline-block;
+}
+
+/* Ensures the cluster marker is centered correctly */
+.leaflet-marker-icon.cluster-marker {
+  margin-left: -10px; /* Half of min-width */
+  margin-top: -10px; /* Half of height */
+  position: absolute;
+}
+
+
+
+
     </style>
 </head>
 <body>

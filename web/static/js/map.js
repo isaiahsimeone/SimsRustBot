@@ -30,6 +30,9 @@ export let leaflet_map;
 
 export let map_markers;
 
+export let leaflet_shop_markers;
+
+export let all_shops = new Map();
 
 export let leaflet_monument_names;
 
@@ -71,6 +74,13 @@ export async function initialiseMap() {
     Object.keys(eventStartTimes).forEach(key => {
         setCreationTime(key, eventStartTimes[key]);
     });
+
+    const clustering_threshold = 13;
+
+    // Cluster shops - If there isn't a hectic number of shops
+    if (all_shops.size < 300)
+        clusterCloseShops(all_shops, clustering_threshold);
+    
 }
 
 /**
@@ -127,6 +137,7 @@ function initLeaflet() {
     leaflet_map.setZoom(-1.1);
 
     map_markers = L.featureGroup().addTo(leaflet_map);
+    leaflet_shop_markers = L.featureGroup().addTo(leaflet_map);
     leaflet_monument_names = L.featureGroup().addTo(leaflet_map);
 }
 
@@ -163,8 +174,13 @@ export function receiveMarkers(markerData) {
 
         if (plotted_markers.get(marker.id))
             updateMarker(marker);
-        else 
-            plotted_markers.set(marker.id, createMarker(marker));
+        else {
+            var created_marker = createMarker(marker);
+            // Maintain a list of shops - required for clustering
+            if (marker.typeName == "SHOP" && !all_shops.has(marker.id))
+                all_shops.set(marker.id, created_marker);
+            plotted_markers.set(marker.id, created_marker);
+        }
     }
 }
 
@@ -228,6 +244,97 @@ function updateMarker(marker) {
     leaflet_marker.setRotationAngle(360 - marker.rotation);
     leaflet_marker.marker = marker;
 }
+
+
+function clusterCloseShops(existingShopMarkers, distanceThreshold) {
+    let clusters = [];
+    let clusteredMarkers = new Set();
+
+    const markersArray = Array.from(existingShopMarkers.values());
+
+    markersArray.forEach(marker => {
+        // Skip if this marker is already clustered
+        if (clusteredMarkers.has(marker)) 
+            return ; 
+        
+        let cluster = [marker];
+        markersArray.forEach(otherMarker => {
+            if (marker !== otherMarker && !clusteredMarkers.has(otherMarker)) {
+                
+                let distance = calculateDistance(marker, otherMarker);
+                log(distance);
+                if (distance <= distanceThreshold) {
+                    cluster.push(otherMarker);
+                    // This marker is part of a cluster
+                    clusteredMarkers.add(otherMarker); 
+                }
+            }
+        });
+
+        // Only consider it a cluster if more than one marker is close together
+        if (cluster.length > 1) {
+            clusters.push(cluster);
+        }
+    });
+    
+    // Update the map with the clusters
+    updateMapWithClusters(clusters, clusteredMarkers, existingShopMarkers);
+}
+
+function updateMapWithClusters(clusters, clusteredMarkers, existingShopMarkers) {
+    // For each cluster, calculate the centroid and create a cluster marker
+    clusters.forEach(cluster => {
+        let centroid = cluster.reduce((acc, marker) => ({
+            lat: acc.lat + marker.getLatLng().lat,
+            lng: acc.lng + marker.getLatLng().lng
+        }), { lat: 0, lng: 0 });
+
+        centroid.lat /= cluster.length;
+        centroid.lng /= cluster.length;
+
+        // Create a cluster marker
+        let clusterMarker = L.marker([centroid.lat, centroid.lng], {
+            icon: L.divIcon({html: `<b>${cluster.length}</b> Shops`, className: 'cluster-marker'})
+        }).bindPopup(`This cluster represents ${cluster.length} shops.`);
+
+        // Add the cluster marker to the map
+        clusterMarker.addTo(leaflet_map);
+
+        // Remove the individual shop markers that are now represented by the cluster
+        cluster.forEach(marker => {
+            // Remove the marker from the map
+            leaflet_map.removeLayer(marker);
+
+            // Additionally, find and remove these markers from the existingShopMarkers map
+            existingShopMarkers.forEach((value, key) => {
+                if (value === marker) {
+                    existingShopMarkers.delete(key);
+                }
+            });
+        });
+    });
+
+    // For any markers not included in clusters, ensure they are displayed on the map
+    existingShopMarkers.forEach((marker, key) => {
+        if (!clusteredMarkers.has(marker)) {
+            // Check if the marker is already on the map or add it
+            if (!leaflet_map.hasLayer(marker)) {
+                marker.addTo(leaflet_map);
+            }
+        }
+    });
+}
+
+function calculateDistance(markerA, markerB) {
+    const latLngA = markerA.getLatLng();
+    const latLngB = markerB.getLatLng();
+
+    const dx = latLngA.lng - latLngB.lng;
+    const dy = latLngA.lat - latLngB.lat;
+
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
 
 /**
  * Log a message for this class, if the DEBUG variable is defined.

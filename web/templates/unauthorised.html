@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Rust Server Interface</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: oswald;
+            font-size: 2.5em;
+            src: url("../static/fonts/RobotoCondensed-Bold.ttf")
+        }
+        * {
+            font-family: 'oswald', sans-serif;
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+            background: no-repeat center center fixed; 
+            background-image: url('../static/images/unauthorised.png');
+            background-size: cover;
+        }
+        .container {
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            transform: translateX(-50%);
+            max-width: 500px;
+            padding: 2rem;
+            margin: auto;
+            background: rgba(50, 50, 50, 0.85);
+            border-radius: 8px;
+            color: #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .logo-img {
+            max-width: 400px;
+            margin-bottom: 1rem;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="../static/images/sims_rust_bot_logo.png" class="logo-img" alt="Sim's Rust Bot Logo" />
+    <h1 style="color: red">You are not authorised</h1>
+    <h2>Join the Rust team</h2>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import { map_markers } from "./map.js";
+import { map_markers, leaflet_shop_markers } from "./map.js";
 import { Marker } from "./structures.js";
 import { steamImageExists } from "./steam.js";
 
@@ -114,9 +114,9 @@ export function createExplosionMarker(explosion, scale) {
 export function createShopMarker(shop, scale) {
     var marker;
     if (shop.out_of_stock)
-        marker = L.marker([shop.y * scale, shop.x * scale], {marker: shop, icon: shopOutOfStockIcon}).addTo(map_markers);
+        marker = L.marker([shop.y * scale, shop.x * scale], {marker: shop, icon: shopOutOfStockIcon}).addTo(leaflet_shop_markers);
     else
-        marker = L.marker([shop.y * scale, shop.x * scale], {marker: shop, icon: shopInStockIcon}).addTo(map_markers);
+        marker = L.marker([shop.y * scale, shop.x * scale], {marker: shop, icon: shopInStockIcon}).addTo(leaflet_shop_markers);
     marker.marker = shop;
     return marker;
 }
