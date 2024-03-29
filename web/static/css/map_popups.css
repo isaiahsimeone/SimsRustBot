@@ -1,14 +1,35 @@
 
+.leaflet-tooltip-top:before, 
+.leaflet-tooltip-bottom:before, 
+.leaflet-tooltip-left:before, 
+.leaflet-tooltip-right:before {
+    border: none !important;
+}
+
 .leaflet-popup-tip {
     background: rgba(0, 0, 0, 0) !important;
     box-shadow: none !important;
 }
 
 .leaflet-popup-content {
+    padding-top: 5px;
     margin: 0 !important;
 }
 
-/* Player */
+/******************************************************************* Hover */
+.leaflet-tooltip {
+    background-color: #1b679c;
+    color: #d7d7d6;
+    font-family: RobotoBold;
+    font-size: 10px;
+    border: none;
+    width: fit-content;
+    height: fit-content;
+    padding: 2px;
+    margin: none;
+}
+
+/******************************************************************* Player */
 .player-map-popup .leaflet-popup-content-wrapper {
     position: absolute;
     width: 160px;
@@ -60,10 +81,29 @@
     display: block;
 }
 
+/*Green circle*/
+.online-circle {
+    width: 10px; /* adjust size as needed */
+    height: 10px; /* adjust size as needed */
+    background-color: #00FF00; /* the green color */
+    border-radius: 50%; /* makes it a circle */
+    border: 1px #000;
+}
+
+/*Black circle*/
+.offline-circle {
+    width: 10px; /* adjust size as needed */
+    height: 10px; /* adjust size as needed */
+    border: 1px #000000;
+    border-radius: 50%; /* makes it a circle */
+    background-color: transparent; /* transparent inside */
+  }
 
 
 
-/* Shop */
+
+
+/******************************************************************* Shop */
 .shop-map-popup .leaflet-popup-content-wrapper {
     background: #e93434;
     color: #ffffff;
@@ -72,6 +112,9 @@
 
 
 /* Misc */
+
+
+
 @font-face {
     font-family: RobotoRegular;
     src: url("../fonts/RobotoCondensed-Regular.ttf")
