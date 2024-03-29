@@ -162,6 +162,25 @@ export function receiveMarkers(markerData) {
     }
 }
 
+/**
+ * Remove a marker from the leaflet map with the provided id.
+ * (rust marker ID)
+ * @param {string} marker_id 
+ */
+export function removeMarker(marker_id) {
+    
+    log("removing marker: ", marker_id);
+    log(typeof marker_id);
+    if (!plotted_markers)
+        return ;
+
+    var target_marker = plotted_markers.get(marker_id);
+    if (!target_marker)
+        return ;
+
+    leaflet_map.removeLayer(target_marker);
+    plotted_markers.delete(marker_id);
+}
 
 function updateMarker(marker) {
     let scale = MAP_IMAGE_SZ / map_sz;

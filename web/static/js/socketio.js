@@ -1,6 +1,6 @@
 //@ts-check
 //import { receiveTeamChatData } from "./chat.js";
-import { receiveMarkers } from "./map.js";
+import { receiveMarkers, removeMarker } from "./map.js";
 //import { receiveTeamInfo } from "./team.js";
 //import { receiveServerInfo } from "./server.js";
 //import { receiveWebMapNoteChange, receiveWebMapNotes } from "./note.js";
@@ -50,6 +50,22 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
             break;
         case "team_leader_changed":
             log("new team leader");
+            break;
+        case "heli_despawned":
+            log("heli despawned");
+            removeMarker(data["id"]);
+            break;
+        case "heli_downed":
+            log("heli downed", data["id"]);
+            removeMarker(data["id"]);
+            break;
+        case "heli_explosion_expired":
+            log("Heli explosion expired", data["id"]);
+            removeMarker(data["id"]);
+            break;
+        case "cargo_despawned":
+            log("cargo despawned");
+            removeMarker(data["id"]);
             break;
         default:
             log("Encountered unknown broadcast type:", type);

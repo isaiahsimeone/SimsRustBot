@@ -84,6 +84,7 @@ export function createPlayerMarker(player, scale) {
  * @param {float} scale - The amount to scale the marker coordinates by
  */
 export function createExplosionMarker(explosion, scale) {
+    console.log("explosion plotted", explosion);
     var marker = L.marker([explosion.y * scale, explosion.x * scale], {icon: explosionIcon}).addTo(map_markers);
     marker.marker = explosion;
     return marker;

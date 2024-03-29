@@ -49,7 +49,8 @@ export function bindMarkerPopup(leaflet_marker) {
             leaflet_marker.bindTooltip(nameFromSteamId(marker.steam_id), { className: "leaflet-tooltip", direction: "top" });
             break;
         case "EXPLOSION":
-            return //markerFactory.createExplosionMarker(marker, scale);
+            leaflet_marker.bindTooltip("A debris field", { className: "leaflet-tooltip", direction: "top" });
+            break;
         case "SHOP":
             leaflet_marker.bindPopup(genShopPopupContent(leaflet_marker), { className: "shop-map-popup" });
             leaflet_marker.bindTooltip("A Vending Machine", { className: "leaflet-tooltip", direction: "top" });
@@ -64,7 +65,7 @@ export function bindMarkerPopup(leaflet_marker) {
             return //markerFactory.createRadiusMarker(marker, scale);
         case "ATTACKHELI":
             leaflet_marker.bindTooltip("A Patrol Helicopter", { className: "leaflet-tooltip", direction: "top" });
-            break; //markerFactory.createHeliMarker(marker, scale);
+            break;
         default:
             log("Error: Unknown marker type in createMarker()");
     }

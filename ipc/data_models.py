@@ -81,10 +81,14 @@ class RustTeamChatInitial(BaseModel):
     chats: List[RustChatMessage]
 
 class HeliSpawned(BaseModel):
+    """The Rust Marker Id of the heli"""
+    id: str
     """The cardinal bearing (from the map center) to where heli has entered the map """
     cardinal_bearing: str
 
 class HeliDowned(BaseModel):
+    """The Rust Marker Id of the heli"""
+    id: str
     """The x-coordinate of where Heli went down"""
     x: float
     """The y-coordinate of where Heli went down"""
@@ -93,13 +97,21 @@ class HeliDowned(BaseModel):
     square: str = '00'   
 
 class HeliDespawned(BaseModel):
-    pass
+    """The Rust Marker Id of the heli"""
+    id: str
+
+class HeliExplosionExpired(BaseModel):
+    """The Rust Marker id of the explosion"""
+    id: str
 
 class CargoSpawned(BaseModel):
+    """The Rust Marker Id of cargo"""
+    id: str
     cardinal_bearing: str
 
 class CargoDespawned(BaseModel):
-    pass
+    """The Rust Marker Id of cargo"""
+    id: str
 
 class RustPlayerStateChange(BaseModel):
     pass

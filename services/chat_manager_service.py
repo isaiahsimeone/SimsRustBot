@@ -36,8 +36,11 @@ class ChatManagerService(BusSubscriber, Loggable):
         # Set the socket
         self.socket = (await RustSocketManager.get_instance()).socket
         # Subscribe to events that should be written to game chat
-        await self.subscribe("heli")
-        await self.subscribe("cargo")
+        await self.subscribe("heli_spawned")
+        await self.subscribe("heli_despawned")
+        await self.subscribe("heli_downed")
+        await self.subscribe("cargo_spawned")
+        await self.subscribe("cargo_despawned")
         await self.subscribe("send_chat_message")
         
         await asyncio.Future()
@@ -51,10 +54,13 @@ class ChatManagerService(BusSubscriber, Loggable):
         model: dict[str, Any] = message.data
         match message.type:
             case "HeliDowned":
+                self.debug("heli downed")
                 await self.send_team_message("Heli was downed TODO: what grid?")
             case "HeliSpawned":
+                self.debug("heli spawned")
                 await self.send_team_message(f"Heli just spawned! It will enter the map from the {model['cardinal_bearing']}")
             case "HeliDespawned":
+                self.debug("heli despawned")
                 await self.send_team_message("Heli has despawned")
             case _:
                 self.error(f"I don't know how to send {message.type} in send_heli_message()")
@@ -63,8 +69,10 @@ class ChatManagerService(BusSubscriber, Loggable):
         model: dict[str, Any] = message.data
         match message.type:
             case "CargoSpawned":
+                self.debug("cargo spawned")
                 await self.send_team_message(f"CargoShip just spawned! It will enter the map from the {model['cardinal_bearing']}")
             case "CargoDespawned":
+                self.debug("cargo despawned")
                 await self.send_team_message(f"CargoShip has despawned")
             case _:
                 self.error(f"I don't know how to send {message.type} in send_cargo_message()")
@@ -75,9 +83,9 @@ class ChatManagerService(BusSubscriber, Loggable):
                 sender = message.data["sender_name"]
                 msg = message.data["message"]
                 await self.send_team_message(msg, prefix=f"[{sender}]")
-            case "heli":
+            case "heli_spawned" | "heli_despawned" | "heli_downed":
                 await self.send_heli_message(message)
-            case "cargo":
+            case "cargo_spawned" | "cargo_despawned":
                 await self.send_cargo_message(message)
             case _:
                 self.error(f"I received a Message under topic '{topic}', but I have no implementation to handle it")
