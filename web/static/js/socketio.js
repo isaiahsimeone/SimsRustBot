@@ -1,6 +1,7 @@
 //@ts-check
 //import { receiveTeamChatData } from "./chat.js";
-import { receiveMarkers, removeMarker } from "./map.js";
+import { receiveMarkers, removeMarker, setCreationTime } from "./map.js";
+import * as util from "./util.js";
 //import { receiveTeamInfo } from "./team.js";
 //import { receiveServerInfo } from "./server.js";
 //import { receiveWebMapNoteChange, receiveWebMapNotes } from "./note.js";
@@ -51,6 +52,10 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
         case "team_leader_changed":
             log("new team leader");
             break;
+        case "heli_spawned":
+            log("heli spawned");
+            setCreationTime(data["id"], util.timeNow());
+            break;
         case "heli_despawned":
             log("heli despawned");
             removeMarker(data["id"]);
@@ -62,6 +67,10 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
         case "explosion_expired":
             log("Explosion expired", data["id"]);
             removeMarker(data["id"]);
+            break;
+        case "cargo_spawned":
+            log("cargo spawned");
+            setCreationTime(data["id"], util.timeNow());
             break;
         case "cargo_despawned":
             log("cargo despawned");

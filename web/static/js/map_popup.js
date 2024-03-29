@@ -129,9 +129,10 @@ function genShopPopupContent(leaflet_marker) {
 
 function genCargoPopupContent(leaflet_marker) {
     /** @type {Marker} */
-    var cargo = leaflet_marker.marker;
 
-    var spawn_time = util.formatTime(util.timeNow() - cargo.spawn_time);
+    var creation_time = "N/A";
+    if (leaflet_marker.creation_time)
+        creation_time = util.formatTime(util.timeNow() - leaflet_marker.creation_time);
 
     var popup = `
     <span style='margin-left:3px; padding-top:3px;'>CARGOSHIP</span>
@@ -139,7 +140,7 @@ function genCargoPopupContent(leaflet_marker) {
     <div class='generic-popup-info-container' style='height: 25px'>
         <div class='generic-popup-info-table' style='height: 25px'>
             <table>
-                <tr><th>SPAWNED</th><th>${spawn_time}</th><th>AGO</th></tr>
+                <tr><th>SPAWNED</th><th>${creation_time}</th><th>AGO</th></tr>
             </table>
         </div>
     </div>

@@ -65,6 +65,12 @@ export async function initialiseMap() {
     // Request first set of map markers from server
     const markerData = (await socketio.request_topic("map_markers")).markers;
     receiveMarkers(markerData);
+    
+    // Get the time that heli's/cargo's first appeared on the map
+    const eventStartTimes = (await socketio.request_topic("event_start_times")).start_times;
+    Object.keys(eventStartTimes).forEach(key => {
+        setCreationTime(key, eventStartTimes[key]);
+    });
 }
 
 /**
@@ -180,6 +186,20 @@ export function removeMarker(marker_id) {
 
     leaflet_map.removeLayer(target_marker);
     plotted_markers.delete(marker_id);
+}
+
+export function setCreationTime(marker_id, creation_time) {
+    log("Setting creation time", marker_id, creation_time);
+    log(typeof marker_id);
+    if (!plotted_markers)
+        return ;
+    var target_marker = plotted_markers.get(marker_id);
+    if (!target_marker)
+        return ;
+    
+    target_marker.creation_time = creation_time;
+    log(target_marker);
+    plotted_markers.set(marker_id, target_marker);
 }
 
 function updateMarker(marker) {

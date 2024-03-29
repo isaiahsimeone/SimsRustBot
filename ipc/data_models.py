@@ -104,9 +104,14 @@ class ExplosionExpired(BaseModel):
     """The Rust Marker id of the explosion"""
     id: str
 
+class EventStartTimes(BaseModel):
+    """Marker ID to time it spawned"""
+    start_times: dict[str, int]
+
 class CargoSpawned(BaseModel):
     """The Rust Marker Id of cargo"""
     id: str
+    """The cardinal bearing (from the map center) to where cargo has entered the map """
     cardinal_bearing: str
 
 class CargoDespawned(BaseModel):
