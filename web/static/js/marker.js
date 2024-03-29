@@ -45,8 +45,24 @@ var attackHelicopterIcon = L.divIcon({
           <img src="static/images/rust/map_blades.png">
         </div>
       </div>`,
-    iconSize: [40, 40],
+    iconSize: [40, 40], 
     iconAnchor: [20, 20],
+    className: '' // Avoid leaflet's default icon styling
+});
+
+var chinookIcon = L.divIcon({
+    html: `
+      <div class="helicopter-marker">
+        <img src="static/images/rust/chinook_map_body.png">
+        <div class="chinook-blades-front">
+            <img src="static/images/rust/map_blades.png">
+        </div>
+        <div class="chinook-blades-back">
+            <img src="static/images/rust/map_blades.png">
+        </div>
+      </div>`,
+    iconSize: [35, 35],
+    iconAnchor: [17.5, 17.5],
     className: '' // Avoid leaflet's default icon styling
 });
 
@@ -111,7 +127,9 @@ export function createShopMarker(shop, scale) {
  * @param {float} scale - The amount to scale the marker coordinates by
  */
 export function createChinookMarker(chinook, scale) {
-
+    var marker = L.marker([chinook.y * scale, chinook.x * scale], { icon: chinookIcon, rotationAngle: 360 - chinook.rotation }).addTo(map_markers);
+    marker.marker = chinook;
+    return marker;
 }
 
 /**
@@ -135,7 +153,9 @@ export function createCargoMarker(cargo, scale) {
  * @param {float} scale - The amount to scale the marker coordinates by
  */
 export function createCrateMarker(crate, scale) {
-    return L.marker([crate.y * scale, crate.x * scale], {icon: crateIcon}).addTo(map_markers);
+    var marker = L.marker([crate.y * scale, crate.x * scale], {icon: crateIcon}).addTo(map_markers);
+    marker.marker = crate;
+    return marker;
 }
 
 /**

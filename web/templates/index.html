@@ -190,14 +190,35 @@
           .helicopter-blades {
             position: absolute;
             top: -10px;
-
-            transform-origin: 50% 50%; /* Adjust so the blades rotate around the correct point */
+            transform-origin: 50% 50%; /* so the blades rotate around the correct point */
             animation: rotate 1.5s linear infinite;
           }
           
           @keyframes rotate {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+          }
+
+          .chinook-blades-front {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            top: -6px;
+            left: 5px;
+            transform-origin: 50% 50%; /* so the blades rotate around the correct point */
+            transform: scaleX(0.5);
+            animation: rotate 0.8s linear infinite;
+          }
+
+          .chinook-blades-back {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            top: 18px;
+            left: 5px;
+            transform-origin: 50% 50%; /* so the blades rotate around the correct point */
+
+            animation: rotate 0.8s linear infinite;
           }
 
     </style>

@@ -26,19 +26,19 @@ function updatePopups() {
             case "PLAYER":
                 popup.setContent(genPlayerPopupContent(leaflet_marker)); break;
             case "EXPLOSION":
-                return //markerFactory.createExplosionMarker(marker, scale);
+                break;
             case "SHOP":
                 popup.setContent(genShopPopupContent(leaflet_marker)); break;
             case "CHINOOK":
-                return //markerFactory.createChinookMarker(marker, scale);
+                break;
             case "CARGOSHIP":
                 popup.setContent(genCargoPopupContent(leaflet_marker)); break;
             case "CRATE":
-                return //markerFactory.createCrateMarker(marker, scale);
+                break;
             case "RADIUS":
-                return //markerFactory.createRadiusMarker(marker, scale);
+                break;
             case "ATTACKHELI":
-                return //markerFactory.createHeliMarker(marker, scale);
+                popup.setContent(genHeliPopupContent(leaflet_marker)); break;
             default:
                 log("Error: Unknown marker type in createMarker()");
         }
@@ -63,17 +63,19 @@ export function bindMarkerPopup(leaflet_marker) {
             leaflet_marker.bindTooltip("A Vending Machine", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "CHINOOK":
-            return //markerFactory.createChinookMarker(marker, scale);
+            leaflet_marker.bindTooltip("A Military Transport Helicopter", { className: "leaflet-tooltip", direction: "top" });
+            break;
         case "CARGOSHIP":
             leaflet_marker.bindPopup(genCargoPopupContent(leaflet_marker), { className: "generic-map-popup" });
             leaflet_marker.bindTooltip("A Cargo Ship", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "CRATE":
-            return //markerFactory.createCrateMarker(marker, scale);
+            leaflet_marker.bindTooltip("A Locked Crate", { className: "leaflet-tooltip", direction: "top" });
+            break;
         case "RADIUS":
             return //markerFactory.createRadiusMarker(marker, scale);
         case "ATTACKHELI":
-            leaflet_marker.bindPopup(genCargoPopupContent(leaflet_marker), { className: "generic-map-popup" });
+            leaflet_marker.bindPopup(genHeliPopupContent(leaflet_marker), { className: "generic-map-popup" });
             leaflet_marker.bindTooltip("A Patrol Helicopter", { className: "leaflet-tooltip", direction: "top" });
             break;
         default:
@@ -136,6 +138,28 @@ function genCargoPopupContent(leaflet_marker) {
 
     var popup = `
     <span style='margin-left:3px; padding-top:3px;'>CARGOSHIP</span>
+    
+    <div class='generic-popup-info-container' style='height: 25px'>
+        <div class='generic-popup-info-table' style='height: 25px'>
+            <table>
+                <tr><th>SPAWNED</th><th>${creation_time}</th><th>AGO</th></tr>
+            </table>
+        </div>
+    </div>
+    `;
+
+    return popup;
+}
+
+function genHeliPopupContent(leaflet_marker) {
+    /** @type {Marker} */
+
+    var creation_time = "N/A";
+    if (leaflet_marker.creation_time)
+        creation_time = util.formatTime(util.timeNow() - leaflet_marker.creation_time);
+
+    var popup = `
+    <span style='margin-left:3px; padding-top:3px;'>PATROL HELICOPTER</span>
     
     <div class='generic-popup-info-container' style='height: 25px'>
         <div class='generic-popup-info-table' style='height: 25px'>
