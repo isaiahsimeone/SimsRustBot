@@ -59,8 +59,8 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
             log("heli downed", data["id"]);
             removeMarker(data["id"]);
             break;
-        case "heli_explosion_expired":
-            log("Heli explosion expired", data["id"]);
+        case "explosion_expired":
+            log("Explosion expired", data["id"]);
             removeMarker(data["id"]);
             break;
         case "cargo_despawned":

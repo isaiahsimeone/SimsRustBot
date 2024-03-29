@@ -67,7 +67,7 @@ class WebServerService(BusSubscriber, Loggable):
         await self.subscribe("heli_spawned")
         await self.subscribe("heli_despawned")
         await self.subscribe("heli_downed")
-        await self.subscribe("heli_explosion_expired")
+        await self.subscribe("explosion_expired")
         await self.subscribe("map_markers")
         
         # Get config

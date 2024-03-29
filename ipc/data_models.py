@@ -100,7 +100,7 @@ class HeliDespawned(BaseModel):
     """The Rust Marker Id of the heli"""
     id: str
 
-class HeliExplosionExpired(BaseModel):
+class ExplosionExpired(BaseModel):
     """The Rust Marker id of the explosion"""
     id: str
 

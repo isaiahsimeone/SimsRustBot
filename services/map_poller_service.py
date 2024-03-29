@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, List
 
 import loguru
 
-from ipc.data_models import CargoDespawned, CargoSpawned, HeliDespawned, HeliDowned, HeliExplosionExpired, HeliSpawned, RustMapMarkers
+from ipc.data_models import CargoDespawned, CargoSpawned, ExplosionExpired, HeliDespawned, HeliDowned, HeliSpawned, RustMapMarkers
 from ipc.rust_socket_manager import RustSocketManager
 
 if TYPE_CHECKING:
@@ -37,12 +37,12 @@ class MapPollerService(BusSubscriber, Loggable):
         self.server_info: RustInfo
         
         self.poll_rate = 999
-        self.cargo_is_out = False
-        self.heli_is_out = False
-        self.last_heli_marker: RustMarker
-        self.last_cargo_marker: RustMarker
-        self.last_explosion_marker: RustMarker = None #type: ignore
-        self.explosion_start_time: int = 0
+        
+        self.active_helis: dict[int, RustMarker] = {}
+        self.active_cargos: dict[int, RustMarker] = {}
+        
+        # Track explosion marker and its start time
+        self.active_explosions: dict[RustMarker, int] = {}
     
     @loguru.logger.catch
     async def execute(self: MapPollerService) -> None:
@@ -54,7 +54,7 @@ class MapPollerService(BusSubscriber, Loggable):
         self.socket = (await RustSocketManager.get_instance()).socket
         # Set map polling frequency
         self.poll_rate = int(self.config["RustPlusAPIService"]["map_polling_frequency"])
-        self.explosion_persist_time = 20#int(self.config["RustPlusAPIService"]["explosion_marker_persist_time"])
+        self.explosion_persist_time = 100#int(self.config["RustPlusAPIService"]["explosion_marker_persist_time"])
         # Get server info - RustPlusAPIService publishes this on startup to save tokens
         self.server_info = (await self.last_topic_message_or_wait("server_info")).data["server_info"]
         
@@ -80,116 +80,103 @@ class MapPollerService(BusSubscriber, Loggable):
         # Combined
         markers: List[RustMarker] = list(unique_markers)
         
-        # Check for heli - Can provide an explosion marker if we think it's been downed
-        explosion_marker = await self.check_for_heli(markers)
-        if explosion_marker:
-            self.explosion_start_time = int(time())
-            self.last_explosion_marker = explosion_marker
-        # Keep appending the explosion marker to the list for the persist time
-        if self.explosion_start_time and (int(time()) > self.explosion_start_time + self.explosion_persist_time):
-            await self.publish("heli_explosion_expired", HeliExplosionExpired(id=str(self.last_explosion_marker.id)))
-            self.last_explosion_marker = None #type: ignore
-            self.explosion_start_time = 0
-        elif self.last_explosion_marker:
-            markers.append(self.last_explosion_marker)
+        # Check active heli's. When a heli has gone down since the last poll frame, this will return 
+        # an explosion marker ONCE. If multiple heli's go down in the same poll frame, multiple 
+        # explosion markers are returned
+        explosion_markers = await self.check_helis(markers)
         
-        # Check for cargo
-        await self.check_for_cargo(markers)
+        # Track each explosion
+        for explosion in explosion_markers:
+            self.active_explosions[explosion] = int(time())
+        
+        # Check if current explosions should be removed
+        if self.active_explosions:
+            time_now = int(time())
+            expired_markers = [marker for marker, start_time in self.active_explosions.items()
+                            if time_now > start_time + self.explosion_persist_time]
+
+            for explosion_marker in expired_markers:
+                await self.publish("explosion_expired", ExplosionExpired(id=str(explosion_marker.id)))
+                del self.active_explosions[explosion_marker]
+            markers.extend([marker for marker in self.active_explosions if marker not in expired_markers])
+
+        # Check cargo ships
+        await self.check_cargos(markers)
         
         # Publish the markers to the bus
         await self.publish("map_markers", RustMapMarkers(markers=markers))
+        
 
-    # Can only handle one heli out at a time
-    async def check_for_heli(self, markers: List[RustMarker]) -> RustMarker | None:
-        """Determine whether the PatrolHelicopter spawns, gets taken down or despawns, and
-        publishes these events to the :class:`MessageBus <ipc.message_bus.MessageBus>`
-        
-        For this functionality to work properly, there can only be one patrol helicopter
-        on the map at a time.
+    async def check_helis(self, markers: List[RustMarker]) -> List[RustMarker]:
+        heli_markers: List[RustMarker] = self.find_markers_with_type(markers, RustMarker.PatrolHelicopterMarker)
+        explosions = []
 
-        :param markers: A list of rust markers (from rustplus.py `get_markers` and `get_current_events` combined)
-                        To search through for a PatrolHelicopter marker
-        :type markers: List[RustMarker]
-        :return: A :class:`RustMarker <rustplus.api.structures.rust_marker.RustMarker> to an active heli, or None
-        :rtype: :class:`RustMarker <rustplus.api.structures.rust_marker.RustMarker> | None
-        """
-        heli_marker: RustMarker | None = self.find_marker_with_type(markers, RustMarker.PatrolHelicopterMarker)
+        self.debug("There are", len(heli_markers), "Helis on the map")
         
-        # Heli went down, or left the map
-        if self.heli_is_out and not heli_marker:
-            self.heli_is_out = False
-            
-            # If heli is 4 * the map size away, it's probably leaving
-            if self.distance_to_marker(self.last_heli_marker) > self.server_info.size * 4:
-                await self.publish("heli_despawned", HeliDespawned(id=str(self.last_heli_marker.id)))
-                return None
+        # Collect IDs of helis to be removed
+        helis_to_remove = []
 
-            # Otherwise, heli was downed
-            # Publish under heli topic that heli went down
-            model = HeliDowned(id=str(self.last_heli_marker.id), x=self.last_heli_marker.x, y=self.last_heli_marker.y)
-            await self.publish("heli_downed", model)
-            
-            # Just use the old marker - we don't need it anymore
-            self.last_heli_marker._id = random.randint(0, 99999999) # hopefully no collision
-            self.last_heli_marker._type = RustMarker.ExplosionMarker
-            self.last_heli_marker._rotation = 0
-            explosion_marker = self.last_heli_marker
-            
-            return explosion_marker
-        
-        # Heli has just entered the map
-        if not self.heli_is_out and heli_marker:
-            self.heli_is_out = True
-            
-            cardinal_bearing = self.cardinal_bearing_to_marker(heli_marker)
-            
-            await self.publish("heli_spawned", HeliSpawned(id=str(heli_marker.id), cardinal_bearing=cardinal_bearing))
-            
-        if self.heli_is_out and heli_marker:
-            self.last_heli_marker = heli_marker
-            self.debug("Update heli position")
-            
-    # Can only handle one cargo at a time
-    async def check_for_cargo(self, markers: List[RustMarker]) -> None:
-        """Determine whether the CargoShip spawns or despawns, and
-        publishes these events to the :class:`MessageBus <ipc.message_bus.MessageBus>`
+        for heli_id, heli in self.active_helis.items():
+            if heli not in heli_markers:
+                # This heli went down, or left the map
+                if self.distance_to_marker(heli) > self.server_info.size * 4:
+                    await self.publish("heli_despawned", HeliDespawned(id=str(heli.id)))
+                    helis_to_remove.append(heli_id)
+                    continue
 
-        :param markers: A list of rust markers (from rustplus.py `get_markers` and `get_current_events` combined)
-        :type markers: List[:class:`RustMarker <rustplus.api.structures.rust_marker.RustMarker>]
-        :return: Nothing
-        :rtype: None
-        """
-        cargo_marker = self.find_marker_with_type(markers, RustMarker.CargoShipMarker)
-        
-        # Cargo left the map
-        if self.cargo_is_out and not cargo_marker:
-            self.cargo_is_out = False
-            await self.publish("cargo_despawned", CargoDespawned(id=str(self.last_cargo_marker.id)))
-            return None
-        
-        # Cargo is now out
-        if not self.cargo_is_out and cargo_marker:
-            self.cargo_is_out = True
-            self.last_cargo_marker = cargo_marker
-            
-            cardinal_bearing = self.cardinal_bearing_to_marker(cargo_marker)
-            
-            await self.publish("cargo_spawned", CargoSpawned(id=str(cargo_marker.id), cardinal_bearing=cardinal_bearing))
+                # Otherwise, it went down
+                await self.publish("heli_downed", HeliDowned(id=str(heli.id), x=heli.x, y=heli.y))
+
+                # Which means it created an explosion. Just use the old marker - we don't need it anymore
+                heli._id = random.randint(0, 99999999)  # hopefully no collision
+                heli._type = RustMarker.ExplosionMarker
+                heli._rotation = 0
+                explosions.append(heli)
+                helis_to_remove.append(heli_id)
+
+        # Delete helis after iterating
+        for heli_id in helis_to_remove:
+            del self.active_helis[heli_id]
+
+        # Update heli positions and check for new spawns
+        for heli in heli_markers:
+            if heli.id not in self.active_helis:
+                cardinal_bearing = self.cardinal_bearing_to_marker(heli)
+                await self.publish("heli_spawned", HeliSpawned(id=str(heli.id), cardinal_bearing=cardinal_bearing))
+            self.active_helis[heli.id] = heli
+
+        return explosions
     
-    def find_marker_with_type(self, markers: List[RustMarker], marker_type: int) -> RustMarker | None:
-        """Find a marker with the specified type, from a list of markers
+    async def check_cargos(self, markers: List[RustMarker]) -> List[RustMarker] | None:
+        cargo_markers = self.find_markers_with_type(markers, RustMarker.CargoShipMarker)
+        
+        self.debug("There are", len(cargo_markers), "Cargo ships on the map")
+        
+        for _, cargo in self.active_cargos.items():
+            if cargo not in cargo_markers:
+                # This cargo left the map
+                await self.publish("cargo_despawned", CargoDespawned(id=str(cargo.id)))
+                
+        # Update cargo positions
+        for cargo in cargo_markers:
+            self.active_cargos[cargo.id] = cargo
+            # A heli just spawned
+            if cargo not in self.active_cargos.keys():
+                cardinal_bearing = self.cardinal_bearing_to_marker(cargo)
+                await self.publish("cargo_spawned", CargoSpawned(id=str(cargo.id), cardinal_bearing=cardinal_bearing))
+    
+    
+    def find_markers_with_type(self, markers: List[RustMarker], marker_type: int) -> List[RustMarker]:
+        """Find all markers with the specified type, from a list of markers
 
         :param markers: A list of rust markers to search linearly
         :type markers: List[:class:`RustMarker <rustplus.api.structures.rust_marker.RustMarker>]
         :param marker_type: The type of marker to find
         :type marker_type: int
-        :return: The first marker in the list with the specified type, None otherwise
+        :return: A list of RustMarkers with the specified type, None otherwise
         :rtype: :class:`RustMarker <rustplus.api.structures.rust_marker.RustMarker> | None
         """
-        for marker in markers:
-            if marker.type == marker_type:
-                return marker
-        return None
+        return [marker for marker in markers if marker.type == marker_type]
 
     def bearing_to_marker(self, marker: RustMarker) -> float:
         """Determine the geographic bearing to a provided RustMarker
