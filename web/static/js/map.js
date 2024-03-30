@@ -344,11 +344,24 @@ function updateMapWithClusters(clusters, clusteredMarkers, shop_markers) {
 
         centroid.lat /= cluster.length;
         centroid.lng /= cluster.length;
+        
+        
 
         // Add cluster marker for this cluster
+        var popup_content = `This cluster represents ${cluster.length} shops.`;
+        
         var clustered_shop = L.marker([centroid.lat, centroid.lng], {
-            icon: L.divIcon({html: `<b>${cluster.length}</b> Shops`, className: 'cluster-marker'})
-        }).addTo(leaflet_map).bindPopup(`This cluster represents ${cluster.length} shops.`)
+            icon: L.divIcon({
+                html: `<div style="z-index: -9;position: relative; text-align: center; width: 20px; height: 20px;">
+                         <img src="static/images/rust/cluster_shop.png" style="width: 100%; height: 100%;">
+                         <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); color: white;"><b>${cluster.length}</b></span>
+                       </div>`,
+                className: '',
+                zIndexOffset: -9, // TODO: why the fuck does this not do anything
+                iconSize: [20, 20] // Adjust size as needed
+            })
+        }).addTo(leaflet_map).bindPopup(popup_content).bindTooltip("Multiple Vending Machines", { className: "leaflet-tooltip", direction: "top" });
+        
 
 
         clustered_shop_markers.push(clustered_shop);

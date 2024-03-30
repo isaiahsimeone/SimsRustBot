@@ -79,6 +79,7 @@ export function createPlayerMarker(player, scale) {
         iconSize: [20, 20],
         iconAnchor: [10, 10],
         popupAnchor: [0, -20],
+        zIndexOffset: 100,
         className: "circular-icon"
     });
 
