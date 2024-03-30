@@ -124,6 +124,8 @@ function genShopPopupContent(leaflet_marker) {
 
 
     var num_sale = shop.sell_orders;
+    if (num_sale == 0)
+        return "<h4>no items</h4>"
 
    // log(num_sale);
 

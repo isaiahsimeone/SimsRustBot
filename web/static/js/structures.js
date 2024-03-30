@@ -1102,7 +1102,7 @@ export class Marker {
 
     get name() { return this._data.name; }
 
-    get out_of_stock() { return this._data.out_of_stock.toLowerCase() === "False"; }
+    get out_of_stock() { return this._data.out_of_stock.toLowerCase() !== "false"; }
 
     get radius() { return this._data.radius; }
 

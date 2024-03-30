@@ -113,6 +113,7 @@ export function createExplosionMarker(explosion, scale) {
  */
 export function createShopMarker(shop, scale) {
     var marker;
+    console.log(typeof shop.out_of_stock, shop.out_of_stock);
     if (shop.out_of_stock)
         marker = L.marker([shop.y * scale, shop.x * scale], {marker: shop, icon: shopOutOfStockIcon}).addTo(leaflet_shop_markers);
     else
