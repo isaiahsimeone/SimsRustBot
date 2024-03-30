@@ -10,6 +10,9 @@ import { bindMarkerPopup } from "./map_popup.js";
 //import { toggleChatAvailability } from "./chat.js";
 
 const DEBUG = true;
+const CLUSTER_DISABLE_THRESHOLD = 300;
+export const MAP_IMAGE_SZ = 2000;
+export let CLUSTERING_THRESHOLD = 13;
 
 /**
  * @type {String}
@@ -37,11 +40,14 @@ export let all_shops = new Map();
 export let leaflet_monument_names;
 
 // The size of the map image 
-export const MAP_IMAGE_SZ = 2000;
 
 export let map_sz = -1;
 
-export let clustering_threshold = 13;
+
+let initial_clustering_complete = false;
+
+let clustered_shop_markers = [];
+
 
 /**
  * Get monument and first map marker data from server.
@@ -78,7 +84,7 @@ export async function initialiseMap() {
     });
 
     // Cluster shops - If there isn't a hectic number of shops
-    if (all_shops.size < 300) {
+    if (all_shops.size < CLUSTER_DISABLE_THRESHOLD) {
         var startTime = performance.now();
         log(all_shops.size);
         clusterCloseShops(all_shops);
@@ -86,6 +92,7 @@ export async function initialiseMap() {
         var endTime = performance.now();
         log(`Shop clustering took ${endTime - startTime} ms`);
     }
+    initial_clustering_complete = true;
 }
 
 /**
@@ -188,8 +195,9 @@ export function receiveMarkers(markerData) {
         // Recalc clusters if it's a shop
         if (marker.typeName == "SHOP" && !all_shops.has(marker.id)) {
             all_shops.set(marker.id, created_marker);
-            //if (all_shops.size < 300)
-            //    clusterCloseShops(all_shops);
+            // New shop marker added (after initialiseMap). Recluster
+            if (initial_clustering_complete && all_shops.size < CLUSTER_DISABLE_THRESHOLD)
+                clusterCloseShops(all_shops);
         }
 
         plotted_markers.set(marker.id, created_marker);
@@ -293,7 +301,7 @@ function clusterCloseShops(shop_markers) {
             if (marker !== otherMarker && !clusteredMarkers.has(otherMarker)) {
                 
                 let distance = calculateDistance(marker, otherMarker);
-                if (distance <= clustering_threshold) {
+                if (distance <= CLUSTERING_THRESHOLD) {
                     cluster.push(otherMarker);
                     // This marker is part of a cluster
                     clusteredMarkers.add(otherMarker); 
@@ -316,6 +324,10 @@ function updateMapWithClusters(clusters, clusteredMarkers, shop_markers) {
     shop_markers.forEach((value, key) => {
         leaflet_map.removeLayer(value); // Ensure value, which is the marker, is used
     });
+    // Step 1.1: Remove all current clusters on the map
+    clustered_shop_markers.forEach(shop_marker => {
+        leaflet_map.removeLayer(shop_marker);
+    });
 
     let nonClusteredMarkers = new Set(); // To track non-clustered markers
 
@@ -334,9 +346,12 @@ function updateMapWithClusters(clusters, clusteredMarkers, shop_markers) {
         centroid.lng /= cluster.length;
 
         // Add cluster marker for this cluster
-        L.marker([centroid.lat, centroid.lng], {
+        var clustered_shop = L.marker([centroid.lat, centroid.lng], {
             icon: L.divIcon({html: `<b>${cluster.length}</b> Shops`, className: 'cluster-marker'})
-        }).addTo(leaflet_map).bindPopup(`This cluster represents ${cluster.length} shops.`);
+        }).addTo(leaflet_map).bindPopup(`This cluster represents ${cluster.length} shops.`)
+
+
+        clustered_shop_markers.push(clustered_shop);
     });
 
     // Determine non-clustered markers by excluding clustered markers from all markers
