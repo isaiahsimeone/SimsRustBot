@@ -48,6 +48,7 @@ let initial_clustering_complete = false;
 
 let clustered_shop_markers = [];
 
+let shop_marker_id_to_cluster_id = new Map();
 
 /**
  * Get monument and first map marker data from server.
@@ -101,7 +102,6 @@ export async function initialiseMap() {
  * @returns {L.Marker} A leaflet marker object
  */
 function createMarker(marker) {
-    log("creating marker: ", marker.typeName);
     let scale = MAP_IMAGE_SZ / map_sz;
     var m;
     switch (marker.typeName) {
@@ -185,20 +185,28 @@ export function receiveMarkers(markerData) {
     for (let i = 0; i < markerData.length; i++) {
         let marker = new Marker(markerData[i]);
 
+        // If this shop exists, it could be in a cluster, update its content
+        if (marker.typeName == "SHOP") {
+            updateClusterResident(marker);
+        }
+
         if (plotted_markers.has(marker.id)) {
             updateMarker(marker);
             continue;
         } 
         // New marker
         var created_marker = createMarker(marker);
-        log ("creating a marker");
-        // Recalc clusters if it's a shop
+        // Recalc clusters if it's a new shop
         if (marker.typeName == "SHOP" && !all_shops.has(marker.id)) {
             all_shops.set(marker.id, created_marker);
             // New shop marker added (after initialiseMap). Recluster
-            if (initial_clustering_complete && all_shops.size < CLUSTER_DISABLE_THRESHOLD)
+            if (initial_clustering_complete && all_shops.size < CLUSTER_DISABLE_THRESHOLD) {
+                log("X");
                 clusterCloseShops(all_shops);
-        }
+            }
+            
+        } 
+
 
         plotted_markers.set(marker.id, created_marker);
     }
@@ -212,7 +220,7 @@ export function receiveMarkers(markerData) {
 export function removeMarker(marker_id) {
     
     log("removing marker: ", marker_id);
-    log(typeof marker_id);
+
     if (!plotted_markers)
         return ;
 
@@ -225,8 +233,6 @@ export function removeMarker(marker_id) {
 }
 
 export function setCreationTime(marker_id, creation_time) {
-    log("Setting creation time", marker_id, creation_time);
-    log(typeof marker_id);
     if (!plotted_markers)
         return ;
     var target_marker = plotted_markers.get(marker_id);
@@ -330,25 +336,25 @@ function updateMapWithClusters(clusters, clusteredMarkers, shop_markers) {
     });
 
     let nonClusteredMarkers = new Set(); // To track non-clustered markers
-
+    let cluster_index = 0;
     // Step 2: Process clusters and show cluster markers
     clusters.forEach(cluster => {
         let centroid = { lat: 0, lng: 0 };
+        var shops_in_cluster = [];
         cluster.forEach(marker => {
             centroid.lat += marker.getLatLng().lat;
             centroid.lng += marker.getLatLng().lng;
-
+            // Add the shop this marker denotes to the cluster
+            shops_in_cluster.push(marker.marker);
             // Mark this marker as processed
             clusteredMarkers.add(marker);
         });
 
         centroid.lat /= cluster.length;
         centroid.lng /= cluster.length;
-        
-        
 
         // Add cluster marker for this cluster
-        var popup_content = `This cluster represents ${cluster.length} shops.`;
+        //var popup_content = `This cluster represents ${cluster.length} shops.`;
         
         var clustered_shop = L.marker([centroid.lat, centroid.lng], {
             icon: L.divIcon({
@@ -357,14 +363,25 @@ function updateMapWithClusters(clusters, clusteredMarkers, shop_markers) {
                          <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); color: white;"><b>${cluster.length}</b></span>
                        </div>`,
                 className: '',
-                zIndexOffset: -9, // TODO: why the fuck does this not do anything
+                zIndexOffset: -9, // TODO: why does this not do anything
                 iconSize: [20, 20] // Adjust size as needed
             })
-        }).addTo(leaflet_map).bindPopup(popup_content).bindTooltip("Multiple Vending Machines", { className: "leaflet-tooltip", direction: "top" });
+        }).addTo(leaflet_map).bindTooltip("Multiple Vending Machines", { className: "leaflet-tooltip", direction: "top" });
         
+        // The shops in this cluster will need to be updated. Maintain a map of the shop marker ID
+        // To this cluster, so we can look up the shop ID, and determine the cluster it is in
+        for (let i = 0; i < shops_in_cluster.length; i++) {
+            shop_marker_id_to_cluster_id.set(shops_in_cluster[i].id, cluster_index);
+        }
 
+        clustered_shop.shops = shops_in_cluster;
+        
+        clustered_shop.is_clustered_shop = true;
+        bindMarkerPopup(clustered_shop);
 
         clustered_shop_markers.push(clustered_shop);
+
+        cluster_index++;
     });
 
     // Determine non-clustered markers by excluding clustered markers from all markers
@@ -380,8 +397,40 @@ function updateMapWithClusters(clusters, clusteredMarkers, shop_markers) {
     });
 }
 
+/**
+ * 
+ * @param {Marker} new_marker 
+ */
+function updateClusterResident(new_marker) {
+    
+    // What cluster is this shop in?
+    if (!shop_marker_id_to_cluster_id.has(new_marker.id))
+        return ; // Not in a cluster
+    let cluster_id = shop_marker_id_to_cluster_id.get(new_marker.id);
+    
+    let shops = clustered_shop_markers[cluster_id].shops;
+    
 
-
+    for (let i = 0; i < shops.length; i++) {
+        if (shops[i].id == new_marker.id) {
+            clustered_shop_markers[cluster_id].shops[i] = new_marker;
+            log("resident updated");
+        }
+    }
+    
+    //log("CLUSTID:",clustered_shop_markers);
+    
+    //log("Cluster before update: ", cluster);
+    //for (let shop = 0; shop < cluster.length; shop++) {
+    //    log ("COMPARE: ", cluster[shop].id, new_marker.id);
+        //if (cluster[shop].marker.id == new_marker.id)
+        //    cluster[shop].marker = new_marker;
+    //}
+    
+    //clustered_shop_markers[cluster_id] = cluster;
+    //log("cluster post update: ", clustered_shop_markers[cluster_id]);
+    // log("A shop that is in a cluster wasn't found in its list?");
+}
 
 
 function calculateDistance(markerA, markerB) {

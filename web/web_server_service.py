@@ -55,6 +55,7 @@ class WebServerService(BusSubscriber, Loggable):
     
     @loguru.logger.catch
     async def execute(self: WebServerService) -> None:
+        await self.subscribe("server_reload")
         await self.subscribe("team_joined")
         await self.subscribe("team_left")
         await self.subscribe("team_member_join")
@@ -169,6 +170,8 @@ class WebServerService(BusSubscriber, Loggable):
                 self.debug("team member left")
                 member: RustTeamMember = message.data["member"]
                 del self._permissions[member.steam_id]
+            case "server_reload":
+                self.info("Web server should reload")
             case "team_member_vital":
                 pass
             case "team_member_connectivity":

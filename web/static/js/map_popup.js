@@ -22,6 +22,12 @@ function updatePopups() {
         if (popup.isOpen())
             continue;
 
+        // edge case for clustered shop
+        if (leaflet_marker.is_clustered_shop) {
+            popup.setContent(genClusteredShopPopupContent(leaflet_marker));
+            continue;
+        }
+
         switch (leaflet_marker.marker.typeName) {
             case "PLAYER":
                 popup.setContent(genPlayerPopupContent(leaflet_marker)); break;
@@ -47,8 +53,20 @@ function updatePopups() {
 }
 
 export function bindMarkerPopup(leaflet_marker) {
-    if (!leaflet_marker || !leaflet_marker.marker)
+    if (!leaflet_marker)
         return ;
+    // edge case for clustered shop
+    log(leaflet_marker.is_clustered_shop)
+    if (leaflet_marker.is_clustered_shop) {
+        log("#################################binding popup");
+        leaflet_marker.bindPopup(genClusteredShopPopupContent(leaflet_marker), { className: "clustered-shop-map-popup" })
+        bound_popups.push(leaflet_marker);
+        return ;
+    }
+
+    if (!leaflet_marker.marker)
+        return ;
+
     var marker = leaflet_marker.marker;
     switch (marker.typeName) {
         case "PLAYER":
@@ -129,7 +147,7 @@ function genShopPopupContent(leaflet_marker) {
 
    // log(num_sale);
 
-    return "<h3>" + shop.sell_orders[0].cost_per_item + "</h3>";
+    return "<h3>" + shop.sell_orders[0].amount_in_stock + "</h3>";
 }
 
 function genCargoPopupContent(leaflet_marker) {
@@ -241,6 +259,24 @@ function genChinookPopupContent(leaflet_marker) {
 
     return popup;
 }
+
+
+export function genClusteredShopPopupContent(clustered_shop_marker) {
+    let shops_in_marker = clustered_shop_marker.shops;
+    log(shops_in_marker)
+
+    let content = `<b>This cluster represents ${shops_in_marker.length} shops.</b><br>`;
+    shops_in_marker.forEach(shop => {
+        var sell_orders = shop.sell_orders;
+        sell_orders.forEach(sellOrder => {
+            content += `${shop.name} - ${sellOrder.currency_name} - ${sellOrder.item_name} - ${sellOrder.amount_in_stock}<br>`;
+        });
+        content += `<br><br>`;
+    });
+    return content;
+
+}
+
 
 /**
  * Log a message for this class, if the DEBUG variable is defined.

@@ -8,6 +8,7 @@ import loguru
 
 from ipc.data_models import BaseModel, CargoDespawned, CargoSpawned, ChinookDespawned, ChinookDowned, ChinookSpawned, EventStartTimes, ExplosionMarker, MarkerExpired, HeliDespawned, HeliDowned, HeliSpawned, RustMapMarkers
 from ipc.rust_socket_manager import RustSocketManager
+from util.rust_tools import grid_cell_from_xy
 
 if TYPE_CHECKING:
     pass
@@ -84,7 +85,14 @@ class MapPollerService(BusSubscriber, Loggable):
         # Combined
         markers: List[RustMarker] = list(unique_markers)
 
-
+        player = self.find_markers_with_type(markers, RustMarker.PlayerMarker)
+        if player and player[0]:
+            try:
+                self.debug("MAP SIZE: ", self.server_info.size)
+                self.debug(str(grid_cell_from_xy(player[0].x, player[0].y, self.server_info.size)))
+                self.debug((player[0].x, player[0].y))
+            except Exception as e:
+                print(e, "PLAYER POS:", (player[0].x, player[0].y))
         # Check attack/patrol helicopters
         heli_messages = await self.check_helis(markers)
         

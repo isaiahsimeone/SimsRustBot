@@ -1154,9 +1154,13 @@ export class SellOrder {
 
     get currency_id() { return this._data.currency_id; }
 
+    get currency_name() { return ItemNames[this._data.currency_id]; }
+
     get currency_is_blueprint() { return this._data.currency_is_blueprint; }
 
     get item_id() { return this._data.item_id; }
+
+    get item_name() { return ItemNames[this._data.item_id]; }
 
     get item_is_blueprint() { return this._data.item_is_blueprint; }
 
