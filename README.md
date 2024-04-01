@@ -11,6 +11,7 @@ With web map notes, how about we just translate the coordinates to JSON coordina
 - ### Dockerise the project. Probably first need a way to allow configuration without access to the config json files. Maybe spawn a second flask server, in a different thread that can take care of that. It can run the whole time(?) and proably be responsible for initiating server switching. Maybe we could spawn this web server as part of the config manager service
 
 ## Need to:
+- Plot ocean patrol path
 - Determine when the server map changes -> Then request everything to reload. Might just be easier to get everything to reload after server disconnect
 - Modify BUS to allow a caller to await a response
 - Put config and database on the BUS
