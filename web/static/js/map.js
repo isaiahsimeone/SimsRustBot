@@ -406,30 +406,19 @@ function updateClusterResident(new_marker) {
     // What cluster is this shop in?
     if (!shop_marker_id_to_cluster_id.has(new_marker.id))
         return ; // Not in a cluster
+    // The ID of the cluster this shop is in
     let cluster_id = shop_marker_id_to_cluster_id.get(new_marker.id);
-    
+    // Shops (Rust markers) in this cluster
     let shops = clustered_shop_markers[cluster_id].shops;
     
-
+    // Iterate through each shop in the cluster, update the target resident
     for (let i = 0; i < shops.length; i++) {
+        // Found the target, update the list directly
         if (shops[i].id == new_marker.id) {
             clustered_shop_markers[cluster_id].shops[i] = new_marker;
-            log("resident updated");
+            break;
         }
     }
-    
-    //log("CLUSTID:",clustered_shop_markers);
-    
-    //log("Cluster before update: ", cluster);
-    //for (let shop = 0; shop < cluster.length; shop++) {
-    //    log ("COMPARE: ", cluster[shop].id, new_marker.id);
-        //if (cluster[shop].marker.id == new_marker.id)
-        //    cluster[shop].marker = new_marker;
-    //}
-    
-    //clustered_shop_markers[cluster_id] = cluster;
-    //log("cluster post update: ", clustered_shop_markers[cluster_id]);
-    // log("A shop that is in a cluster wasn't found in its list?");
 }
 
 

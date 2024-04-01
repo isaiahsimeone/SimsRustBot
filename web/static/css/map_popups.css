@@ -93,6 +93,20 @@
 }
 
 
+
+/******************************************************************* Clustered Shop */
+
+
+.clustered-shop-map-popup .leaflet-popup-content-wrapper {
+    border-radius: 0px;
+    display: block !important;
+    position: absolute !important;
+    width: 200px;
+    height: 500px;
+    top: 10px !important;
+    left: 10px !important;
+}
+
 .clustered-shop-map-popup {
     background: #e93434;
     color: #ffffff;

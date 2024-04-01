@@ -58,7 +58,6 @@ export function bindMarkerPopup(leaflet_marker) {
     // edge case for clustered shop
     log(leaflet_marker.is_clustered_shop)
     if (leaflet_marker.is_clustered_shop) {
-        log("#################################binding popup");
         leaflet_marker.bindPopup(genClusteredShopPopupContent(leaflet_marker), { className: "clustered-shop-map-popup" })
         bound_popups.push(leaflet_marker);
         return ;
@@ -269,6 +268,7 @@ export function genClusteredShopPopupContent(clustered_shop_marker) {
     shops_in_marker.forEach(shop => {
         var sell_orders = shop.sell_orders;
         sell_orders.forEach(sellOrder => {
+            content += `<img src="static/images/items/${sellOrder.item_id}.png" width='50' height='50'/>`;
             content += `${shop.name} - ${sellOrder.currency_name} - ${sellOrder.item_name} - ${sellOrder.amount_in_stock}<br>`;
         });
         content += `<br><br>`;
