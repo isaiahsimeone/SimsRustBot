@@ -3,6 +3,7 @@ import { nameFromSteamId } from "./steam.js";
 import * as team from "./team.js";
 import * as util from "./util.js";
 import { plotted_markers } from "./map.js";
+import { addShopToPopupDOM } from "./shopBrowser.js";
 
 const DEBUG = true;
 
@@ -85,7 +86,7 @@ export function bindMarkerPopup(leaflet_marker) {
             leaflet_marker.bindTooltip("A debris field", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "SHOP":
-            leaflet_marker.on("click", function() { makeShopPopup(marker.id) });//bindPopup(genShopPopupContent(leaflet_marker), { className: "shop-map-popup" });
+            leaflet_marker.on("click", function() { addShopToPopupDOM(marker) });//bindPopup(genShopPopupContent(leaflet_marker), { className: "shop-map-popup" });
             leaflet_marker.bindTooltip("A Vending Machine", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "CHINOOK":

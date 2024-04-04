@@ -352,9 +352,17 @@
             </div>
           </div>
 
+          
+
 
         </div>
       </div>
+
+
+
+
+
+
       
       <div class="popup-shop-container">
         <div class="popup-shop-header">
@@ -435,33 +443,15 @@
         infoElement.textContent = coords;
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-      shopBodyToggle(1);
-      shopBodyToggle(2);
+
+    $(document).ready(function() {
       var closeButton = document.getElementById("map-popup-close-button")
       var mapPopup = document.getElementById("map-popup");
       closeButton.addEventListener("click", function() {
-        mapPopup.style.visibility = "hidden";
+          mapPopup.style.visibility = "hidden";
       });
-  });
+    }
 
-  function shopBodyToggle(shop_id) {
-    var chevron = document.getElementById("chevron" + shop_id);
-    chevron.addEventListener('click', function() {
-        var content = document.getElementById("shop-body" + shop_id);        
-        if (this.classList.contains('popup-shop-header-chevron-down')) {
-            // Expand the content
-            content.style.maxHeight = content.scrollHeight + "px";
-            this.classList.remove('popup-shop-header-chevron-down');
-            this.classList.add('popup-shop-header-chevron-up');
-        } else {
-            // Collapse the content
-            content.style.maxHeight = 0 + "px";
-            this.classList.remove('popup-shop-header-chevron-up');
-            this.classList.add('popup-shop-header-chevron-down');
-        }
-    });
-  }
   
 
   
