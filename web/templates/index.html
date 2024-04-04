@@ -298,95 +298,7 @@
       <div id="map-popup-close-button" class="map-popup-header-cell">x</div>
     </div>
     <div id="map-popup-content-canvas">
-
-
-      <div class="popup-shop-container">
-        <div class="popup-shop-header">
-          <div class="popup-shop-header-title">
-            Tools & Stuff
-          </div>
-          <div class="popup-shop-header-image-row">
-            <div class="popup-shop-header-image-cell"></div>
-            <div class="popup-shop-header-image-cell"></div>
-            <div class="popup-shop-header-image-cell"></div>
-            <div class="popup-shop-header-image-cell"></div>
-          </div>
-          <div id="chevron1" class="popup-shop-header-chevron popup-shop-header-chevron-down"></div>
-        </div>
-
-
-        <div id="shop-body1" class="popup-shop-body" style="">
-
-
-          <div class="shop-body-items">
-            <div class="shop-body-item">
-
-              <div class="shop-body-item-cell">
-                <div class="shop-body-item-image"></div>
-                <div class="shop-body-item-selling-info">
-                  <div class="shop-body-item-selling-title">
-                    SELLING
-                  </div>
-                  <div class="shop-body-item-selling-amount">
-                    1
-                  </div>
-                </div>
-              </div>
-
-              <div class="shop-body-item-cell">
-                <div class="shop-body-cost-image"></div>
-                <div class="shop-body-cost-info">
-                  <div class="shop-body-item-selling-title">
-                    COST
-                  </div>
-                  <div class="shop-body-item-selling-amount">
-                    40
-                  </div>
-                </div>
-              </div>
-
-              <div class="shop-body-item-cell">
-                <div class="shop-body-in-stock">10 IN STOCK</div>
-              </div>
-
-            </div>
-          </div>
-
-          
-
-
-        </div>
-      </div>
-
-
-
-
-
-
-      
-      <div class="popup-shop-container">
-        <div class="popup-shop-header">
-          <div class="popup-shop-header-title">
-            Farming shit
-          </div>
-          <div class="popup-shop-header-image-row">
-            <div class="popup-shop-header-image-cell"></div>
-            <div class="popup-shop-header-image-cell"></div>
-            <div class="popup-shop-header-image-cell"></div>
-            <div class="popup-shop-header-image-cell"></div>
-          </div>
-          <div id="chevron2" class="popup-shop-header-chevron popup-shop-header-chevron-down"></div>
-        </div>
-
-
-        <div id="shop-body2" class="popup-shop-body" style="">
-          <!-- Hidden content goes here -->
-          dynamic content
-          <p> more</p><p> more</p><p> more</p><p> more</p><p> more</p>
-        </div>
-      </div>
-
-          <!--Insert divs here of class map-popup-content-shop-->
+          <!--Insert divs here -->
     </div>
   </div>
 </div>
@@ -445,12 +357,12 @@
 
 
     $(document).ready(function() {
-      var closeButton = document.getElementById("map-popup-close-button")
+      var closeButton = document.getElementById("map-popup-close-button");
       var mapPopup = document.getElementById("map-popup");
       closeButton.addEventListener("click", function() {
           mapPopup.style.visibility = "hidden";
       });
-    }
+    });
 
   
 

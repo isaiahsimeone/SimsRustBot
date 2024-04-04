@@ -62,7 +62,12 @@ export async function initialiseMap() {
     initLeaflet();
 
     //@ts-ignore Add listener for a click on the map, which should close popups
-    document.getElementById("map-container").addEventListener("click", hideMapPopup)
+    document.getElementById("map-container").addEventListener("click", function(event) {
+        // Check if the clicked element is the map container itself
+        if (event.target === document.getElementById("map-container")) {
+            hideMapPopup();
+        }
+    });
 
     // Request background colour from server
     background_colour = (await socketio.request_topic("background")).background;

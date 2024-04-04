@@ -13,7 +13,7 @@ const popupUpdateInterval = setInterval(updatePopups, 5000);
 let bound_popups = [];
 
 // Currently only used for shops and clustered shops
-const popup_canvas = document.getElementById("map-popup-canvas");
+const popup_canvas = document.getElementById("map-popup");
 
 function updatePopups() {
     log("Number of bound popups is", bound_popups.length);
@@ -58,7 +58,8 @@ function updatePopups() {
 }
 
 export function hideMapPopup() {
-    popup_canvas.style.display = "none";
+    log("hide map popup()");
+    popup_canvas.style.visibility = "hidden";
 }
 
 export function bindMarkerPopup(leaflet_marker) {

@@ -63,10 +63,12 @@ function createDiv() {
  */
 export function addClusterShopPopupDOM(shops) {
     var container = document.getElementById("map-popup-content-canvas");
+    container.innerHTML = "";
     for (let i = 0; i < shops.length; i++) {
         container.appendChild(createShopPopupContainer(shops[i]));
         makeShopBodyToggleable(shops[i].id);
     }
+    document.getElementById("map-popup").style.visibility = "visible";
 }
 
 /**
@@ -74,12 +76,13 @@ export function addClusterShopPopupDOM(shops) {
  * @param {Marker} shop 
  */
 export function addShopToPopupDOM(shop) {
+    var container = document.getElementById("map-popup-content-canvas");
+    container.innerHTML = "";
     
-    var entry = createShopPopupContainer(shop);
-    document.getElementById("map-popup-content-canvas").appendChild(entry);
+    container.appendChild(createShopPopupContainer(shop));
     
     makeShopBodyToggleable(shop.id);
-    
+    document.getElementById("map-popup").style.visibility = "visible";
 }
 
 
