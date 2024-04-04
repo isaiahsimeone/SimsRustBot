@@ -3,7 +3,7 @@ import { nameFromSteamId } from "./steam.js";
 import * as team from "./team.js";
 import * as util from "./util.js";
 import { plotted_markers } from "./map.js";
-import { addShopToPopupDOM } from "./shopBrowser.js";
+import { addClusterShopPopupDOM, addShopToPopupDOM } from "./shopBrowser.js";
 
 const DEBUG = true;
 
@@ -67,7 +67,7 @@ export function bindMarkerPopup(leaflet_marker) {
     // edge case for clustered shop
     log(leaflet_marker.is_clustered_shop)
     if (leaflet_marker.is_clustered_shop) {
-        leaflet_marker.bindPopup(genClusteredShopPopupContent(leaflet_marker), { className: "clustered-shop-map-popup" })
+        leaflet_marker.on("click", function() { addClusterShopPopupDOM(leaflet_marker.shops) });
         bound_popups.push(leaflet_marker);
         return ;
     }
