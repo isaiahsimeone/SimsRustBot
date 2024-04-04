@@ -2,6 +2,7 @@ import { Marker } from "./structures.js";
 import { nameFromSteamId } from "./steam.js";
 import * as team from "./team.js";
 import * as util from "./util.js";
+import { plotted_markers } from "./map.js";
 
 const DEBUG = true;
 
@@ -9,6 +10,9 @@ const DEBUG = true;
 const popupUpdateInterval = setInterval(updatePopups, 5000);
 
 let bound_popups = [];
+
+// Currently only used for shops and clustered shops
+const popup_canvas = document.getElementById("map-popup-canvas");
 
 function updatePopups() {
     log("Number of bound popups is", bound_popups.length);
@@ -52,6 +56,10 @@ function updatePopups() {
     
 }
 
+export function hideMapPopup() {
+    popup_canvas.style.display = "none";
+}
+
 export function bindMarkerPopup(leaflet_marker) {
     if (!leaflet_marker)
         return ;
@@ -77,7 +85,7 @@ export function bindMarkerPopup(leaflet_marker) {
             leaflet_marker.bindTooltip("A debris field", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "SHOP":
-            leaflet_marker.bindPopup(genShopPopupContent(leaflet_marker), { className: "shop-map-popup" });
+            leaflet_marker.on("click", function() { makeShopPopup(marker.id) });//bindPopup(genShopPopupContent(leaflet_marker), { className: "shop-map-popup" });
             leaflet_marker.bindTooltip("A Vending Machine", { className: "leaflet-tooltip", direction: "top" });
             break;
         case "CHINOOK":
@@ -103,6 +111,34 @@ export function bindMarkerPopup(leaflet_marker) {
     }
     bound_popups.push(leaflet_marker);
 }
+
+// TODO: we can get rid of the update function if we pass marker_id
+// To all of the popup generator functions
+function makeShopPopup(marker_id) {
+    if (!plotted_markers.has(marker_id)) {
+        log("Tried to make a shop popup, but", marker_id, "isn't plotted?");
+        return ;
+    }
+
+    // reset popup
+    popup_canvas.innerHTML = "";
+
+    // Get the latest leaflet marker for this shop
+    var marker = plotted_markers.get(marker_id);
+
+    
+    
+
+
+
+    log("HELLLOOOOOO", leaflet_marker);
+}
+
+
+
+
+
+
 
 function genPlayerPopupContent(leaflet_marker) {
     /** @type {Marker} */

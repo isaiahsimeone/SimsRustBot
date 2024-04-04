@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
     <link rel="stylesheet" href="static/css/map_popups.css"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
+    
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.2/jscolor.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="static/js/leaflet.rotatedMarker.js"></script>
     <style>
         body, html {
             margin: 0;
@@ -281,6 +290,99 @@
     <hr class="divider">
 </div>
 
+<div id="map-popup">
+  <div id="map-popup-container">
+    <div id="map-popup-header">
+      <div id="map-popup-shop-icon" class="map-popup-header-cell"><img src="static/images/rust/shop_green.png"/></div>
+      <div id="map-popup-title" class="map-popup-header-cell"><span id="map-popup-title-text">SHOP</span></div>
+      <div id="map-popup-close-button" class="map-popup-header-cell">x</div>
+    </div>
+    <div id="map-popup-content-canvas">
+
+
+      <div class="popup-shop-container">
+        <div class="popup-shop-header">
+          <div class="popup-shop-header-title">
+            Tools & Stuff
+          </div>
+          <div class="popup-shop-header-image-row">
+            <div class="popup-shop-header-image-cell"></div>
+            <div class="popup-shop-header-image-cell"></div>
+            <div class="popup-shop-header-image-cell"></div>
+            <div class="popup-shop-header-image-cell"></div>
+          </div>
+          <div id="chevron1" class="popup-shop-header-chevron popup-shop-header-chevron-down"></div>
+        </div>
+
+
+        <div id="shop-body1" class="popup-shop-body" style="">
+
+
+          <div class="shop-body-items">
+            <div class="shop-body-item">
+
+              <div class="shop-body-item-cell">
+                <div class="shop-body-item-image"></div>
+                <div class="shop-body-item-selling-info">
+                  <div class="shop-body-item-selling-title">
+                    SELLING
+                  </div>
+                  <div class="shop-body-item-selling-amount">
+                    1
+                  </div>
+                </div>
+              </div>
+
+              <div class="shop-body-item-cell">
+                <div class="shop-body-cost-image"></div>
+                <div class="shop-body-cost-info">
+                  <div class="shop-body-item-selling-title">
+                    COST
+                  </div>
+                  <div class="shop-body-item-selling-amount">
+                    40
+                  </div>
+                </div>
+              </div>
+
+              <div class="shop-body-item-cell">
+                <div class="shop-body-in-stock">10 IN STOCK</div>
+              </div>
+
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+      
+      <div class="popup-shop-container">
+        <div class="popup-shop-header">
+          <div class="popup-shop-header-title">
+            Farming shit
+          </div>
+          <div class="popup-shop-header-image-row">
+            <div class="popup-shop-header-image-cell"></div>
+            <div class="popup-shop-header-image-cell"></div>
+            <div class="popup-shop-header-image-cell"></div>
+            <div class="popup-shop-header-image-cell"></div>
+          </div>
+          <div id="chevron2" class="popup-shop-header-chevron popup-shop-header-chevron-down"></div>
+        </div>
+
+
+        <div id="shop-body2" class="popup-shop-body" style="">
+          <!-- Hidden content goes here -->
+          dynamic content
+          <p> more</p><p> more</p><p> more</p><p> more</p><p> more</p>
+        </div>
+      </div>
+
+          <!--Insert divs here of class map-popup-content-shop-->
+    </div>
+  </div>
+</div>
+
 
 <div id="map-container"></div>
 
@@ -314,14 +416,6 @@
 </div>
 
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.2/jscolor.min.js"></script>
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<script src="static/js/leaflet.rotatedMarker.js"></script>
-
 <script>
 
 
@@ -340,6 +434,38 @@
         const infoElement = document.getElementById('mousepos');
         infoElement.textContent = coords;
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      shopBodyToggle(1);
+      shopBodyToggle(2);
+      var closeButton = document.getElementById("map-popup-close-button")
+      var mapPopup = document.getElementById("map-popup");
+      closeButton.addEventListener("click", function() {
+        mapPopup.style.visibility = "hidden";
+      });
+  });
+
+  function shopBodyToggle(shop_id) {
+    var chevron = document.getElementById("chevron" + shop_id);
+    chevron.addEventListener('click', function() {
+        var content = document.getElementById("shop-body" + shop_id);        
+        if (this.classList.contains('popup-shop-header-chevron-down')) {
+            // Expand the content
+            content.style.maxHeight = content.scrollHeight + "px";
+            this.classList.remove('popup-shop-header-chevron-down');
+            this.classList.add('popup-shop-header-chevron-up');
+        } else {
+            // Collapse the content
+            content.style.maxHeight = 0 + "px";
+            this.classList.remove('popup-shop-header-chevron-up');
+            this.classList.add('popup-shop-header-chevron-down');
+        }
+    });
+  }
+  
+
+  
+  
 </script>
 <script type="module" src="static/js/main.js"></script>
 </body>

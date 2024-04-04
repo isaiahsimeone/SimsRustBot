@@ -4,7 +4,7 @@ import { Marker, Monument } from "./structures.js";
 import * as markerFactory from "./marker.js";
 import { serverInfoInstance } from "./server.js";
 import { steamImageExists } from "./steam.js";
-import { bindMarkerPopup } from "./map_popup.js";
+import { bindMarkerPopup, hideMapPopup } from "./map_popup.js";
 //import { receiveMapNotes } from "./note.js";
 //import { receiveTeamMembers } from "./steam.js";
 //import { toggleChatAvailability } from "./chat.js";
@@ -43,7 +43,6 @@ export let leaflet_monument_names;
 
 export let map_sz = -1;
 
-
 let initial_clustering_complete = false;
 
 let clustered_shop_markers = [];
@@ -61,6 +60,9 @@ export async function initialiseMap() {
     log("Map size is", map_sz);
     // Prepare leaflet
     initLeaflet();
+
+    //@ts-ignore Add listener for a click on the map, which should close popups
+    document.getElementById("map-container").addEventListener("click", hideMapPopup)
 
     // Request background colour from server
     background_colour = (await socketio.request_topic("background")).background;

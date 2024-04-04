@@ -15,6 +15,8 @@ export let serverInfoInstance;
  */
 export async function initialiseServer() {
     const serverData = await socketio.request_topic("server_info");
+    if (!serverData)
+        location.reload();
     serverInfoInstance = new ServerInfo(serverData["server_info"]);
 }
 
