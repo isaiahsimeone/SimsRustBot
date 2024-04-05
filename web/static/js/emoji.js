@@ -1,71 +1,60 @@
 //@ts-check
-
+import { shortname_to_id } from "./structures.js";
 
 const DEBUG = true;
 
 const emojis = new Set([
-    "angry",
-    "coffeecan",
-    "cool",
-    "dance",
-    "eyebrow",
-    "eyes",
-    "funny",
-    "happy",
-    "heart",
-    "heartrock",
-    "laugh",
-    "light",
-    "love",
-    "mask",
-    "nervous",
-    "neutral",
-    "scientist",
-    "skull",
-    "smilecry",
-    "trumpet",
-    "wave",
-    "worried",
-    "yellowpin"
+    "angry", "coffeecan", "cool", "dance", "eyebrow", "eyes", "funny", 
+    "happy", "heart", "heartrock", "laugh", "light", "love", "mask", 
+    "nervous", "neutral", "scientist", "skull", "smilecry", "trumpet", 
+    "wave", "worried", "yellowpin"
 ]);
 
+/**
+ * Count the number of characters used in a string to specify an emoji.
+ * e.g. HELLO:a:HELLO -> 3 (:, a, and :)
+ * The same logic applies for multiple emoji definitions
+ * @param {string} text The text to check
+ * @returns The number of characters used to specify an emoji,
+ */
 export function countEmojiCharacters(text) {
-    const regex = /:([^:]+):/g;
-    let totalLength = 0;
-
-    const matches = [...text.matchAll(regex)];
-
-    matches.forEach(match => {
-        totalLength += match[0].length;
-    });
-
-    return totalLength;
-}
-
-export function emojifyText(text) {
-    // Match :sometext:
-    const regex = /:([^:]+):/g;
-
-    const replacedString = text.replace(regex, (match, emoji_name) => {
-        let emoji_filepath = getEmojiFilePath(emoji_name);
-        let emoji_image = document.createElement("span");
-        emoji_image.style.backgroundImage = `url("${emoji_filepath}.png")`;
-        return `<span class="rust-emoji-image" style="background-image: url(${emoji_filepath}.png);"></span>`;
-    });
-
-    return replacedString;
-}
-
-function getEmojiFilePath(emoji_name) {
-    if (emojis.has(emoji_name))
-        return "static/images/emojis/" + emoji_name;
+    return [...text.matchAll(/:([^:]+):/g)].reduce((total, match) => total + match[0].length, 0);
 }
 
 /**
- * Log a message for this class, if the DEBUG variable is defined.
- * @param  {...any} args A variable number of objects to include in the log
+ * Replace emojis in a given text string with a span containing
+ * the image for that emoji
+ * @param {string} text The text to replace emoji declarations in
+ * @returns The HTML string, potentially with a span with an emoji image
  */
+export function emojifyText(text) {
+    return text.replace(/:([^:]+):/g, (_, emoji_name) => createEmojiImageSpan(getEmojiFilePath(emoji_name)));
+}
+
+/**
+ * Search for an emoji image by its name. First, the emojis set is checked,
+ * if nothing is found, the set of rust images is checked (by shortname).
+ * If neither are found, an empty string is returned
+ * @param {string} emoji_name The name of the emoji without colons (e.g. angry, happy) 
+ * @returns The path to the emoji image file, or null
+ */
+function getEmojiFilePath(emoji_name) {
+    if (emojis.has(emoji_name))
+        return `static/images/emojis/${emoji_name}`;
+    else if (shortname_to_id.has(emoji_name))
+        return `static/images/items/${shortname_to_id.get(emoji_name)}`;
+    return "";
+}
+
+/**
+ * Create a span containing an emoji image, based on the filepath to that image
+ * @param {string} filePath the path to the emoji image 
+ * @returns 
+ */
+function createEmojiImageSpan(filePath) {
+    return filePath ? `<span class="rust-emoji-image" style="background-image: url(${filePath}.png);"></span>` : "";
+}
+
 function log(...args) {
-	if (DEBUG)
-        console.log("%c[emoji.js] ", "color: #f27009", ...args);
+    if (DEBUG) console.log("%c[emoji.js] ", "color: #f27009", ...args);
 }

@@ -18,6 +18,7 @@
 
 /******************************************************************* Map popup */
 #map-popup {
+    visibility: hidden;
     position: sticky;
     left: 12.5%;
     top: 15%;

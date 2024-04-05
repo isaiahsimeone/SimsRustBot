@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
     <link rel="stylesheet" href="static/css/style.css"/>
     <link rel="stylesheet" href="static/css/map_popups.css"/>
+    <link rel="stylesheet" href="static/css/map_webnote.css"/>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
     
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -303,6 +304,65 @@
     </div>
   </div>
 </div>
+
+
+
+<!--Map note popup -->
+<div id="map-note-dialog" class="map-note-dialog">
+  <span style="margin-left:5px">EDIT MARKER</span>
+  <div class="map-note-options-container">
+    <div class="map-note-options-table">
+      <table>
+        <tr>
+          <th class="note-op-name">NAME</th>
+          <th class="note-input-cell">
+            <input type="text" id="map-note-label" class="note-input" placeholder="Enter Text..." />
+          </th>
+        </tr>
+        <tr>
+          <td class="note-op-name">MARKER</td>
+          <td>
+            <div class="icon-row">
+              <div index="0" class="note-icon selected" style="mask-image: url('static/images/markers/0.png')"></div>
+              <div index="1" class="note-icon" style="mask-image: url('static/images/markers/1.png')"></div>
+              <div index="2" class="note-icon" style="mask-image: url('static/images/markers/2.png')"></div>
+              <div index="3" class="note-icon" style="mask-image: url('static/images/markers/3.png')"></div>
+              <div index="4" class="note-icon" style="mask-image: url('static/images/markers/4.png')"></div>
+              <div index="5" class="note-icon" style="mask-image: url('static/images/markers/5.png')"></div>
+            </div>
+            <!-- Second row of icons -->
+            <div class="icon-row">
+              <div index="6" class="note-icon" style="mask-image: url('static/images/markers/6.png')"></div>
+              <div index="7" class="note-icon" style="mask-image: url('static/images/markers/7.png')"></div>
+              <div index="8" class="note-icon" style="mask-image: url('static/images/markers/8.png')"></div>
+              <div index="9" class="note-icon" style="mask-image: url('static/images/markers/9.png')"></div>
+              <div index="10" class="note-icon" style="mask-image: url('static/images/markers/10.png')"></div>
+              <div index="11" class="note-icon" style="mask-image: url('static/images/markers/11.png')"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="note-op-name">COLOUR</td>
+          <td>
+            <div class="icon-row">
+              <div id="colour_yellow" class="note-icon-colour selected" data-current-color="#cbcd53"></div>
+              <div id="colour_blue" class="note-icon-colour" data-current-color="#2e66af"></div>
+              <div id="colour_green" class="note-icon-colour" data-current-color="#6c9835"></div>
+              <div id="colour_red" class="note-icon-colour" data-current-color="#a73533"></div>
+              <div id="colour_purple" class="note-icon-colour" data-current-color="#a253ae"></div>
+              <div id="color-picker-trigger" class="note-icon-colour note-rainbow-icon" data-current-color="#ab2567" data-jscolor="{value:'#9f3ad7', onInput:'pickerColourChange(this)'}">
+
+
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div id="map-note-apply" class="map-note-apply">APPLY</div>
+  </div>
+</div>
+
 
 
 <div id="map-container"></div>

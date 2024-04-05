@@ -61,12 +61,18 @@ export async function initialiseMap() {
     // Prepare leaflet
     initLeaflet();
 
-    //@ts-ignore Add listener for a click on the map, which should close popups
-    document.getElementById("map-container").addEventListener("click", function(event) {
+    //Add listener for a click on the map, which should close popups
+    document.getElementById("map-container")?.addEventListener("click", function(event) {
         // Check if the clicked element is the map container itself
         if (event.target === document.getElementById("map-container")) {
             hideMapPopup();
+            //hideMapNotes();
         }
+    });
+
+    // Hook context click for map note creation
+    document.getElementById("map-container")?.addEventListener("context", function(event) {
+
     });
 
     // Request background colour from server
