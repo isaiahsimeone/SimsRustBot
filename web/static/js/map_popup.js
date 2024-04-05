@@ -3,7 +3,7 @@ import { nameFromSteamId } from "./steam.js";
 import * as team from "./team.js";
 import * as util from "./util.js";
 import { plotted_markers } from "./map.js";
-import { addClusterShopPopupDOM, addShopToPopupDOM } from "./shopBrowser.js";
+import { addClusterShopPopupDOM, addShopToPopupDOM } from "./shop_browser.js";
 
 const DEBUG = true;
 

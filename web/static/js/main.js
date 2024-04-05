@@ -3,6 +3,7 @@ import { initialiseMap } from "./map.js";
 //import { initialiseCommands } from "./command.js";
 import { initialiseTeam, teamInfoInstance } from "./team.js";
 import { initialiseServer } from "./server.js";
+import { initialiseMapNotes } from "./map_notes.js";
 //import { initialiseDialogs } from "./dialogs.js";
 
 const DEBUG = true;
@@ -21,6 +22,8 @@ async function init() {
 	await initialiseTeam();
 
 	await initialiseMap();
+
+	initialiseMapNotes();
 
 	//initialiseChat();
 

@@ -5,6 +5,7 @@ import * as markerFactory from "./marker.js";
 import { serverInfoInstance } from "./server.js";
 import { steamImageExists } from "./steam.js";
 import { bindMarkerPopup, hideMapPopup } from "./map_popup.js";
+import { showMapNoteDialog } from "./map_notes.js";
 //import { receiveMapNotes } from "./note.js";
 //import { receiveTeamMembers } from "./steam.js";
 //import { toggleChatAvailability } from "./chat.js";
@@ -39,6 +40,8 @@ export let all_shops = new Map();
 
 export let leaflet_monument_names;
 
+export let leaflet_map_note_dialog;
+
 // The size of the map image 
 
 export let map_sz = -1;
@@ -61,19 +64,19 @@ export async function initialiseMap() {
     // Prepare leaflet
     initLeaflet();
 
-    //Add listener for a click on the map, which should close popups
+    // Add listener for a click on the map, which should close popups
     document.getElementById("map-container")?.addEventListener("click", function(event) {
-        // Check if the clicked element is the map container itself
+        // Check if the clicked element is the map container itself and not a child
         if (event.target === document.getElementById("map-container")) {
             hideMapPopup();
-            //hideMapNotes();
         }
     });
 
     // Hook context click for map note creation
-    document.getElementById("map-container")?.addEventListener("context", function(event) {
-
-    });
+    leaflet_map.on("contextmenu",(e) => {
+        showMapNoteDialog(e);
+        /**/
+      });
 
     // Request background colour from server
     background_colour = (await socketio.request_topic("background")).background;
@@ -165,6 +168,7 @@ function initLeaflet() {
     map_markers = L.featureGroup().addTo(leaflet_map);
     leaflet_shop_markers = L.featureGroup().addTo(leaflet_map);
     leaflet_monument_names = L.featureGroup().addTo(leaflet_map);
+    leaflet_map_note_dialog = L.featureGroup().addTo(leaflet_map);
 }
 
 function drawMonuments() {

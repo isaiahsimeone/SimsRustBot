@@ -18,6 +18,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.2/jscolor.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="static/js/leaflet.rotatedMarker.js"></script>
+<script type="module" src="static/js/main.js"></script>
     <style>
         body, html {
             margin: 0;
@@ -307,62 +308,8 @@
 
 
 
-<!--Map note popup -->
-<div id="map-note-dialog" class="map-note-dialog">
-  <span style="margin-left:5px">EDIT MARKER</span>
-  <div class="map-note-options-container">
-    <div class="map-note-options-table">
-      <table>
-        <tr>
-          <th class="note-op-name">NAME</th>
-          <th class="note-input-cell">
-            <input type="text" id="map-note-label" class="note-input" placeholder="Enter Text..." />
-          </th>
-        </tr>
-        <tr>
-          <td class="note-op-name">MARKER</td>
-          <td>
-            <div class="icon-row">
-              <div index="0" class="note-icon selected" style="mask-image: url('static/images/markers/0.png')"></div>
-              <div index="1" class="note-icon" style="mask-image: url('static/images/markers/1.png')"></div>
-              <div index="2" class="note-icon" style="mask-image: url('static/images/markers/2.png')"></div>
-              <div index="3" class="note-icon" style="mask-image: url('static/images/markers/3.png')"></div>
-              <div index="4" class="note-icon" style="mask-image: url('static/images/markers/4.png')"></div>
-              <div index="5" class="note-icon" style="mask-image: url('static/images/markers/5.png')"></div>
-            </div>
-            <!-- Second row of icons -->
-            <div class="icon-row">
-              <div index="6" class="note-icon" style="mask-image: url('static/images/markers/6.png')"></div>
-              <div index="7" class="note-icon" style="mask-image: url('static/images/markers/7.png')"></div>
-              <div index="8" class="note-icon" style="mask-image: url('static/images/markers/8.png')"></div>
-              <div index="9" class="note-icon" style="mask-image: url('static/images/markers/9.png')"></div>
-              <div index="10" class="note-icon" style="mask-image: url('static/images/markers/10.png')"></div>
-              <div index="11" class="note-icon" style="mask-image: url('static/images/markers/11.png')"></div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="note-op-name">COLOUR</td>
-          <td>
-            <div class="icon-row">
-              <div id="colour_yellow" class="note-icon-colour selected" data-current-color="#cbcd53"></div>
-              <div id="colour_blue" class="note-icon-colour" data-current-color="#2e66af"></div>
-              <div id="colour_green" class="note-icon-colour" data-current-color="#6c9835"></div>
-              <div id="colour_red" class="note-icon-colour" data-current-color="#a73533"></div>
-              <div id="colour_purple" class="note-icon-colour" data-current-color="#a253ae"></div>
-              <div id="color-picker-trigger" class="note-icon-colour note-rainbow-icon" data-current-color="#ab2567" data-jscolor="{value:'#9f3ad7', onInput:'pickerColourChange(this)'}">
-
-
-              </div>
-            </div>
-          </td>
-        </tr>
-      </table>
-    </div>
-    <div id="map-note-apply" class="map-note-apply">APPLY</div>
-  </div>
-</div>
-
+<!--Map note popup - Inserted from JS-->
+<div id="map-note-dialog"></div>
 
 
 <div id="map-container"></div>
@@ -400,22 +347,6 @@
 <script>
 
 
-    function pickerColourChange(picker) {
-        const note_icons = document.querySelectorAll(".note-icon");
-        note_icons.forEach((icon => {
-            icon.style.backgroundColor = picker.toHEXString();
-        }));
-    }
-
-    function getCursor(event) {
-        let x = event.pageX;
-        let y = event.pageY;
-        let coords = `X: ${x} Y: ${y}`;
-
-        const infoElement = document.getElementById('mousepos');
-        infoElement.textContent = coords;
-    }
-
 
     $(document).ready(function() {
       var closeButton = document.getElementById("map-popup-close-button");
@@ -425,11 +356,15 @@
       });
     });
 
-  
-
+    function pickerColourChange(picker) {
+      const new_colour = picker.toHEXString();
+      const note_icons = document.querySelectorAll(".note-icon");
+      note_icons.forEach((icon => {
+          icon.style.backgroundColor = new_colour;
+      }));
+    }
   
   
 </script>
-<script type="module" src="static/js/main.js"></script>
 </body>
 </html>
