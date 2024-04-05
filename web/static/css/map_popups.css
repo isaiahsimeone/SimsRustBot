@@ -153,6 +153,31 @@
 
 .popup-shop-header-title {
     display: table-cell;
+    position: absolute;
+    margin: 0;
+    width: 105px;
+    height: 18px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.popup-shop-header-title-scroll {
+    position: absolute;
+    display: inline-block;
+    left: 0px;
+    animation: scroll-left 10s linear infinite;
+}
+
+@keyframes scroll-left {
+    0%, 20% { /* Pause for the first 20% of the animation time */
+        left: 0;
+    }
+    95% {
+        left: -100%;
+    }
+    100% {
+        left: 0;
+    }
 }
 
 .popup-shop-header-image-row {
@@ -170,7 +195,6 @@
     display: table-cell;
     position: relative;
     
-    background-image: url(../images/items/-1000573653.png);
     background-size: contain;
     background-repeat: no-repeat;
     background-color: rgb(58, 54, 50);
@@ -272,7 +296,6 @@
 
     width: 40px;
     height: 40px;
-    background-image: url(../images/items/-1262185308.png);
     background-size: contain;
     background-repeat: no-repeat;
     margin-right: 5px;
@@ -295,9 +318,11 @@
     font-size: 14px;
 }
 
-
-
-
+.shop-body-item-no-listing-text {
+    color: rgb(158, 67, 50);
+    font-family: RobotoBold;
+    font-size: 14px;
+}
 
 
 .shop-body-cost-image {
@@ -306,7 +331,6 @@
 
     width: 40px;
     height: 40px;
-    background-image: url(../images/items/-1262185308.png);
     background-size: contain;
     background-repeat: no-repeat;
     margin-right: 5px;
@@ -340,7 +364,14 @@
     font-size: 11px;
 }
 
-              
+.shop-body-no-stock {
+    position: relative;
+    right: 0px;
+    white-space: nowrap;
+    color: rgb(158, 67, 50);
+    font-family: RobotoBold;
+    font-size: 11px;
+}
 
 
 
@@ -364,6 +395,34 @@
     padding: 2px;
     margin: none;
 }
+
+.rust-image-tooltip {
+    visibility: hidden;
+  
+    background-color: #1b679c;
+    color: #d7d7d6;
+    font-family: RobotoBold;
+    font-size: 10px;
+    border: none;
+    width: fit-content;
+    height: fit-content;
+    padding: 2px;
+    margin: none;
+    white-space: nowrap;
+    justify-content: center;
+    text-align: center;
+    
+  /* Position the tooltip */
+  position: absolute;
+  top: -14px;
+  
+}
+.shop-body-cost-image:hover .rust-image-tooltip,
+.shop-body-item-image:hover .rust-image-tooltip,
+.popup-shop-header-image-cell:hover .rust-image-tooltip {
+    visibility: visible;
+}
+
 
 /******************************************************************* Generic */
 .generic-map-popup .leaflet-popup-content-wrapper {

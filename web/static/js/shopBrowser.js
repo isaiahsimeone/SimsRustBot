@@ -108,7 +108,16 @@ function createPopupShopHeader(shop) {
     
     let popup_shop_header_title = createDiv();
     popup_shop_header_title.classList.add("popup-shop-header-title");
-    popup_shop_header_title.innerHTML = shop.name;
+    
+    if (shop.name.length > 10) {
+        let popup_shop_header_title_scroll = createDiv();
+        popup_shop_header_title_scroll.classList.add("popup-shop-header-title-scroll");
+        popup_shop_header_title_scroll.innerHTML = shop.name;
+        popup_shop_header_title.appendChild(popup_shop_header_title_scroll);
+    } else {
+        popup_shop_header_title.innerHTML = shop.name;
+    }
+
     popup_shop_header.appendChild(popup_shop_header_title);
 
     let popup_shop_header_image_row = createDiv();
@@ -143,13 +152,32 @@ function createPopupShopBody(shop) {
     let shop_body_items = createDiv();
     shop_body_items.classList.add("shop-body-items");
 
-    for (let i = 0; i < shop.sell_orders.length; i++)
-        // @ts-ignore
-        shop_body_items.appendChild(createShopBodyItem(shop.sell_orders[i]));
+    if (shop.sell_orders.length == 0) {
+        shop_body_items.appendChild(createShopBodyNoListings());
 
+    } else {
+
+        for (let i = 0; i < shop.sell_orders.length; i++)
+            // @ts-ignore
+            shop_body_items.appendChild(createShopBodyItem(shop.sell_orders[i]));
+    }
     popup_shop_body.appendChild(shop_body_items);
 
     return popup_shop_body;
+}
+
+function createShopBodyNoListings() {
+    let shop_body_item = createDiv();
+    shop_body_item.classList.add("shop-body-item");
+    let shop_body_item_cell1 = createDiv();
+    shop_body_item_cell1.classList.add("shop-body-item-cell");
+    let shop_body_item_no_listing_text = createDiv();
+    shop_body_item_no_listing_text.classList.add("shop-body-item-no-listing-text");
+    shop_body_item_no_listing_text.innerHTML = "This vendor has no listings.";
+    shop_body_item_cell1.appendChild(shop_body_item_no_listing_text);
+    shop_body_item.appendChild(shop_body_item_cell1);
+    
+    return shop_body_item;
 }
 
 /**
@@ -160,12 +188,17 @@ function createShopBodyItem(sell_order) {
     let shop_body_item = createDiv();
     shop_body_item.classList.add("shop-body-item");
 
+
     let shop_body_item_cell1 = createDiv();
     shop_body_item_cell1.classList.add("shop-body-item-cell");
 
     let shop_body_item_image = createDiv();
     shop_body_item_image.classList.add("shop-body-item-image");
     shop_body_item_image.style.backgroundImage = `url("static/images/items/${sell_order.item_id}.png")`;
+    let tooltip = document.createElement("span");
+    tooltip.classList.add("rust-image-tooltip");
+    tooltip.innerHTML = sell_order.item_name;
+    shop_body_item_image.appendChild(tooltip);
     shop_body_item_cell1.appendChild(shop_body_item_image);
 
     let shop_body_item_selling_info = createDiv();
@@ -180,7 +213,6 @@ function createShopBodyItem(sell_order) {
     shop_body_item_selling_info.appendChild(shop_body_item_selling_amount);
     shop_body_item_cell1.appendChild(shop_body_item_selling_info);
 
-    shop_body_item.appendChild(shop_body_item_cell1);
     
     let shop_body_item_cell2 = createDiv();
     shop_body_item_cell2.classList.add("shop-body-item-cell");
@@ -188,6 +220,10 @@ function createShopBodyItem(sell_order) {
     let shop_body_cost_image = createDiv();
     shop_body_cost_image.classList.add("shop-body-cost-image");
     shop_body_cost_image.style.backgroundImage = `url("static/images/items/${sell_order.currency_id}.png")`;
+    let tooltip1 = document.createElement("span");
+    tooltip1.classList.add("rust-image-tooltip");
+    tooltip1.innerHTML = sell_order.currency_name;
+    shop_body_cost_image.appendChild(tooltip1);
     shop_body_item_cell2.appendChild(shop_body_cost_image);
 
     let shop_body_cost_info = createDiv();
@@ -202,16 +238,29 @@ function createShopBodyItem(sell_order) {
     shop_body_cost_info.appendChild(shop_body_item_cost_amount);
     shop_body_item_cell2.appendChild(shop_body_cost_info);
 
-    shop_body_item.appendChild(shop_body_item_cell2);
-
     let shop_body_item_cell3 = createDiv();
     shop_body_item_cell3.classList.add("shop-body-item-cell");
 
     let shop_body_in_stock = createDiv();
-    shop_body_in_stock.classList.add("shop-body-in-stock");
-    shop_body_in_stock.innerHTML = sell_order.amount_in_stock + " IN STOCK";
+    if (sell_order.amount_in_stock > 0) {
+        shop_body_in_stock.classList.add("shop-body-in-stock");
+        shop_body_in_stock.innerHTML = sell_order.amount_in_stock + " IN STOCK";
+    } else {
+        shop_body_in_stock.classList.add("shop-body-no-stock");
+        shop_body_in_stock.innerHTML = "SOLD OUT";
+    }
+    
     shop_body_item_cell3.appendChild(shop_body_in_stock);
-
+    
+    if (sell_order.amount_in_stock <= 0) {
+        shop_body_item.style.backgroundColor = "rgb(68, 40, 32)";
+        shop_body_item_cell1.style.backgroundColor = "rgb(68, 40, 32)";
+        shop_body_item_cell2.style.backgroundColor = "rgb(68, 40, 32)";
+        shop_body_item_cell3.style.backgroundColor = "rgb(68, 40, 32)";
+    }
+    
+    shop_body_item.appendChild(shop_body_item_cell1);
+    shop_body_item.appendChild(shop_body_item_cell2);
     shop_body_item.appendChild(shop_body_item_cell3);
 
     return shop_body_item;
