@@ -1,7 +1,7 @@
 //@ts-check
 
 import { Marker, SellOrder } from "./structures.js";
-import { emojifyText } from "./emoji.js";
+import { countEmojiCharacters, emojifyText } from "./emoji.js";
 
 const DEBUG = true;
 
@@ -109,7 +109,7 @@ function createPopupShopHeader(shop) {
     let popup_shop_header_title = createDiv();
     popup_shop_header_title.classList.add("popup-shop-header-title");
     
-    if (shop.name.length > 10) {
+    if (shop.name.length - countEmojiCharacters(shop.name) > 10) {
         let popup_shop_header_title_scroll = createDiv();
         popup_shop_header_title_scroll.classList.add("popup-shop-header-title-scroll");
         popup_shop_header_title_scroll.innerHTML = emojifyText(shop.name);

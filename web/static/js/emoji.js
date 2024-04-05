@@ -29,6 +29,19 @@ const emojis = new Set([
     "yellowpin"
 ]);
 
+export function countEmojiCharacters(text) {
+    const regex = /:([^:]+):/g;
+    let totalLength = 0;
+
+    const matches = [...text.matchAll(regex)];
+
+    matches.forEach(match => {
+        totalLength += match[0].length;
+    });
+
+    return totalLength;
+}
+
 export function emojifyText(text) {
     // Match :sometext:
     const regex = /:([^:]+):/g;
@@ -39,7 +52,7 @@ export function emojifyText(text) {
         emoji_image.style.backgroundImage = `url("${emoji_filepath}.png")`;
         return `<span class="rust-emoji-image" style="background-image: url(${emoji_filepath}.png);"></span>`;
     });
-    
+
     return replacedString;
 }
 
