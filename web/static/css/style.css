@@ -1,0 +1,9 @@
+.rust-emoji-image {
+    display:inline-block;
+    position: relative;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 15px;
+    height: 15px;
+    top: 4px; /* This could cause some issues */
+}

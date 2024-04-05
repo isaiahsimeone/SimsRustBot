@@ -1,7 +1,7 @@
 //@ts-check
 
 import { Marker, SellOrder } from "./structures.js";
-
+import { emojifyText } from "./emoji.js";
 
 const DEBUG = true;
 
@@ -112,10 +112,10 @@ function createPopupShopHeader(shop) {
     if (shop.name.length > 10) {
         let popup_shop_header_title_scroll = createDiv();
         popup_shop_header_title_scroll.classList.add("popup-shop-header-title-scroll");
-        popup_shop_header_title_scroll.innerHTML = shop.name;
+        popup_shop_header_title_scroll.innerHTML = emojifyText(shop.name);
         popup_shop_header_title.appendChild(popup_shop_header_title_scroll);
     } else {
-        popup_shop_header_title.innerHTML = shop.name;
+        popup_shop_header_title.innerHTML = emojifyText(shop.name);
     }
 
     popup_shop_header.appendChild(popup_shop_header_title);
