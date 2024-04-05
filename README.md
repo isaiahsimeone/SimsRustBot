@@ -20,6 +20,7 @@ With web map notes, how about we just translate the coordinates to JSON coordina
 
 
 Next:
+- Allow watching of a shop -> restock
 - put ConfigManager and Database on the bus
 - Capture player x,y when they pair a device - Then, we know where their base probably is
 - Map note labels
