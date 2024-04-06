@@ -42,6 +42,8 @@ export let leaflet_monument_names;
 
 export let leaflet_map_note_dialog;
 
+export let leaflet_custom_map_notes;
+
 // The size of the map image 
 
 export let map_sz = -1;
@@ -169,6 +171,7 @@ function initLeaflet() {
     leaflet_shop_markers = L.featureGroup().addTo(leaflet_map);
     leaflet_monument_names = L.featureGroup().addTo(leaflet_map);
     leaflet_map_note_dialog = L.featureGroup().addTo(leaflet_map);
+    leaflet_custom_map_notes = L.featureGroup().addTo(leaflet_map);
 }
 
 function drawMonuments() {
