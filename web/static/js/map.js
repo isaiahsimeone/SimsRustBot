@@ -44,8 +44,10 @@ export let leaflet_map_note_dialog;
 
 export let leaflet_custom_map_notes;
 
-// The size of the map image 
+// The scale of the map (image size / rust map_sz)
+export let scale;
 
+// The size of the map image 
 export let map_sz = -1;
 
 let initial_clustering_complete = false;
@@ -65,6 +67,8 @@ export async function initialiseMap() {
     log("Map size is", map_sz);
     // Prepare leaflet
     initLeaflet();
+
+    scale = MAP_IMAGE_SZ / map_sz;
 
     // Add listener for a click on the map, which should close popups
     document.getElementById("map-container")?.addEventListener("click", function(event) {
@@ -120,25 +124,24 @@ export async function initialiseMap() {
  * @returns {L.Marker} A leaflet marker object
  */
 function createMarker(marker) {
-    let scale = MAP_IMAGE_SZ / map_sz;
     var m;
     switch (marker.typeName) {
         case "PLAYER":
-            m = markerFactory.createPlayerMarker(marker, scale); break;
+            m = markerFactory.createPlayerMarker(marker); break;
         case "EXPLOSION":
-            m = markerFactory.createExplosionMarker(marker, scale); break;
+            m = markerFactory.createExplosionMarker(marker); break;
         case "SHOP":
-            m = markerFactory.createShopMarker(marker, scale); break;
+            m = markerFactory.createShopMarker(marker); break;
         case "CHINOOK":
-            m = markerFactory.createChinookMarker(marker, scale); break;
+            m = markerFactory.createChinookMarker(marker); break;
         case "CARGOSHIP":
-            m = markerFactory.createCargoMarker(marker, scale); break;
+            m = markerFactory.createCargoMarker(marker); break;
         case "CRATE":
-            m = markerFactory.createCrateMarker(marker, scale); break;
+            m = markerFactory.createCrateMarker(marker); break;
         case "RADIUS":
-            m = markerFactory.createRadiusMarker(marker, scale); break;
+            m = markerFactory.createRadiusMarker(marker); break;
         case "ATTACKHELI":
-            m = markerFactory.createHeliMarker(marker, scale); break;
+            m = markerFactory.createHeliMarker(marker); break;
         default:
             log("Error: Unknown marker type in createMarker()");
     }
@@ -176,7 +179,6 @@ function initLeaflet() {
 
 function drawMonuments() {
     log("monuments are:", monuments);
-    let scale = MAP_IMAGE_SZ / map_sz;
     // Create text for each monument
     for (let i = 0; i < monuments.length; i++) {
         let mon = monuments[i];
@@ -265,7 +267,6 @@ export function setCreationTime(marker_id, creation_time) {
 }
 
 function updateMarker(marker) {
-    let scale = MAP_IMAGE_SZ / map_sz;
     var leaflet_marker = plotted_markers.get(marker.id);
     if (!leaflet_marker || !leaflet_marker.marker)
         return ;
@@ -293,17 +294,6 @@ function updateMarker(marker) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 /**
  * Organise a list of shops into clusters on the map, within a distance
  * threshold (cluster_threshold)
@@ -316,7 +306,7 @@ function clusterCloseShops(shop_markers) {
 
     const markersArray = Array.from(shop_markers.values());
 
-    // O(n^2) - could preprocess with bucketing to probably get O(n) 
+    // O(n^2) - could preprocess with bucketing to get O(n) probably 
     markersArray.forEach(marker => {
         // Skip if this marker is already clustered
         if (clusteredMarkers.has(marker)) 

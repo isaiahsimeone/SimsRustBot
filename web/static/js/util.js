@@ -15,6 +15,8 @@ export function getCookie(cname) {
     return "";
 }
 
+export const rgb2hex = (rgb) => `#${rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/).slice(1).map(n => parseInt(n, 10).toString(16).padStart(2, '0')).join('')}`
+
 /**
  * Get the current time in seconds since unix epoch
  * @returns {number}
@@ -49,4 +51,23 @@ export function formatTime(seconds) {
     timeString += `${seconds}s`;
 
     return timeString.trim();
+}
+
+export function darkenRGB(hex, factor=0.75) {
+	const r = parseInt(hex.slice(1, 3), 16);
+	const g = parseInt(hex.slice(3, 5), 16);
+	const b = parseInt(hex.slice(5, 7), 16);
+    
+	// Darken the RGB values
+	const darkerR = Math.floor(r * (1 - factor));
+	const darkerG = Math.floor(g * (1 - factor));
+	const darkerB = Math.floor(b * (1 - factor));
+  
+	// Convert back to hex
+	const toHex = (value) => {
+	  const hex = value.toString(16);
+	  return hex.length == 1 ? '0' + hex : hex;
+	};
+  
+	return `#${toHex(darkerR)}${toHex(darkerG)}${toHex(darkerB)}`;
 }

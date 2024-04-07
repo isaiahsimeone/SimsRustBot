@@ -1,6 +1,8 @@
 import { my_steam_id, nameFromSteamId } from "./steam.js";
 import * as socketio from "./socketio.js";
 import { leaflet_map_note_dialog, leaflet_custom_map_notes } from "./map.js";
+import { darkenRGB, rgb2hex } from "./util.js";
+import { img_path } from "./main.js";
 
 const DEBUG = true;
 
@@ -10,16 +12,26 @@ export function initialiseMapNotes() {
 
 }
 
+let dialog_open = false;
+
 let selected_note_icon_index = 0;
 let selected_note_colour_index = 0;
-let selected_note_icon_colour = "rgb(203, 205, 83)";
+let selected_note_icon_colour = "#cbcd53";
 let popup_open_location = null;
 
+/**
+ * A leaflet marker used to show where the marker will be placed
+ * when apply is clicked
+ */
+let temp_marker = null;
+let temp_marker_icon = null;
 
 
 export function showMapNoteDialog(event) {
+    if (dialog_open)
+        return ;
+    dialog_open = true;
     // Destroy map note dialog if it's active
-    leaflet_map_note_dialog.clearLayers();
 	popup_open_location = event.latlng;
     log(selected_note_colour_index, selected_note_icon_index);
 	// Get the dialog element and position it at the click location
@@ -35,17 +47,28 @@ export function showMapNoteDialog(event) {
     .addTo(leaflet_map_note_dialog)
     .openOn(leaflet_map_note_dialog);
 
+    // Place a temporary marker at the location
+	temp_marker = L.marker([popup_open_location.lat, popup_open_location.lng]).addTo(leaflet_custom_map_notes);
+    temp_marker.setIcon(genTempMarkerIcon());
+    //temp_marker.icon = genTempMarkerIcon();
+
+    
     map_note_dialog.on("remove", function() {
         // Save some of the state
         selected_note_icon_index = getSelectedNoteIconIndex();
         selected_note_colour_index = getSelectedColourIndex();
         selected_note_icon_colour = getSelectedNoteColour();
 
-        
+
         var picker_element = document.getElementById("color-picker-trigger");
 		picker_element.jscolor.hide();
 		picker_element.jscolor = null;
+        
+        temp_marker.remove();
+
+        leaflet_map_note_dialog.clearLayers();
         log("removed");
+        dialog_open = false;
     });
 
 
@@ -53,6 +76,52 @@ export function showMapNoteDialog(event) {
     init_note_dialog();
     // Colour picker
     init_colour_picker();
+}
+
+function genTempMarkerIcon(label = "") {
+    temp_marker_icon = null;
+    let note = document.createElement("div");
+	note.style.fontSize = "10px";
+	note.innerHTML = label;
+    note.className = "overlay map_note web_map_note";
+
+    let note_backg = document.createElement("div");
+    note_backg.className = "note-background";
+    
+    log("X", darkenRGB(selected_note_icon_colour), selected_note_icon_colour);
+    note_backg.style.backgroundColor = darkenRGB(selected_note_icon_colour);//"#40411a"; // background colour
+    //background-color: #f0f0f0; /* background color */
+
+
+    let note_mask = document.createElement("div");
+    note_mask.className = "note-mask";
+    note_mask.style.mask = `url('${img_path}/markers/${selected_note_icon_index}.png') no-repeat center / contain`; // icon
+    note_mask.style.maskSize = "60%";
+    note_mask.style.backgroundColor = `${selected_note_icon_colour}`; // icon colour
+
+
+    let note_border = document.createElement("div");
+    note_border.className = "note-border";
+    note_border.style.border = `1px solid ${selected_note_icon_colour}`; // Colour for border, same as icon
+   // border: 2px solid #ff0000; /* color for the border, same as the icon */
+
+
+    //let note_outer_border = document.createElement("div");
+    //note_outer_border.className = "note-outer-border"; // Just a black border
+
+    note.appendChild(note_backg);
+    note.appendChild(note_mask);
+    note.appendChild(note_border);
+    
+    //tempMarkerIcon.html = note.outerHTML;
+    temp_marker_icon = L.divIcon({
+        html: note.outerHTML,
+        iconSize: [20, 20], 
+        iconAnchor: [20, 20],
+        className: '' // Avoid leaflet's default icon styling
+    });
+
+    return temp_marker_icon;
 }
 
 function init_note_dialog() {
@@ -75,6 +144,8 @@ function init_note_dialog() {
         icon.addEventListener("click", () => {
             deselectAllIcons(note_icons);
             icon.classList.add("selected");
+            selected_note_icon_index = icon.getAttribute("index");
+            temp_marker.setIcon(genTempMarkerIcon());
         });
     });
 
@@ -83,7 +154,10 @@ function init_note_dialog() {
         icon.addEventListener("click", () => {
             deselectAllIcons(note_icon_colours);
             icon.classList.add("selected");
-            setIconColours(note_icons, icon.getAttribute("data-current-color"));
+            var selected_colour = icon.getAttribute("data-current-color")
+            setIconColours(note_icons, selected_colour);
+            selected_note_icon_colour = selected_colour;
+            temp_marker.setIcon(genTempMarkerIcon());
         });
     });
 
@@ -96,6 +170,7 @@ function init_note_dialog() {
 
 
 }
+
 
 function init_colour_picker() {
     jscolor.install();
@@ -137,7 +212,7 @@ function getSelectedColourIndex() {
 
 function getSelectedNoteColour() {
     const note_icon = document.getElementsByClassName("note-icon")[0];
-    return note_icon.style.backgroundColor;
+    return rgb2hex(note_icon.style.backgroundColor);
 }
 
 function mapNoteApplyClicked() {
@@ -152,6 +227,15 @@ function mapNoteApplyClicked() {
     // Send to server here with socketio
 }
 
+function pickerColourChange(picker) {
+    const new_colour = picker.toHEXString();
+    const note_icons = document.querySelectorAll(".note-icon");
+    selected_note_icon_colour = new_colour;
+    temp_marker.setIcon(genTempMarkerIcon());
+    setIconColours(note_icons, new_colour);
+}
+
+window.pickerColourChange = pickerColourChange;
 
 const dialog_html = `
 	<div id="map-note-dialog" class="map-note-dialog">
@@ -196,7 +280,7 @@ const dialog_html = `
 				<div id="colour_green" class="note-icon-colour" data-current-color="#6c9835"></div>
 				<div id="colour_red" class="note-icon-colour" data-current-color="#a73533"></div>
 				<div id="colour_purple" class="note-icon-colour" data-current-color="#a253ae"></div>
-				<div id="color-picker-trigger" class="note-icon-colour note-rainbow-icon" data-current-color="#ab2567" data-jscolor="{value:'#9f3ad7', onInput:'pickerColourChange(this)'}">
+				<div id="color-picker-trigger" class="note-icon-colour note-rainbow-icon" data-current-color="#ab2567" data-jscolor="{value:'#9f3ad7', onInput:'window.pickerColourChange(this)'}">
 
 
 				</div>

@@ -1,4 +1,4 @@
-import { map_markers, leaflet_shop_markers } from "./map.js";
+import { map_markers, leaflet_shop_markers, scale } from "./map.js";
 import { Marker } from "./structures.js";
 import { steamImageExists } from "./steam.js";
 
@@ -69,9 +69,8 @@ var chinookIcon = L.divIcon({
 /**
  * Create a player marker and add it to the leaflet map
  * @param {Marker} player - The playermarker object to plot on the map
- * @param {float} scale - The amount to scale the marker coordinates by
  */
-export function createPlayerMarker(player, scale) {
+export function createPlayerMarker(player) {
     const iconImg = steamImageExists(player.steam_id) ? player.steam_id : "default";
 
     var playerIcon = L.icon({
@@ -85,10 +84,8 @@ export function createPlayerMarker(player, scale) {
 
     var marker = L.marker([player.y * scale, player.x * scale], {icon: playerIcon}).addTo(map_markers);
     
-    if (iconImg !== "default") {
-        console.log("image loaded set");
+    if (iconImg !== "default")
         marker.image_loaded = true;
-    }
 
     marker.marker = player;
     
@@ -98,9 +95,8 @@ export function createPlayerMarker(player, scale) {
 /**
  * Create an explosion marker and add it to the leaflet map
  * @param {Marker} explosion - The marker object to plot on the map
- * @param {float} scale - The amount to scale the marker coordinates by
  */
-export function createExplosionMarker(explosion, scale) {
+export function createExplosionMarker(explosion) {
     console.log("explosion plotted", explosion);
     var marker = L.marker([explosion.y * scale, explosion.x * scale], {icon: explosionIcon}).addTo(map_markers);
     marker.marker = explosion;
@@ -110,9 +106,8 @@ export function createExplosionMarker(explosion, scale) {
 /**
  * Create a vending machine shop marker and add it to the leaflet map
  * @param {Marker} shop - The marker object to plot on the map
- * @param {float} scale - The amount to scale the marker coordinates by
  */
-export function createShopMarker(shop, scale) {
+export function createShopMarker(shop) {
     var marker;
     if (shop.out_of_stock)
         marker = L.marker([shop.y * scale, shop.x * scale], {marker: shop, icon: shopOutOfStockIcon}).addTo(leaflet_shop_markers);
@@ -125,9 +120,8 @@ export function createShopMarker(shop, scale) {
 /**
  * Create a chinook marker and add it to the leaflet map
  * @param {Marker} chinook - The marker object to plot on the map
- * @param {float} scale - The amount to scale the marker coordinates by
  */
-export function createChinookMarker(chinook, scale) {
+export function createChinookMarker(chinook) {
     var marker = L.marker([chinook.y * scale, chinook.x * scale], { icon: chinookIcon, rotationAngle: 360 - chinook.rotation }).addTo(map_markers);
     marker.marker = chinook;
     return marker;
@@ -136,9 +130,8 @@ export function createChinookMarker(chinook, scale) {
 /**
  * Create a cargo ship marker and add it to the leaflet map
  * @param {Marker} cargo - The marker object to plot on the map
- * @param {float} scale - The amount to scale the marker coordinates by
  */
-export function createCargoMarker(cargo, scale) {
+export function createCargoMarker(cargo) {
     var marker = L.marker([cargo.y * scale, cargo.x * scale], {
         icon: cargoShipIcon,
         rotationAngle: 360 - cargo.rotation
@@ -151,9 +144,8 @@ export function createCargoMarker(cargo, scale) {
  * Create a crate marker and add it to the leaflet map 
  * Currently disabled in rust+ (15/03/2024)
  * @param {Marker} crate - The marker object to plot on the map
- * @param {float} scale - The amount to scale the marker coordinates by
  */
-export function createCrateMarker(crate, scale) {
+export function createCrateMarker(crate) {
     var marker = L.marker([crate.y * scale, crate.x * scale], {icon: crateIcon}).addTo(map_markers);
     marker.marker = crate;
     return marker;
@@ -162,18 +154,16 @@ export function createCrateMarker(crate, scale) {
 /**
  * I don't know what a radius marker is, but the API supports it
  * @param {Marker} radius - The marker object to plot on the map
- * @param {float} scale - The amount to scale the marker coordinates by
  */
-export function createRadiusMarker(radius, scale) {
+export function createRadiusMarker(radius) {
 
 }
 
 /**
  * Create an attack helicopter marker and add it to the leaflet map
  * @param {Marker} heli - The marker object to plot on the map
- * @param {float} scale - The amount to scale the marker coordinates by
  */
-export function createHeliMarker(heli, scale) {
+export function createHeliMarker(heli) {
     var marker = L.marker([heli.y * scale, heli.x * scale], { icon: attackHelicopterIcon, rotationAngle: 360 - heli.rotation }).addTo(map_markers);
     marker.marker = heli;
     return marker;

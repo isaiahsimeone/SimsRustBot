@@ -206,4 +206,30 @@
     margin-left: 5px;
     font-size: 10px;
   }
+  .note-background, .note-mask, .note-border, .note-outer-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%; /* circular */
+  }
   
+  .note-background {
+    z-index: 1;
+  }
+  
+  .note-mask {
+    z-index: 2;
+  }
+  
+  .note-border {
+    box-sizing: border-box;
+    z-index: 3;
+  }
+  
+  .note-outer-border {
+    box-sizing: border-box;
+    border: 1px solid black; /* outer black border */
+    z-index: 4;
+  }
