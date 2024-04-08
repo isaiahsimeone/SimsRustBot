@@ -71,3 +71,32 @@ export function darkenRGB(hex, factor=0.75) {
   
 	return `#${toHex(darkerR)}${toHex(darkerG)}${toHex(darkerB)}`;
 }
+
+
+export function createDiv(classList = "") {
+    var div = document.createElement("div");
+    // Split the classList string into an array of class names
+    var classes = classList.split(" ");
+    classes.forEach(function(className) {
+        if (className.trim() !== "") div.classList.add(className.trim());
+    });
+    return div;
+}
+
+export function safeGetId(id, logFunction) {
+    var target = document.getElementById(id);
+    if (!target) {
+        logFunction("Error from safeGetId: No elements found with id", id);
+        return createDiv();
+    }
+    return target;
+}
+
+export function safeGetClassName(classname, logFunction) {
+    const elements = document.getElementsByClassName(classname);
+    if (!elements || elements.length === 0) {
+        logFunction("Error from safeGetClassName: No elements found with class name:", classname);
+        return []; // Or handle it differently, such as returning an empty array
+    }
+    return elements;
+}

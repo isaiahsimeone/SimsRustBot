@@ -73,6 +73,9 @@ class TeamPollerService(BusSubscriber, Loggable):
                 # Left a team
                 self.debug("Team left")
                 await self.publish("team_left", TeamLeft())
+                
+        print("team notes:", team_info.map_notes)
+        print("leader notes:", team_info.leader_map_notes)
         
         # Currently in a team
         if team_info.leader_steam_id != 0:

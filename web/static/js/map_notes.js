@@ -1,7 +1,7 @@
 import { my_steam_id, nameFromSteamId } from "./steam.js";
 import * as socketio from "./socketio.js";
 import { leaflet_map_note_dialog, leaflet_custom_map_notes } from "./map.js";
-import { darkenRGB, rgb2hex } from "./util.js";
+import { darkenRGB, rgb2hex, createDiv, safeGetId, safeGetClassName } from "./util.js";
 import { img_path } from "./main.js";
 
 const DEBUG = true;
@@ -35,7 +35,7 @@ export function showMapNoteDialog(event) {
 	popup_open_location = event.latlng;
     log(selected_note_colour_index, selected_note_icon_index);
 	// Get the dialog element and position it at the click location
-	var dialog = document.getElementById('map-note-dialog');
+	var dialog = safeGetId("map-note-dialog", log);
     log(dialog);
 
     var popup_document = new DOMParser().parseFromString(dialog_html, "text/html");
@@ -59,8 +59,7 @@ export function showMapNoteDialog(event) {
         selected_note_colour_index = getSelectedColourIndex();
         selected_note_icon_colour = getSelectedNoteColour();
 
-
-        var picker_element = document.getElementById("color-picker-trigger");
+        var picker_element = safeGetId("color-picker-trigger", log);
 		picker_element.jscolor.hide();
 		picker_element.jscolor = null;
         
@@ -79,44 +78,29 @@ export function showMapNoteDialog(event) {
 }
 
 function genTempMarkerIcon(label = "") {
-    temp_marker_icon = null;
-    let note = document.createElement("div");
-	note.style.fontSize = "10px";
-	note.innerHTML = label;
-    note.className = "overlay map_note web_map_note";
+    let note = createDiv("overlay map_note web_map_note");
+    note.style.fontSize = "10px";
+    note.innerHTML = label;
 
-    let note_backg = document.createElement("div");
-    note_backg.className = "note-background";
-    
-    log("X", darkenRGB(selected_note_icon_colour), selected_note_icon_colour);
-    note_backg.style.backgroundColor = darkenRGB(selected_note_icon_colour);//"#40411a"; // background colour
-    //background-color: #f0f0f0; /* background color */
+    // Note background
+    let note_backg = createDiv("note-background");
+    note_backg.style.backgroundColor = darkenRGB(selected_note_icon_colour);
 
+    // Note mask
+    let note_mask = createDiv("note-mask");
+    note_mask.style = `mask: url('${img_path}/markers/${selected_note_icon_index}.png') no-repeat center / contain; mask-size: 60%; background-color: ${selected_note_icon_colour};`;
 
-    let note_mask = document.createElement("div");
-    note_mask.className = "note-mask";
-    note_mask.style.mask = `url('${img_path}/markers/${selected_note_icon_index}.png') no-repeat center / contain`; // icon
-    note_mask.style.maskSize = "60%";
-    note_mask.style.backgroundColor = `${selected_note_icon_colour}`; // icon colour
-
-
-    let note_border = document.createElement("div");
-    note_border.className = "note-border";
-    note_border.style.border = `1px solid ${selected_note_icon_colour}`; // Colour for border, same as icon
-   // border: 2px solid #ff0000; /* color for the border, same as the icon */
-
-
-    //let note_outer_border = document.createElement("div");
-    //note_outer_border.className = "note-outer-border"; // Just a black border
+    // Note border
+    let note_border = createDiv("note-border");
+    note_border.style.border = `1px solid ${selected_note_icon_colour}`;
 
     note.appendChild(note_backg);
     note.appendChild(note_mask);
     note.appendChild(note_border);
-    
-    //tempMarkerIcon.html = note.outerHTML;
+
     temp_marker_icon = L.divIcon({
         html: note.outerHTML,
-        iconSize: [20, 20], 
+        iconSize: [20, 20],
         iconAnchor: [20, 20],
         className: '' // Avoid leaflet's default icon styling
     });
@@ -126,8 +110,9 @@ function genTempMarkerIcon(label = "") {
 
 function init_note_dialog() {
 	log("selected_note_icon_colour is", selected_note_icon_colour);
+
     // Add listener to apply button
-    document.getElementById("map-note-apply").addEventListener('click', mapNoteApplyClicked);
+    safeGetId("map-note-apply", log).addEventListener('click', mapNoteApplyClicked);
 
     // Add listeners to each icon
     const note_icons = document.querySelectorAll(".note-icon");
@@ -162,19 +147,17 @@ function init_note_dialog() {
     });
 
     // Use saved selected note icon and colour
-    document.getElementsByClassName("note-icon-colour")[selected_note_colour_index].classList.add("selected");
-    document.getElementsByClassName("note-icon")[selected_note_icon_index].classList.add("selected");
+    safeGetClassName("note-icon-colour", log)[selected_note_colour_index].classList.add("selected");
+    safeGetClassName("note-icon", log)[selected_note_icon_index].classList.add("selected");
 	note_icons.forEach((icon) => {
 		icon.style.backgroundColor = selected_note_icon_colour;
 	});
-
-
 }
 
 
 function init_colour_picker() {
     jscolor.install();
-    var picker_element = document.getElementById("color-picker-trigger");
+    var picker_element = safeGetId("color-picker-trigger", log);
     picker_element.addEventListener("click", function() {
         this.jscolor.show();
     });
@@ -211,7 +194,7 @@ function getSelectedColourIndex() {
 
 
 function getSelectedNoteColour() {
-    const note_icon = document.getElementsByClassName("note-icon")[0];
+    const note_icon = safeGetClassName("note-icon", log)[0];
     return rgb2hex(note_icon.style.backgroundColor);
 }
 

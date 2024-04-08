@@ -6,6 +6,7 @@ import { serverInfoInstance } from "./server.js";
 import { steamImageExists } from "./steam.js";
 import { bindMarkerPopup, hideMapPopup } from "./map_popup.js";
 import { showMapNoteDialog } from "./map_notes.js";
+import { safeGetId } from "./util.js";
 //import { receiveMapNotes } from "./note.js";
 //import { receiveTeamMembers } from "./steam.js";
 //import { toggleChatAvailability } from "./chat.js";
@@ -70,10 +71,12 @@ export async function initialiseMap() {
 
     scale = MAP_IMAGE_SZ / map_sz;
 
+    let map_container = safeGetId("map-container", log);
+
     // Add listener for a click on the map, which should close popups
-    document.getElementById("map-container")?.addEventListener("click", function(event) {
+    map_container.addEventListener("click", function(event) {
         // Check if the clicked element is the map container itself and not a child
-        if (event.target === document.getElementById("map-container")) {
+        if (event.target === map_container) {
             hideMapPopup();
         }
     });
@@ -88,7 +91,7 @@ export async function initialiseMap() {
     background_colour = (await socketio.request_topic("background")).background;
     log("background colour is", background_colour);
     //@ts-ignore possibly null
-    document.getElementById("map-container").style.backgroundColor = background_colour;
+    map_container.style.backgroundColor = background_colour;
 
     // Request monument data from server
     const monumentData = (await socketio.request_topic("monuments")).monuments;

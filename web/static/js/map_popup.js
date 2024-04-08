@@ -38,8 +38,6 @@ function updatePopups() {
                 popup.setContent(genPlayerPopupContent(leaflet_marker)); break;
             case "EXPLOSION":
                 popup.setContent(genExplosionPopupContent(leaflet_marker)); break;
-            case "SHOP":
-                popup.setContent(genShopPopupContent(leaflet_marker)); break;
             case "CHINOOK":
                 popup.setContent(genChinookPopupContent(leaflet_marker)); break;
             case "CARGOSHIP":
@@ -58,7 +56,6 @@ function updatePopups() {
 }
 
 export function hideMapPopup() {
-    log("hide map popup()");
     popup_canvas.style.visibility = "hidden";
 }
 
@@ -66,7 +63,6 @@ export function bindMarkerPopup(leaflet_marker) {
     if (!leaflet_marker)
         return ;
     // edge case for clustered shop
-    log(leaflet_marker.is_clustered_shop)
     if (leaflet_marker.is_clustered_shop) {
         leaflet_marker.on("click", function() { addClusterShopPopupDOM(leaflet_marker.shops) });
         bound_popups.push(leaflet_marker);
@@ -114,32 +110,6 @@ export function bindMarkerPopup(leaflet_marker) {
     bound_popups.push(leaflet_marker);
 }
 
-// TODO: we can get rid of the update function if we pass marker_id
-// To all of the popup generator functions
-function makeShopPopup(marker_id) {
-    if (!plotted_markers.has(marker_id)) {
-        log("Tried to make a shop popup, but", marker_id, "isn't plotted?");
-        return ;
-    }
-
-    // reset popup
-    popup_canvas.innerHTML = "";
-
-    // Get the latest leaflet marker for this shop
-    var marker = plotted_markers.get(marker_id);
-
-    
-    
-
-
-
-    log("HELLLOOOOOO", leaflet_marker);
-}
-
-
-
-
-
 
 
 function genPlayerPopupContent(leaflet_marker) {
@@ -171,20 +141,6 @@ function genPlayerPopupContent(leaflet_marker) {
     `;
 
     return popup;
-}
-
-function genShopPopupContent(leaflet_marker) {
-    /** @type {Marker} */
-    var shop = leaflet_marker.marker;
-
-
-    var num_sale = shop.sell_orders;
-    if (num_sale == 0)
-        return "<h4>no items</h4>"
-
-   // log(num_sale);
-
-    return "<h3>" + shop.sell_orders[0].amount_in_stock + "</h3>";
 }
 
 function genCargoPopupContent(leaflet_marker) {
