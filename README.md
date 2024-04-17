@@ -5,6 +5,9 @@ With web map notes, how about we just translate the coordinates to JSON coordina
 - rust_plus_api.py should be able to translate names to steam IDs
 
 
+drone that can spot nodes? image processor, could send a 
+custom map marker indicating a node 
+
 ## Need to:
 - Modify BUS to allow a caller to await a response
 - Put config and database on the BUS
