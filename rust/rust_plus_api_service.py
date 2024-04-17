@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import loguru
 
 from ipc.data_models import Empty, RustServerInfo
-from ipc.rust_socket_manager import RustSocketManager
+from rust_socket.rust_socket_manager import RustSocketManager
 
 if TYPE_CHECKING:
     from rustplus import RustSocket
@@ -24,7 +24,7 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         super().__init__(bus, self.__class__.__name__)
         self.bus = bus
         self.config = {}
-        self.socket: RustSocket
+        self.socket: RustSocketManager
         
         self.server_info: RustInfo
     
@@ -60,10 +60,8 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         playerId = self.config["server_details"]["playerId"]
         playerToken = self.config["server_details"]["playerToken"]
 
-        rust_socket_manager = await RustSocketManager.get_instance()
-
-        await rust_socket_manager.initialise_socket(ip, port, playerId, playerToken)
-        self.socket = rust_socket_manager.socket
+        self.socket = await RustSocketManager.get_instance()
+        await self.socket.initialise_socket_leader(ip, port, playerId, playerToken)
         
         self.info(f"Connected to {ip}:{port}!")
     

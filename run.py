@@ -1,5 +1,4 @@
 import asyncio
-import threading
 
 import loguru
 
@@ -7,9 +6,8 @@ from commands.command_executor_service import CommandExecutorService
 from config.config_manager_service import ConfigManagerService
 from database.database_service import DatabaseService
 from discord_bot.discord_bot_service import DiscordBotService
-from ipc.bus_subscriber import BusSubscriber
 from ipc.message_bus import MessageBus
-from ipc.rust_socket_manager import RustSocketManager
+from rust_socket.rust_socket_manager import RustSocketManager
 from log.log_config import setup_logger
 from rust.rust_plus_api_service import RustPlusAPIService
 from services.battle_metrics_service import BattleMetricsService
@@ -23,19 +21,6 @@ from services.team_poller_service import TeamPollerService
 from util.printer import Printer
 from web.web_server_service import WebServerService
 
-
-def start_service_threaded(service: BusSubscriber) -> None:
-    """Starts a service's execute coroutine in a new thread with its own event loop.
-
-    :param service: A BusSubscriber service
-    :type service: :class:`ipc.bus_service.BusSubscriber`
-    """
-    def thread_target() -> None:
-        asyncio.run(service.execute())
-
-    thread = threading.Thread(target=thread_target)
-    thread.start()
-
 @loguru.logger.catch
 async def main() -> None:
     Printer.print_banner()
@@ -43,7 +28,7 @@ async def main() -> None:
 
     bus = MessageBus()
 
-    RustSocketManager.initialise()
+    RustSocketManager.prepare()
 
     # Initialise services with the bus
     services = [

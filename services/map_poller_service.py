@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, List
 import loguru
 
 from ipc.data_models import BaseModel, CargoDespawned, CargoSpawned, ChinookDespawned, ChinookDowned, ChinookSpawned, EventStartTimes, ExplosionMarker, MarkerExpired, HeliDespawned, HeliDowned, HeliSpawned, RustMapMarkers
-from ipc.rust_socket_manager import RustSocketManager
+from rust_socket.rust_socket_manager import RustSocketManager
 from util.rust_tools import grid_cell_from_xy
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ class MapPollerService(BusSubscriber, Loggable):
         super().__init__(bus, self.__class__.__name__)
         self.bus = bus
         self.config = {}
-        self.socket: RustSocket
+        self.socket: RustSocketManager
         
         self.server_info: RustInfo
         
@@ -56,7 +56,7 @@ class MapPollerService(BusSubscriber, Loggable):
         # Block until socket ready
         await self.last_topic_message_or_wait("socket_ready")
         # Set the socket
-        self.socket = (await RustSocketManager.get_instance()).socket
+        self.socket = await RustSocketManager.get_instance()
         # Set map polling frequency
         self.poll_rate = int(self.config["RustPlusAPIService"]["map_polling_frequency"])
         self.special_marker_persist_time = int(self.config["RustPlusAPIService"]["special_marker_persist_time"])

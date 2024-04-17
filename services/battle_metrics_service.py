@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import loguru
 
-from ipc.rust_socket_manager import RustSocketManager
+from rust_socket.rust_socket_manager import RustSocketManager
 import util
 from util.tools import Tools
 if TYPE_CHECKING:
@@ -22,7 +22,7 @@ class BattleMetricsService(BusSubscriber, Loggable):
         super().__init__(bus, self.__class__.__name__)
         self.bus = bus
         self.config = {}
-        self.socket: RustSocket
+        self.socket: RustSocketManager
         
         self.battlemetrics_api_key = ""
     
@@ -33,7 +33,7 @@ class BattleMetricsService(BusSubscriber, Loggable):
         # Block until socket ready
         await self.last_topic_message_or_wait("socket_ready")
         # Set the socket
-        self.socket = (await RustSocketManager.get_instance()).socket
+        self.socket = await RustSocketManager.get_instance()
         # Set map polling frequency
         #self.battlemetrics_api_key = self.config["BattleMetricsService"]["api_key"]
         # Get server info - RustPlusAPIService publishes this on startup to save tokens

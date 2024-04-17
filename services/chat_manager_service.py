@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any
 import loguru
 
 from ipc.data_models import HeliDespawned, HeliDowned, HeliSpawned
-from ipc.rust_socket_manager import RustSocketManager
+from rust_socket.rust_socket_manager import RustSocketManager
 if TYPE_CHECKING:
     pass
 
@@ -24,7 +24,7 @@ class ChatManagerService(BusSubscriber, Loggable):
         super().__init__(bus, self.__class__.__name__)
         self.bus = bus
         self.config = {}
-        self.socket: RustSocket
+        self.socket: RustSocketManager
 
     
     @loguru.logger.catch
@@ -34,7 +34,7 @@ class ChatManagerService(BusSubscriber, Loggable):
         # Block until socket ready
         await self.last_topic_message_or_wait("socket_ready")
         # Set the socket
-        self.socket = (await RustSocketManager.get_instance()).socket
+        self.socket = await RustSocketManager.get_instance()
         # Subscribe to events that should be written to game chat
         await self.subscribe("heli_spawned")
         await self.subscribe("heli_despawned")

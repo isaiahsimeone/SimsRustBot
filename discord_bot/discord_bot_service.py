@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, List
 import loguru
 
 from ipc.data_models import Test
-from ipc.rust_socket_manager import RustSocketManager
+from rust_socket.rust_socket_manager import RustSocketManager
 if TYPE_CHECKING:
     pass
 
@@ -22,7 +22,7 @@ class DiscordBotService(BusSubscriber, Loggable):
         super().__init__(bus, self.__class__.__name__)
         self.bus = bus
         self.config = {}
-        self.socket: RustSocket
+        self.socket: RustSocketManager
             
     @loguru.logger.catch
     async def execute(self):
@@ -30,7 +30,7 @@ class DiscordBotService(BusSubscriber, Loggable):
         self.config = await self.last_topic_message_or_wait("config")
         # Get socket
         await self.last_topic_message_or_wait("socket_ready")
-        self.socket = (await RustSocketManager.get_instance()).socket
+        self.socket = await RustSocketManager.get_instance()
         
         
     

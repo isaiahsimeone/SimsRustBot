@@ -56,19 +56,19 @@ def custom_formatter(record) -> str:
     time = record["time"].strftime("%H:%M:%S")
     level = record["level"].name
     
-    coloured_class_name = f"<fg {color}>{padded_class_name}</fg {color}>"
+    coloured_class_name = f"<fg {color}>{padded_class_name} | </fg {color}>"
     
     message = ""
     if level == "ERROR":
-        message = f"<red>{time} [ERR!]</red> {coloured_class_name} | <red>{record['message']}</red>"
+        message = f"<red>{time} [ERR!]</red> {coloured_class_name}<red>{record['message']}</red>"
     if level == "WARNING":
-        message = f"<yellow>{time} [WARN]</yellow> {coloured_class_name} | <yellow>{record['message']}</yellow>"
+        message = f"<yellow>{time} [WARN]</yellow> {coloured_class_name}<yellow>{record['message']}</yellow>"
     if level == "DEBUG":
-        message = f"<fg #567fff>{time} [DEBG]</fg #567fff> {coloured_class_name} | {record['message']}"
+        message = f"<fg #567fff>{time} [DEBG]</fg #567fff> {coloured_class_name}{record['message']}"
     if level == "INFO":
-        message = f"<fg #fff>{time} [INFO]</fg #fff> {coloured_class_name} | {record['message']}"
+        message = f"<fg #fff>{time} [INFO]</fg #fff> {coloured_class_name}{record['message']}"
     if level == "CRITICAL":
-        message = f"<v><red>{time} [CRIT]</red></v> {coloured_class_name} | <red>{record['message']}</red>"
+        message = f"<v><red>{time} [CRIT]</red></v> {coloured_class_name}<red>{record['message']}</red>"
 
     return f"{message}\n"
 

@@ -9,7 +9,7 @@ from flask import app
 import loguru
 
 from ipc.data_models import RustBackground, RustMonuments
-from ipc.rust_socket_manager import RustSocketManager
+from rust_socket.rust_socket_manager import RustSocketManager
 from web.web_routes import WebRoutes
 from web.web_socket import WebSocket
 if TYPE_CHECKING:
@@ -34,7 +34,7 @@ class WebServerService(BusSubscriber, Loggable):
         super().__init__(bus, self.__class__.__name__)
         self.bus = bus
         self.config = {}
-        self.socket: RustSocket
+        self.socket: RustSocketManager
         
         self.team_info: RustTeamInfo
         
@@ -96,7 +96,7 @@ class WebServerService(BusSubscriber, Loggable):
         # Block until socket ready
         await self.last_topic_message_or_wait("socket_ready")
         # Set the socket
-        self.socket = (await RustSocketManager.get_instance()).socket
+        self.socket = await RustSocketManager.get_instance()
          # Get server info - RustPlusAPIService publishes this on startup to save tokens
         self.server_info = (await self.last_topic_message_or_wait("server_info")).data["server_info"]
         # Get team info

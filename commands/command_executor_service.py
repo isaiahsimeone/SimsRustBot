@@ -1,9 +1,8 @@
 
 from __future__ import annotations
-import asyncio
 from typing import TYPE_CHECKING, List
 
-from ipc.rust_socket_manager import RustSocketManager
+from rust_socket.rust_socket_manager import RustSocketManager
 if TYPE_CHECKING:
     pass
 
@@ -19,14 +18,14 @@ class CommandExecutorService(BusSubscriber, Loggable):
         super().__init__(bus, self.__class__.__name__)
         self.bus = bus
         self.config = {}
-        self.socket: RustSocket
+        self.socket: RustSocketManager
     
     async def execute(self):
         # Get config
         self.config = await self.last_topic_message_or_wait("config")
         # Get socket
         await self.last_topic_message_or_wait("socket_ready")
-        self.socket = (await RustSocketManager.get_instance()).socket
+        self.socket = await RustSocketManager.get_instance()
         
 
     async def on_message(self, topic: str, message: Message):

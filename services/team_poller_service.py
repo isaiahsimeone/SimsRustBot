@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, List
 import loguru
 
 from ipc.data_models import TeamInfo, TeamJoined, TeamLeaderChange, TeamLeft, TeamMemberConnectivity, TeamMemberJoin, TeamMemberLeft, TeamMemberVital
-from ipc.rust_socket_manager import RustSocketManager
+from rust_socket.rust_socket_manager import RustSocketManager
 if TYPE_CHECKING:
     pass
 
@@ -25,7 +25,7 @@ class TeamPollerService(BusSubscriber, Loggable):
         super().__init__(bus, self.__class__.__name__)
         self.bus = bus
         self.config = {}
-        self.socket: RustSocket
+        self.socket: RustSocketManager
         
         self.server_info: RustInfo
         
@@ -39,7 +39,7 @@ class TeamPollerService(BusSubscriber, Loggable):
         # Block until socket ready
         await self.last_topic_message_or_wait("socket_ready")
         # Set the socket
-        self.socket = (await RustSocketManager.get_instance()).socket
+        self.socket = await RustSocketManager.get_instance()
         # Set team polling frequency
         self.poll_rate = int(self.config["RustPlusAPIService"]["team_polling_frequency"])
         # Get server info - RustPlusAPIService publishes this on startup to save tokens
