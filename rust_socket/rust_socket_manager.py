@@ -60,6 +60,42 @@ class RustSocketManager(Loggable):
     
     #### Internal methods
     
+        
+    async def socket_get_with_timeout(self, client_socket, socket_method_name, timeout_seconds=2, *args, **kwargs):
+        """
+        Asynchronously calls a specified method on a rust socket with a timeout.
+
+        This method dynamically retrieves and invokes a method from the client socket using the provided `socket_method_name`.
+        It applies a timeout to this operation and captures any resulting errors or timeouts. The operation's results are returned 
+        if successful. In case of timeouts or other exceptions, an empty list is returned.
+
+        :param client_socket: The client socket object on which the method will be called.
+        :type client_socket: ClientSocket
+        :param socket_method_name: The name of the method to be called on the client socket.
+        :type socket_method_name: str
+        :param timeout_seconds: The maximum time in seconds to wait for the method call to complete, defaults to 2 seconds.
+        :type timeout_seconds: int, optional
+        :param args: Variable length argument list for the method being called.
+        :param kwargs: Arbitrary keyword arguments for the method being called.
+        :return: The result of the method call if successful (usually map notes), or an empty list in case of timeouts or exceptions.
+        :rtype: list
+        :raises asyncio.TimeoutError: If the method call exceeds the specified timeout.
+        :raises Exception: For any other issues that arise during the method call.
+        """
+        try:
+            # Get the method from the client_socket based on the method_name string
+            method = getattr(client_socket.socket, socket_method_name)
+            # Call the method with provided args and kwargs, with a timeout
+            socket_info = await asyncio.wait_for(method(*args, **kwargs), timeout=timeout_seconds)
+            self.debug("Using", client_socket.steam_id, "for", socket_method_name)
+            return socket_info.map_notes
+        except asyncio.TimeoutError:
+            self.debug("Timeout", client_socket.steam_id)
+            return []
+        except Exception as e:
+            self.debug("Error with", client_socket.steam_id, ":", str(e))
+            return []
+    
     async def create_and_connect_socket(self, ip: str, port: str, steam_id, playerToken: str):
         if self.sockets.get(steam_id):
             self.warning("This steam user already has a rust socket")
@@ -93,7 +129,12 @@ class RustSocketManager(Loggable):
     
     # Use specific socket, fallback to leader
     async def send_team_message(self, message: Union[str, object], steam_id: int | None = None):
-        socket = self.sockets[steam_id] if steam_id and self.sockets[steam_id] else self.leader_socket
+        socket = self.leader_socket
+        if steam_id:
+            if self.sockets[steam_id]:
+                socket = self.sockets[steam_id]
+            else:
+                self.warning("Steam ID was provided but it doesn't have an associated socket")
         self.debug("Using", socket.steam_id, "for send_team_message")
         return await socket.socket.send_team_message(message)
     
@@ -108,19 +149,26 @@ class RustSocketManager(Loggable):
         selected_socket = self.client_socket_most_tokens()
         self.debug("Using", selected_socket.steam_id, "for get_team_chat")
         return await selected_socket.socket.get_team_chat()
-    
-    # Use specific socket, aggregate, leader is fallback
-    # Todo: this might be pretty slow
+ 
     async def get_team_info(self) -> RustTeamInfo:
+        # Start tasks for each socket concurrently with a timeout
+        tasks = [self.socket_get_with_timeout(value, "get_team_info") for _, value in self.sockets.items()]
+        completed_tasks = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Initialize team_info and team_notes
         team_info = await self.leader_socket.socket.get_team_info()
         team_notes: List[RustTeamNote] = []
-        for _, value in self.sockets.items():
-             notes = (await value.socket.get_team_info()).map_notes
-             for note in notes:
-                 team_notes.append(note)
+
+        # Process results, ignoring timeouts and errors
+        for result in completed_tasks:
+            if isinstance(result, Exception):
+                continue  # Skip exceptions
+            team_notes.extend(result) # type:ignore
+        
         team_info._map_notes = team_notes
         return team_info
-    
+
+        
     # Any socket
     async def get_markers(self) -> List[RustMarker]:
         selected_socket = self.client_socket_most_tokens()
@@ -174,8 +222,8 @@ class RustSocketManager(Loggable):
         pass
     
     def __str__(self):
-        s = "["
+        s = "{"
         for steam_id, rust_socket in self.sockets.items():
             s += f"SteamId: {steam_id}. RustSocket:{rust_socket.socket.server_id}\n"
-        s += "]"
+        s += "}"
         return s

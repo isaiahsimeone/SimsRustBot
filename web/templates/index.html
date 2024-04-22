@@ -41,11 +41,24 @@
         }
 
         #left-panel, #right-panel {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: nowrap;
             position: absolute;
             top: 0;
             bottom: 0;
             width: 12.5%;
             z-index: 3000;
+        }
+        
+        .panel-entry-left {
+          display: flex;
+          flex: 1;
+        }
+
+        .panel-entry-right {
+          display: flex;
+          flex: 1 25;
         }
 
         #left-panel {
@@ -92,7 +105,8 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            height: calc(100vh - 160px); /* Adjust height */
+            height: calc(100vh); /* Adjust height */
+            margin-bottom: 5px;
           }
           
           .chat-messages {
@@ -277,7 +291,7 @@
 </head>
 <body>
 
-<div id="left-panel" class="bg-dark text-light">
+<div id="left-panel" class="panel-entry-left bg-dark text-light">
     <div class="logo p-3">
         <a target="_blank" href="https://www.github.com/isaiahsimeone/simsrustbot">
           <img src="static/images/sims_rust_bot_logo.png" alt="Sim's Rust Bot" class="img-fluid" />
@@ -291,6 +305,29 @@
         <div class="menu-opt">Menu Option 4</div>
     </div>
     <hr class="divider">
+
+    <div class="team-info-wrapper">
+      <span class="team-info-header">The Team</span>
+      <div id="team-info" class="team-info">
+        <!-- Dynamically generate player list here -->
+        <div class="team-info-player">
+          <div class="team-info-col">
+            <div class="team-info-player-image"></div>
+          </div>
+          <div class="team-info-col">
+            <div class="team-info-player-name"></div>
+          </div>
+          <div class="team-info-col">
+            <div class="team-info-player-button-group">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Repeat for other players -->
+      </div>
+</div>
+<hr class="divider">
+
 </div>
 
 <div id="map-popup">
@@ -315,19 +352,13 @@
 <div id="map-container"></div>
 
 
-<div id="right-panel" class="bg-dark text-light">
+<div id="right-panel" class="panel-entry-right bg-dark text-light">
     <div id="server-info">
         Server Info
+        <br><br><br><br>
+        dfas
     </div>
-    <hr class="divider">
-    <div id="team-info">
-        <div class="players p-3">
-            <!-- Dynamically generate player list here -->
-            <p>Player name 1</p>
-            <!-- Repeat for other players -->
-        </div>
-    </div>
-    <hr class="divider">
+    
     <div id="game-chat" class="chat-area">
         <div id="chat-join-a-team-first">Join a team to chat</div>
         <div class="chat-messages p-3" id="messages_container">

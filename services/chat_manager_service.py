@@ -48,7 +48,7 @@ class ChatManagerService(BusSubscriber, Loggable):
     async def send_team_message(self, *args, **kwargs) -> None:
         message = ' '.join(arg for arg in args)
         prefix = kwargs.get("prefix", "[BOT]")
-        await self.socket.send_team_message(f"{prefix}{message}")
+        await self.socket.send_team_message(f"{prefix} {message}")
 
     async def send_heli_message(self, message: Message) -> None:
         model: dict[str, Any] = message.data

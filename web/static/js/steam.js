@@ -32,6 +32,7 @@ export function steamImageExists(steam_id) {
     return steam_images_available.includes(steam_id);
 }
 
+
 export function downloadSteamImage(steamId) {
     log("Downloading steam profile pic for", steamId);
     const url = `${window.location.href}downloadsteamimage/${steamId}`;
@@ -45,6 +46,8 @@ export function downloadSteamImage(steamId) {
                 // Image processing started, now poll for availability or proceed as necessary
                 log(data.message);
                 steam_images_available.push(steamId);
+                // Elements might be marked waiting for this image. Update the image of that element
+                updateWaitingElements(steamId);
                 // Optionally, implement polling mechanism here if you need to wait for the image to be available
             } else {
                 // Handle failure
@@ -53,6 +56,15 @@ export function downloadSteamImage(steamId) {
             }
         })
     .catch(error => console.error('Error during fetch operation:', error));
+}
+
+function updateWaitingElements(steam_id) {
+    var wait_tag = `awaiting-image-${steam_id}`;
+    var waiters = document.getElementsByClassName(wait_tag);
+    for (let i = 0; i < waiters.length; i++) {
+        waiters[i].style.backgroundImage = `url("static/images/steam_pics/${steam_id}.png`;
+        waiters[i].classList.remove(wait_tag);
+    }
 }
 
 function log(...args) {

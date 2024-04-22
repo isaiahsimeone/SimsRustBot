@@ -7,3 +7,152 @@
     height: 16px;
     top: 4px; /* This could cause some issues */
 }
+
+.team-info-wrapper {
+    order: 2; 
+    margin-top: auto;
+    margin-bottom: 30px;
+    max-height: 200px;
+}
+
+.team-info {
+    order: 2; /* CHANGE THIS WHEN ADDING MORE ROWS */
+    margin-top: auto;
+    max-height: 200px;
+}
+
+.team-info-header {
+    padding-bottom: 5px;
+    padding-left: 5px;
+    color: rgb(253, 146, 24);
+    font-family: RobotoBold;
+}
+
+.team-info {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.team-info::-webkit-scrollbar {
+    width: 7px;
+}
+.team-info::-webkit-scrollbar-track {
+    background : rgb(52, 58, 64);
+    border-radius: 7px;
+}
+.team-info::-webkit-scrollbar-thumb {
+    background : rgb(253, 144, 18);
+    border-radius: 7px;
+    box-shadow:  0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+
+
+.team-info-player {
+    display: flex;            /* Flex container */
+    align-items: center;      /* Center items vertically */
+    height: 40px;
+    margin: 2px 3px 5px;
+    background-color: #1f1f1f;
+    border-radius: 5px;
+    padding: 0 10px;          /* Padding on the sides of the container */
+    justify-content: space-between; /* This will put space between the main elements */
+}
+
+
+.team-info-col {
+    display: flex;
+    align-items: center;
+    flex: 1; /* Allows each .team-info-col to expand and use available space */
+}
+
+.team-info-player-name {
+    font-family: RobotoBold;
+    white-space: nowrap; /* Prevents the name from wrapping */
+}
+
+.team-info-player .team-info-col:first-child {
+    flex-grow: 0; /* Prevents the image container from growing */
+    margin-right: 8px; /* Adjust this value to put the name right next to the image */
+}
+
+
+.team-info-player-image {
+    position: relative;
+    padding: 0;
+    left: 3px;
+    width: 30px;
+    height: 30px;
+    background-image: url(../images/steam_pics/76561198032291162.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    border-radius: 50%; /* circular */
+}
+
+.team-info-player-image-darken {
+    filter: brightness(50%); /* darken the player image */
+
+}
+
+.team-info-player-image-strikethrough {
+    position: absolute;
+    top: 0;
+    left: 3px;
+    width: 125%;
+    height: 100%;
+    background: transparent;
+    border-top: 2px solid red;
+    transform: rotate(45deg);
+    transform-origin: 0 0;
+}
+
+.team-info-player-button-group {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    flex-grow: 1; /* Allows the button group to expand and use available space */
+}
+
+.team-info-player-button {
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    margin: 0 2px;
+    cursor: pointer;
+    font-family: RobotoBold;
+    font-size: 13px;
+    outline: none;
+    transition: background-color 0.3s;
+}
+
+.team-info-player-button:hover {
+    background-color: #555;
+}
+
+
+.team-info-button-wrench {
+    background-image: url(../images/icons/wrench-24.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
+
+
+.team-info-button-accuracy {
+    background-image: url(../images/icons/accuracy-24.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
+
+@font-face {
+    font-family: RobotoRegular;
+    src: url("../fonts/RobotoCondensed-Regular.ttf")
+}
+
+@font-face {
+    font-family: RobotoBold;
+    src: url("../fonts/RobotoCondensed-Bold.ttf")
+}

@@ -1,4 +1,4 @@
-import { map_markers, leaflet_shop_markers, scale } from "./map.js";
+import { map_markers, leaflet_shop_markers, scale, player_markers } from "./map.js";
 import { Marker } from "./structures.js";
 import { steamImageExists } from "./steam.js";
 
@@ -88,6 +88,8 @@ export function createPlayerMarker(player) {
         marker.image_loaded = true;
 
     marker.marker = player;
+
+    player_markers.set(player.steam_id, marker);
     
     return marker
 }

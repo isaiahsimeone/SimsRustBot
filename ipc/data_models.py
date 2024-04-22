@@ -22,14 +22,14 @@ class BaseModel(PydanticBaseModel):
         return self.__class__.__name__
 
 class RustTeamChatMessage(BaseModel):
-    steam_id: int
+    steam_id: str
     name: str
     message: str
     colour: str
     time: int
     
 class RustTeamChange(BaseModel):
-    leader_steam_id: int
+    leader_steam_id: str
     members: List[RustTeamMember]
     map_notes: List[RustTeamNote]
     leader_map_notes: List[RustTeamNote]
@@ -70,11 +70,11 @@ class TeamMemberLeft(BaseModel):
     member: RustTeamMember
     
 class TeamMemberConnectivity(BaseModel):
-    steam_id: int
+    steam_id: str
     is_online: bool
     
 class TeamMemberVital(BaseModel):
-    steam_id: int
+    steam_id: str
     is_alive: bool
 
 class RustTeamChatInitial(BaseModel):
@@ -151,7 +151,7 @@ class RustPlayerStateChange(BaseModel):
 
 
 class RustRequestSendTeamMessage(BaseModel):
-    steam_id: int
+    steam_id: str
     name: Optional[str] = None
     message: str
     time: Optional[int] = -1

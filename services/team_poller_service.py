@@ -106,10 +106,10 @@ class TeamPollerService(BusSubscriber, Loggable):
                             case 'name_changed':
                                 self.debug(f"  Name changed from '{change_detail['from']}' to '{change_detail['to']}'")
                             case 'is_online_changed':
-                                await self.publish("team_member_connectivity", TeamMemberConnectivity(steam_id=steam_id, is_online=change_detail['to']))
+                                await self.publish("team_member_connectivity", TeamMemberConnectivity(steam_id=str(steam_id), is_online=change_detail['to']))
                                 self.debug(f"  Online status changed from '{change_detail['from']}' to '{change_detail['to']}'")
                             case 'is_alive_changed':
-                                await self.publish("team_member_vital", TeamMemberVital(steam_id=steam_id, is_alive=change_detail['to']))
+                                await self.publish("team_member_vital", TeamMemberVital(steam_id=str(steam_id), is_alive=change_detail['to']))
                                 self.debug(f"  Alive status changed from '{change_detail['from']}' to '{change_detail['to']}'")
                             case _:
                                 self.error(f"Unknown change_key: {change_key}")

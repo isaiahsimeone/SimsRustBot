@@ -85,8 +85,8 @@ class WebServerService(BusSubscriber, Loggable):
             self.info("Service disabled in config")
             return None
         
-        self.steam_key = self.config["WebServerService"]["steam_api_key"]
-        if self.steam_key == "":
+        self._steam_api_key = self.config["WebServerService"]["steam_api_key"]
+        if self._steam_api_key == "":
             self.error("No steam API key is set. No web server will be started")
             return None
         

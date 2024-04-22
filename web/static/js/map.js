@@ -31,6 +31,11 @@ export let monuments = [];
  */
 export let plotted_markers = new Map();
 
+/**
+ * @type {Map}
+ */
+export let player_markers = new Map();
+
 export let leaflet_map;
 
 export let map_markers;
@@ -446,6 +451,25 @@ function calculateDistance(markerA, markerB) {
 }
 
 
+export function snapToPlayer(steam_id) {
+    var player_marker = player_markers.get(steam_id);
+
+    if (!player_marker)
+        return ;
+    
+    var target_loc = player_marker.getLatLng();
+    leaflet_map.flyTo([target_loc.lat, target_loc.lng], 1.5);
+}
+
+
+export function snapToMarker(marker_id) {
+    var target_marker = plotted_markers.get(marker_id);
+    if (!target_marker)
+        return ;
+
+    var target_loc = target_marker.getLatLng();
+    leaflet_map.flyTo([target_loc.lat, target_loc.lng], 1.5);
+}
 
 
 /**

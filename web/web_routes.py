@@ -31,11 +31,19 @@ class WebRoutes(Loggable):
         self.app.add_url_rule("/auth/response", "steam_auth_response", self.steam_auth_response, methods=["GET"])
         self.app.add_url_rule("/downloadsteamimage/<steam_id>", "download_steam_image", self.download_steam_image, methods=["POST"])
 
+    def steam_id_is_permitted(self, steam_id):
+        #If this user is not in the rust team, they may not access the page
+        return int(steam_id) in self.web_server.permissions
+    
     def index(self):
         steam_id = session.get("steam_id", None)
         # User must authenticate with steam
         if not steam_id:
             return render_template("steam_login.html")
+        
+        if not self.steam_id_is_permitted(steam_id):
+            self.warning(f"Someone (steam_id={steam_id}) tried to access index.html, but they aren't in the team")
+            return render_template("unauthorised.html")
         
         self.debug("Got steamId:", steam_id)
         
@@ -46,14 +54,13 @@ class WebRoutes(Loggable):
         response = make_response(render_template("index.html"))
         response.set_cookie("steam_id", steam_id)
         return response
-        
+
     def steam_auth(self):
-        realm = f"http://{self.web_server.host}:{self.web_server.port}"
         params = {
             "openid.ns": "http://specs.openid.net/auth/2.0",
             "openid.mode": "checkid_setup",
-            "openid.return_to": f"{realm}/auth/response",
-            "openid.realm": f"{realm}/",
+            "openid.return_to": f"{request.host_url}auth/response",
+            "openid.realm": f"{request.host_url}",
             "openid.identity": "http://specs.openid.net/auth/2.0/identifier_select",
             "openid.claimed_id": "http://specs.openid.net/auth/2.0/identifier_select",
         }
@@ -71,9 +78,9 @@ class WebRoutes(Loggable):
                 steam_id = match.group(1)
                 
                 #If this user is not in the rust team, they may not access the page
-                if int(steam_id) not in self.web_server.permissions:
-                    self.warning(f"Someone (steamId: {steam_id}) outside of the team attempted to access the web service")
-                    return "You are not part of the team. You may not access this", 403
+                if not self.steam_id_is_permitted(steam_id):
+                    self.warning(f"Someone (steam_id={steam_id}) tried to access index.html, but they aren't in the team")
+                    return render_template("unauthorised.html")
                 
                 session["steam_id"] = steam_id
                 

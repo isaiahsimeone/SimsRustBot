@@ -2,6 +2,7 @@
 //import { receiveTeamChatData } from "./chat.js";
 import { receiveMarkers, removeMarker, setCreationTime } from "./map.js";
 import * as util from "./util.js";
+import * as team from "./team.js"; //{ initialiseTeam, teamMemberConnectivityChange, teamMemberVitalChange } from "./team.js";
 //import { receiveTeamInfo } from "./team.js";
 //import { receiveServerInfo } from "./server.js";
 //import { receiveWebMapNoteChange, receiveWebMapNotes } from "./note.js";
@@ -28,25 +29,21 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
 
     switch (type) {
         case "map_markers":
-            log("ADD");
             receiveMarkers(data["markers"]);
             break;
-        case "team_joined":
-            log("Joined a team");
-            break;
-        case "team_left":
-            log("Left a team");
-            break;
-        case "team_member_join":
-            log("Someone joined the team");
-            break;
-        case "team_member_left":
-            log("Someone left the team");
+        case "team_joined": log("Joined a team");
+        case "team_left": log("Left a team");
+        case "team_member_join": log("Someone joined the team");
+        case "team_member_left": log("Someone left the team");
+            team.initialiseTeam();
             break;
         case "team_member_vital":
+            // Data is {steam_id, is_alive}
+            team.teamMemberVitalChange(data);
             log("A player died/spawned");
             break;
         case "team_member_connectivity":
+            team.teamMemberConnectivityChange(data);
             log("Someone joined or left");
             break;
         case "team_leader_changed":

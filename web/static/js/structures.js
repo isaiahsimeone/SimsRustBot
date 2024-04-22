@@ -1068,9 +1068,9 @@ export class Member {
 
     get death_time() { return this._data.death_time; }
 
-    get is_alive() { return this._data.is_alive; }
+    get is_alive() { return this._data.is_alive.toLowerCase() === "true"; }
 
-    get is_online() { return this._data.is_online; }
+    get is_online() { return this._data.is_online.toLowerCase() === "true"; }
 
     get name() { return this._data.name; }
 
