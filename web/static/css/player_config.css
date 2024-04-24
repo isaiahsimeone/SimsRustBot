@@ -1,0 +1,72 @@
+.config-popup {
+    position: absolute;
+    border: 1px solid #000;
+    border-left: none;
+    padding: 20px;
+    height: 470px;
+    left: 100%;
+    bottom: 0px;
+    width: 350px;
+    position: absolute; /* Keep position absolute */
+    display: block; /* Changed to block for initial rendering offscreen */
+    overflow: hidden; /* Ensure contents are clipped during animation */
+    clip-path: inset(0 100% 0 0); /* Hide the content initially */
+    transition: clip-path 0.25s ease-out, ease-out 0.35s; /* Animate clip-path and delay opacity */
+    z-index: -1; /* Start behind other elements, will be brought forward on open */
+    background-color: rgb(52, 58, 64);
+  }
+
+  .config-popup-open {
+    clip-path: inset(0 0 0 0); /* Reveal the full content */
+    opacity: 1; /* Fade in to full opacity */
+    transition: clip-path 0.25s ease-out; /* Animate both properties without delay */
+  }
+  
+  .config-popup-header h2,
+  .config-popup-header h3 {
+    margin: 0;
+  }
+
+  .config-header-text {
+    font-family: RobotoBold;
+    color: red;
+    font-size: 28px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .config-header-subtext {
+    font-family: RobotoRegular;
+    font-size: 14px;
+  }
+  
+  .config-form-group {
+    margin-bottom: 10px;
+  }
+  
+  .config-input-field {
+    display: inline-block;
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+  }
+  
+  .config-form-actions {
+    text-align: right;
+  }
+  
+  .config-btn {
+    padding: 5px 15px;
+    margin: 5px;
+    border: 1px solid #000;
+    background: #fff;
+  }
+  
+  .config-btn.apply {
+    /* style for apply button */
+  }
+  
+  .config-btn.cancel {
+    /* style for cancel button */
+  }
+  

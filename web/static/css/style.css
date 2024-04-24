@@ -68,7 +68,19 @@
 
 .team-info-player-name {
     font-family: RobotoBold;
+    font-size: 12px;
     white-space: nowrap; /* Prevents the name from wrapping */
+}
+
+.team-info-player-crown {
+    position:relative;
+    left: 4px;
+    width: 12px;
+    height: 12px;
+    background-image: url(../images/icons/crown-24.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    border-radius: 50%; /* circular */ 
 }
 
 .team-info-player .team-info-col:first-child {
@@ -138,9 +150,24 @@
     height: 24px;
 }
 
-
 .team-info-button-accuracy {
     background-image: url(../images/icons/accuracy-24.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
+
+.team-info-button-map-notes-shown {
+    background-image: url(../images/icons/map-note-shown-24.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
+
+.team-info-button-map-notes-hidden {
+    background-image: url(../images/icons/map-notes-hidden-24.png);
     background-size: contain;
     background-repeat: no-repeat;
     width: 24px;

@@ -15,6 +15,13 @@ const DEBUG = true;
 export let teamInfoInstance;
 
 /**
+ * @type {Set}
+ * Contains steam IDs of players whose map notes
+ * should be hidden
+ */
+let hidden_player_notes = new Set();
+
+/**
  * Initialises the variable 'team_info' by requesting 
  * the data from the flask server
  */
@@ -92,6 +99,10 @@ function createTeamInfoPanel() {
     }
 }
 
+export function isLeader(steam_id) {
+    return steam_id == teamInfoInstance.leader_steam_id;
+}
+
 /**
  * 
  * @param {Member} member 
@@ -118,7 +129,12 @@ function createPanelTeamMember(member) {
     var team_info_player_name = util.createDiv("team-info-player-name");
     team_info_player_name.innerHTML = member.name;
     team_info_col2.appendChild(team_info_player_name);
-
+    log (member.steam_id, teamInfoInstance.leader_steam_id);
+    if (isLeader(member.steam_id)) {
+        var team_info_player_crown = util.createDiv("team-info-player-crown");
+        team_info_col2.appendChild(team_info_player_crown);
+    }
+    
     team_info_player.appendChild(team_info_col2);
 
     var team_info_col3 = util.createDiv("team-info-col");
@@ -130,9 +146,25 @@ function createPanelTeamMember(member) {
     });
 
     var team_info_button_wrench = util.createDiv("team-info-player-button team-info-button-wrench");
+    team_info_button_wrench.addEventListener("click", function(event) {
+        createConfigDialog(event, member.steam_id);
+    });
 
     if (member.is_online)
         team_info_player_button_group.appendChild(team_info_button_accuracy);
+
+    var hide_map_notes_button = util.createDiv("team-info-player-button");
+
+    if (hidden_player_notes.has(member.steam_id))
+        hide_map_notes_button.classList.add("team-info-button-map-notes-hidden");
+    else
+        hide_map_notes_button.classList.add("team-info-button-map-notes-shown");
+    
+    //hide_map_notes_button.addEventListener("click", function(event) {
+    //    toggleMapNoteVisibility(member.steam_id);
+    //});
+    
+    team_info_player_button_group.appendChild(hide_map_notes_button);
 
     team_info_player_button_group.appendChild(team_info_button_wrench);
     
@@ -182,6 +214,20 @@ export function teamMemberVitalChange(vitalChange) {
     log(vitalChange);
     setTeamMemberVital(vitalChange.steam_id, vitalChange.is_alive);
 }
+
+function createConfigDialog(event, steam_id) {
+    log("CLICK");
+    const popup = util.safeGetId("player-config-popup", log);
+    
+    if (popup.classList.contains('config-popup-open')) {
+        // Close the popup
+        popup.classList.remove('config-popup-open');
+      } else {
+        // Open the popup
+        popup.classList.add('config-popup-open');
+      }
+}
+
 
 /**
  * Determines whether the operator of the bot (the bot owner) is in a rust team

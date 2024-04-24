@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="static/css/style.css"/>
     <link rel="stylesheet" href="static/css/map_popups.css"/>
     <link rel="stylesheet" href="static/css/map_webnote.css"/>
+    <link rel="stylesheet" href="static/css/player_config.css"/>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
     
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -324,6 +325,28 @@
         </div>
         
         <!-- Repeat for other players -->
+      </div>
+      <div class="config-popup" id="player-config-popup">
+        <div class="config-popup-header">
+          <span class="config-header-text">STOP!</span><br>
+          <span class="config-header-subtext" style="color: #ff6666">Do you trust the operator of this bot?</span><br>
+          <span class="config-header-subtext">Giving them your token can provide them access to your Rust+ account!</span><br><br>
+          <span class="config-header-subtext">If you do trust them, install <a target="_blank" href="https://chromewebstore.google.com/detail/rustpluspy-link-companion/gojhnmnggbnflhdcpcemeahejhcimnlf?hl=en-GB">this chrome extension</a>, activate it and enter the tokens below</span><br>
+        </div>
+        <form class="config-popup-form">
+          <div class="config-popup-form-group">
+            <label for="config-input1">Your FCM Information:</label>
+            <textarea id="config-input1" cols="10" class="config-input-field"></textarea>
+          </div>
+          <div class="config-form-group">
+            <label for="config-input2">Your Server Pairing Information:</label>
+            <textarea id="config-input2" cols="10" class="config-input-field"></textarea>
+          </div>
+          <div class="config-form-actions">
+            <button type="submit" class="config-btn apply">Apply</button>
+            <button type="button" class="config-btn cancel">Cancel</button>
+          </div>
+        </form>
       </div>
 </div>
 <hr class="divider">
