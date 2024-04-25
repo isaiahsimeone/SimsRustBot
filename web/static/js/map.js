@@ -1,7 +1,7 @@
 //@ts-check
 import * as socketio from "./socketio.js";
-import { Marker, Monument } from "./structures.js";
 import * as markerFactory from "./marker.js";
+import { Marker, Monument } from "./structures.js";
 import { serverInfoInstance } from "./server.js";
 import { steamImageExists } from "./steam.js";
 import { bindMarkerPopup, hideMapPopup } from "./map_popup.js";

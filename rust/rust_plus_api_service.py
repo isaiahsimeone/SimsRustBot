@@ -1,11 +1,13 @@
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 import loguru
 
-from ipc.data_models import Empty, RustServerInfo
+from ipc.data_models import Empty, PlayerServerToken, RustServerInfo
+from rust_socket.client_rust_socket import ClientRustSocket
 from rust_socket.rust_socket_manager import RustSocketManager
 
 if TYPE_CHECKING:
@@ -35,6 +37,8 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         :param self: This instance
         :type self: :class:`RustPlusAPIService <rustplus_api.rust_plus_api_server.RustPlusAPIService>`
         """
+        await self.subscribe("player_server_token")
+        await self.subscribe("player_fcm_token")
         # Get config
         self.config = (await self.last_topic_message_or_wait("config")).data["config"]
         
@@ -75,4 +79,25 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         :param message: The message being received
         :type message: :class:`Message<ipc.message.Message>`
         """
-        self.debug(f"Bus message ({topic}):", message)
+        match topic:
+            case "player_server_token":
+                await self.register_player_server_token(message)
+            case "player_fcm_token":
+                pass
+            case _:
+                self.error(f"Encountered topic {topic} that I have no case for")
+
+
+    async def register_player_server_token(self: RustPlusAPIService, message: Message) -> None:
+        token = json.loads(message.data["token"])
+        steam_id = message.data.get("steam_id")
+        
+        self.debug("creating client socket", token["ip"], token["port"], steam_id, token["playerToken"])
+        
+        if self.socket.leader_socket.steam_id == steam_id:
+            self.warning("The bot operator tried to overwrite their own FCM credentials. Ignoring")
+            return None
+        
+        self.socket.create_socket_thread(token["ip"], token["port"], steam_id, token["playerToken"])
+        
+        self.debug("created client socket")

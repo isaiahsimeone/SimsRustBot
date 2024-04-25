@@ -149,7 +149,7 @@ function createPanelTeamMember(member) {
     var team_info_button_wrench = util.createDiv("team-info-player-button team-info-button-wrench");
     team_info_button_wrench.id = "config-popup-button-wrench";
     team_info_button_wrench.addEventListener("click", function(event) {
-        createConfigDialog(event, member.steam_id);
+        toggleConfigDialog(event, member.steam_id);
     });
 
     if (member.is_online)
@@ -177,6 +177,47 @@ function createPanelTeamMember(member) {
     team_info_player.appendChild(team_info_col3);
     
     return team_info_player;
+}
+
+// Submit credentials in the config form to the server
+function submitCredentials() {
+    // Validate the input
+    var status = "";
+    var server_token = document.getElementById("config-server-info");
+    var fcm_token = document.getElementById("config-fcm-info");
+
+    if (!server_token && !fcm_token)
+        return ;
+
+    // Handle server token validation and submission
+    if (server_token) {
+        // @ts-ignore
+        var val = server_token.value;
+        // Validate server token
+        if (!validServerToken(val)) {
+            log("ERROR: Unable to validate provided Server token");
+        } else {
+            // Submit
+            socketio.send_to_server("player_server_token", {steam_id: my_steam_id, token: val});
+        }
+    }
+
+    // Handle FCM token validation and submission
+    if (fcm_token) {
+        // @ts-ignore
+        var val = fcm_token.value;
+        
+        // Validate FCM token
+        if (!validFcmToken(val)) {
+            log("ERROR: Unable to validate provided FCM token");
+        } else {
+            // Submit
+            socketio.send_to_server("player_fcm_token", {steam_id: my_steam_id, token: val});
+        }
+    }
+
+    // Send the input
+    log("CLICKOOO");
 }
 
 function setTeamMemberVital(steam_id, is_alive) {
@@ -219,19 +260,87 @@ export function teamMemberVitalChange(vitalChange) {
     setTeamMemberVital(vitalChange.steam_id, vitalChange.is_alive);
 }
 
-function createConfigDialog(event, steam_id) {
-    log("CLICK");
+function toggleConfigDialog(event, steam_id) {
+    
     const popup = util.safeGetId("player-config-popup", log);
     
     if (popup.classList.contains("config-popup-open")) {
+        util.safeGetId("config-button-submit").removeEventListener("click", submitCredentials);
         // Close the popup
         popup.classList.remove("config-popup-open");
       } else {
+        util.safeGetId("config-button-submit").addEventListener("click", submitCredentials);
         // Open the popup
         popup.classList.add("config-popup-open");
         // Hide map popup (shop browser)
         map_popup.hideMapPopup();
-      }
+    }
+}
+
+function validFcmToken(token) {
+    if (!token)
+        return false;
+
+    const schema = {
+        expo_push_token: "string",
+        fcm_credentials: {
+            fcm: {
+                pushSet: "string",
+                token: "string"
+            },
+            gcm: {
+                androidId: "string",
+                appId: "string",
+                securityToken: "string",
+                token: "string"
+            },
+            keys: {
+                private: "string",
+                public: "string",
+                secret: "string"
+            }
+        },
+        rustplus_auth_token: "string"
+    };
+
+    var validity = util.validateJSON(token, schema);
+    if (!validity.isValid)
+        log("Invalid FCM Token: ", validity.errors);
+    return validity.isValid;
+}
+
+function validServerToken(token) {
+    if (!token)
+        return false;
+
+        const schema = {
+            desc: "string",
+            id: "string",
+            img: "string",
+            ip: "string",
+            logo: "string",
+            name: "string",
+            playerId: "string",
+            playerToken: "string",
+            port: "string",
+            type: "string",
+            url: "string"
+        };
+    
+    var validity = util.validateJSON(token, schema);
+
+    if (!validity.isValid) {
+        log("Invalid Server Token: ", validity.errors);
+        return ;
+    }
+    
+    var json = util.asJSON(token);
+    if (json["playerId"] != my_steam_id) {
+        log("These server credentials aren't for your account");
+        return false;
+    }
+
+    return true;
 }
 
 

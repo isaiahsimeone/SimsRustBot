@@ -100,3 +100,35 @@ export function safeGetClassName(classname, logFunction) {
     }
     return elements;
 }
+
+export function asJSON(jsonString) {
+    try {
+        return JSON.parse(jsonString);
+    } catch (error) {
+        log("failed to parse JSON");
+        return null;
+    }
+}
+
+export function validateJSON(jsonString, schema) {
+    let data;
+    try {
+        data = JSON.parse(jsonString);
+    } catch (error) {
+        return { isValid: false, error: "Invalid JSON format." };
+    }
+
+    const errors = [];
+
+    for (const key in schema) {
+        if (schema.hasOwnProperty(key)) {
+            if (data[key] === undefined) {
+                errors.push(`Missing required field: ${key}`);
+            } else if (typeof data[key] !== schema[key]) {
+                errors.push(`Invalid type for field ${key}: expected ${schema[key]}, got ${typeof data[key]}`);
+            }
+        }
+    }
+
+    return errors.length > 0 ? { isValid: false, errors } : { isValid: true };
+}

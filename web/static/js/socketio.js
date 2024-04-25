@@ -149,6 +149,10 @@ export async function request_topic(topic) {
     
 }
 
+export async function send_to_server(topic, data) {
+    socket.emit("client_send", { topic: topic, data: data });
+}
+
 /**
  * Log a message for this class, if the DEBUG variable is defined.
  * @param  {...any} args A variable number of objects to include in the log

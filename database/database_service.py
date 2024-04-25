@@ -24,6 +24,9 @@ class DatabaseService(BusSubscriber, Loggable):
 
     @loguru.logger.catch
     async def execute(self):
+        await self.subscribe("player_server_token")
+        await self.subscribe("player_fcm_token")
+        
         # Get config
         self.config = await self.last_topic_message_or_wait("config")
         # Get socket
@@ -32,4 +35,4 @@ class DatabaseService(BusSubscriber, Loggable):
 
     
     async def on_message(self, topic: str, message: Message):
-        self.debug(f"Bus message ({topic}):", message)
+        pass

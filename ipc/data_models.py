@@ -146,6 +146,17 @@ class CargoDespawned(BaseModel):
     """The Rust Marker Id of cargo"""
     id: str
 
+class PlayerFcmToken(BaseModel): 
+    """The steam Id that owns this FCM token"""
+    steam_id: str
+    """The FCM token"""
+    token: str
+
+class PlayerServerToken(BaseModel):
+    """The steam Id that owns this server token"""
+    steam_id: str
+    """The server token"""
+    token: str
 class RustPlayerStateChange(BaseModel):
     pass
 

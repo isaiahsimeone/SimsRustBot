@@ -84,9 +84,14 @@
 
   .config-btn.apply {
     /* style for apply button */
+    font-family: RobotoBold;
+    font-size: 12px;
+    color: rgb(223, 217, 212);;
+    background-color: #fc8d0c;
   }
-  
-  .config-btn.cancel {
-    /* style for cancel button */
+
+  .config-btn.apply:hover {
+    /* style for apply button */
+    background-color: #cf7711;
   }
   

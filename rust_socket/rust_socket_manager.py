@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import threading
 
 
 from log.loggable import Loggable
@@ -25,6 +26,8 @@ class RustSocketManager(Loggable):
         self.leader_socket_initialised = False
         self.leader_socket: ClientRustSocket
         self.sockets: dict[int, ClientRustSocket] = {}
+        self.loops = {}
+        self.threads = {}
     
     async def initialise_socket_leader(self: RustSocketManager, ip: str, port: str, steam_id: int, playerToken: str) -> None:
         if self.leader_socket_initialised:
@@ -96,21 +99,37 @@ class RustSocketManager(Loggable):
             self.debug("Error with", client_socket.steam_id, ":", str(e))
             return []
     
+    def create_socket_thread(self, ip, port, steam_id, playerToken):
+        loop = asyncio.new_event_loop()
+
+        def thread_target():
+            asyncio.set_event_loop(loop)
+            self.loops[steam_id] = loop
+            loop.run_until_complete(self.create_and_connect_socket(ip, port, steam_id, playerToken))
+            loop.run_forever()
+
+        thread = threading.Thread(target=thread_target)
+        thread.start()
+        self.threads[steam_id] = thread
+    
     async def create_and_connect_socket(self, ip: str, port: str, steam_id, playerToken: str):
+        self.debug("CREATING SOCKET")
         if self.sockets.get(steam_id):
             self.warning("This steam user already has a rust socket")
             return None
            
         rust_socket = RustSocket(ip, port, steam_id, int(playerToken))
         try:
-            await rust_socket.connect(retries=20, delay=15)
+            self.debug("here we go")
+            await rust_socket.connect(retries=5, delay=5)
+            self.debug("it connected?!?!?!??!")
+            client_socket = ClientRustSocket(steam_id, rust_socket)
+            self.sockets[steam_id] = client_socket
+            
+            return client_socket
         except ServerNotResponsiveError:
             self.error(f"Unable to connect to server {ip}:{port} For steam ID {steam_id}. Server is unresponsive")
         
-        client_socket = ClientRustSocket(steam_id, rust_socket)
-        self.sockets[steam_id] = client_socket
-            
-        return client_socket
     
     def client_socket_most_tokens(self) -> ClientRustSocket:
         best_candidate = self.leader_socket
@@ -154,7 +173,7 @@ class RustSocketManager(Loggable):
         # Start tasks for each socket concurrently with a timeout
         tasks = [self.socket_get_with_timeout(value, "get_team_info") for _, value in self.sockets.items()]
         completed_tasks = await asyncio.gather(*tasks, return_exceptions=True)
-        
+        self.debug("Have sockets for:", self.sockets.keys())
         # Initialize team_info and team_notes
         team_info = await self.leader_socket.socket.get_team_info()
         team_notes: List[RustTeamNote] = []
