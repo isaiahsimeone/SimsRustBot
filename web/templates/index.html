@@ -328,25 +328,25 @@
       </div>
       <div class="config-popup" id="player-config-popup">
         <div class="config-popup-header">
+          <div id="config-popup-close-button" class="config-popup-close-button">x</div>
           <span class="config-header-text">STOP!</span><br>
           <span class="config-header-subtext" style="color: #ff6666">Do you trust the operator of this bot?</span><br>
-          <span class="config-header-subtext">Giving them your token can provide them access to your Rust+ account!</span><br><br>
+          <span class="config-header-subtext">Giving them your token can provide them access to your Rust+ account!</span><br>
           <span class="config-header-subtext">If you do trust them, install <a target="_blank" href="https://chromewebstore.google.com/detail/rustpluspy-link-companion/gojhnmnggbnflhdcpcemeahejhcimnlf?hl=en-GB">this chrome extension</a>, activate it and enter the tokens below</span><br>
         </div>
-        <form class="config-popup-form">
+        <div class="config-popup-form">
           <div class="config-popup-form-group">
-            <label for="config-input1">Your FCM Information:</label>
+            <label for="config-input1" class="config-header-subtext" style="color: #fc8d0c">Your FCM Information:</label>
             <textarea id="config-input1" cols="10" class="config-input-field"></textarea>
           </div>
-          <div class="config-form-group">
-            <label for="config-input2">Your Server Pairing Information:</label>
+          <div class="config-group">
+            <label for="config-input2" class="config-header-subtext" style="color: #fc8d0c">Your Server Pairing Information:</label>
             <textarea id="config-input2" cols="10" class="config-input-field"></textarea>
           </div>
-          <div class="config-form-actions">
+          <div class="config-actions">
             <button type="submit" class="config-btn apply">Apply</button>
-            <button type="button" class="config-btn cancel">Cancel</button>
           </div>
-        </form>
+        </div>
       </div>
 </div>
 <hr class="divider">
@@ -408,7 +408,28 @@
       closeButton.addEventListener("click", function() {
           mapPopup.style.visibility = "hidden";
       });
+
+      // Player config panel - close button
+      document.getElementById("config-popup-close-button").addEventListener("click", function() {
+        const popup = document.getElementById("player-config-popup");
+        popup.classList.remove("config-popup-open");
+      });
+
+      // Capture every click on the page
+      window.addEventListener('click', function(event) {
+        // Close the config popup if it's open, and the click isn't on the config form
+        const player_config_popup = document.getElementById("player-config-popup");
+        if (!player_config_popup.contains(event.target) && event.target !== document.getElementById("config-popup-button-wrench")) {
+            console.log("Closed");
+            player_config_popup.classList.remove("config-popup-open");
+        }
+      });
+
     });
+
+
+
+   
 
   
   

@@ -3,7 +3,7 @@
     border: 1px solid #000;
     border-left: none;
     padding: 20px;
-    height: 470px;
+    height: 450px;
     left: 100%;
     bottom: 0px;
     width: 350px;
@@ -12,7 +12,7 @@
     overflow: hidden; /* Ensure contents are clipped during animation */
     clip-path: inset(0 100% 0 0); /* Hide the content initially */
     transition: clip-path 0.25s ease-out, ease-out 0.35s; /* Animate clip-path and delay opacity */
-    z-index: -1; /* Start behind other elements, will be brought forward on open */
+    z-index: 999999; /* Start behind other elements, will be brought forward on open */
     background-color: rgb(52, 58, 64);
   }
 
@@ -40,7 +40,7 @@
     font-size: 14px;
   }
   
-  .config-form-group {
+  .config-group {
     margin-bottom: 10px;
   }
   
@@ -49,9 +49,10 @@
     width: 100%;
     padding: 5px;
     margin-top: 5px;
+    resize: none;
   }
   
-  .config-form-actions {
+  .config-actions {
     text-align: right;
   }
   
@@ -62,6 +63,25 @@
     background: #fff;
   }
   
+.config-popup-close-button {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    justify-content: center;
+    right: 0px;
+    top:0;
+    background: rgb(172, 53, 36);
+    color: rgb(251, 168, 154);
+    font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
+    z-index: 10001;
+}
+
+.config-popup-close-button:hover {
+    background: rgb(201, 63, 41);
+}
+
   .config-btn.apply {
     /* style for apply button */
   }

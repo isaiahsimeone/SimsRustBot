@@ -2,9 +2,10 @@
 import * as socketio from "./socketio.js";
 import { Member, TeamInfo } from "./structures.js";
 //import { receiveMapNotes } from "./note.js";
-import { receiveTeamMembers, nameFromSteamId, steamImageExists } from "./steam.js";
+import { receiveTeamMembers, nameFromSteamId, steamImageExists, my_steam_id } from "./steam.js";
 import * as util from "./util.js";
-import { snapToPlayer } from "./map.js";
+import { map_markers, snapToPlayer } from "./map.js";
+import * as map_popup from "./map_popup.js";
 //import { toggleChatAvailability } from "./chat.js";
 
 const DEBUG = true;
@@ -146,6 +147,7 @@ function createPanelTeamMember(member) {
     });
 
     var team_info_button_wrench = util.createDiv("team-info-player-button team-info-button-wrench");
+    team_info_button_wrench.id = "config-popup-button-wrench";
     team_info_button_wrench.addEventListener("click", function(event) {
         createConfigDialog(event, member.steam_id);
     });
@@ -166,7 +168,9 @@ function createPanelTeamMember(member) {
     
     team_info_player_button_group.appendChild(hide_map_notes_button);
 
-    team_info_player_button_group.appendChild(team_info_button_wrench);
+    // Only show the wrench icon if it's to manage ourself (our own player entry in the team list)
+    if (member.steam_id == my_steam_id)
+        team_info_player_button_group.appendChild(team_info_button_wrench);
     
     team_info_col3.appendChild(team_info_player_button_group);
     
@@ -219,12 +223,14 @@ function createConfigDialog(event, steam_id) {
     log("CLICK");
     const popup = util.safeGetId("player-config-popup", log);
     
-    if (popup.classList.contains('config-popup-open')) {
+    if (popup.classList.contains("config-popup-open")) {
         // Close the popup
-        popup.classList.remove('config-popup-open');
+        popup.classList.remove("config-popup-open");
       } else {
         // Open the popup
-        popup.classList.add('config-popup-open');
+        popup.classList.add("config-popup-open");
+        // Hide map popup (shop browser)
+        map_popup.hideMapPopup();
       }
 }
 

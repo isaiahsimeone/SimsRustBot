@@ -81,9 +81,8 @@ export async function initialiseMap() {
     // Add listener for a click on the map, which should close popups
     map_container.addEventListener("click", function(event) {
         // Check if the clicked element is the map container itself and not a child
-        if (event.target === map_container) {
+        if (event.target === map_container)
             hideMapPopup();
-        }
     });
 
     // Hook context click for map note creation
