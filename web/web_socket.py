@@ -1,5 +1,6 @@
 from __future__ import annotations
 import asyncio
+import json
 import time
 from typing import TYPE_CHECKING
 
@@ -93,7 +94,20 @@ class WebSocket(Loggable):
             # Publish to the bus
             match topic:
                 case "player_server_token":
-                    model = PlayerServerToken(steam_id=msg["steam_id"], token=msg["token"].strip().replace("\n", ""))
+                    raw_token = json.loads(msg["token"])
+                    sender_steam_id = msg["steam_id"]
+                    
+                    desc, id, img, ip, logo, name, steam_id, playerToken, port, type_, url = (
+                        raw_token[k] for k in ["desc", "id", "img", "ip", "logo", "name", "playerId", "playerToken", "port", "type", "url"]
+                    )
+                    
+                    if sender_steam_id != steam_id:
+                        self.warning("Someone tried to submit a server token for a steam ID that isn't their own")
+                        return None
+                    
+                    model = PlayerServerToken(desc=desc, id=id, img=img, ip=ip, logo=logo, name=name, 
+                                              steam_id=steam_id, playerToken=playerToken, port=port, type_=type_, url=url)
+                    
                 case "player_fcm_token":
                     model = PlayerFcmToken(steam_id=msg["steam_id"], token=msg["token"].strip().replace("\n", ""))
                 case _:
@@ -103,7 +117,7 @@ class WebSocket(Loggable):
             asyncio.run(self.web_server.publish(topic, model))
 
         except Exception as e:
-            print(e)
+            self.error(e)
             self.debug(f"DBGERROR: Unable to handle client socketio submission")
             return None
         

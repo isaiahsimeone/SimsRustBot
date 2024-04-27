@@ -1,4 +1,5 @@
 
+import typing
 from pydantic import BaseModel as PydanticBaseModel
 from typing import Any, List, Dict, Optional
 
@@ -12,6 +13,8 @@ from rustplus.api.structures.rust_item import RustItem
 from rustplus.api.structures.rust_team_info import RustTeamInfo
 
 from rustplus import RustSocket
+
+from database.models import ServerToken
 
 class BaseModel(PydanticBaseModel):
     class Config:
@@ -153,10 +156,46 @@ class PlayerFcmToken(BaseModel):
     token: str
 
 class PlayerServerToken(BaseModel):
-    """The steam Id that owns this server token"""
-    steam_id: str
     """The server token"""
-    token: str
+    desc: str
+    id: str
+    img: str
+    ip: str
+    logo: str
+    name: str
+    steam_id: str
+    playerToken: str
+    port: str
+    type_: str
+    url: str
+    
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(**data)
+    
+    @classmethod
+    @typing.no_type_check
+    def from_database_server_token(cls, server_token: ServerToken):
+        return cls(
+            # We are assigning Column[str]. At runtime, these hold a string
+            # The type checker can't tell
+            desc=server_token.desc,
+            id=server_token.id,
+            img=server_token.img,
+            ip=server_token.ip,
+            logo=server_token.logo,
+            name=server_token.name,
+            steam_id=server_token.steam_id,
+            playerToken=server_token.playerToken,
+            port=server_token.port,
+            type_=server_token.type_,
+            url=server_token.url
+        )
+        
+    
+class DatabasePlayerServerTokens(BaseModel):
+    tokens: List[PlayerServerToken]
+
 class RustPlayerStateChange(BaseModel):
     pass
 

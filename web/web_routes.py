@@ -42,7 +42,7 @@ class WebRoutes(Loggable):
             return render_template("steam_login.html")
         
         if not self.steam_id_is_permitted(steam_id):
-            self.warning(f"Someone (steam_id={steam_id}) tried to access index.html, but they aren't in the team")
+            self.warning(f"Someone (steam_id={steam_id}, ip={request.remote_addr}) tried to access index.html, but they aren't in the team")
             return render_template("unauthorised.html")
         
         self.debug("Got steamId:", steam_id)
@@ -79,7 +79,7 @@ class WebRoutes(Loggable):
                 
                 #If this user is not in the rust team, they may not access the page
                 if not self.steam_id_is_permitted(steam_id):
-                    self.warning(f"Someone (steam_id={steam_id}) tried to access index.html, but they aren't in the team")
+                    self.warning(f"Someone (steam_id={steam_id}, ip={request.remote_addr}) tried to access index.html, but they aren't in the team")
                     return render_template("unauthorised.html")
                 
                 session["steam_id"] = steam_id

@@ -128,7 +128,7 @@
     color: #fff;
     border: none;
     border-radius: 3px;
-    padding: 5px 10px;
+    padding: 5px 5px;
     margin: 0 2px;
     cursor: pointer;
     font-family: RobotoBold;
@@ -146,32 +146,32 @@
     background-image: url(../images/icons/wrench-24.png);
     background-size: contain;
     background-repeat: no-repeat;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
 }
 
 .team-info-button-accuracy {
     background-image: url(../images/icons/accuracy-24.png);
     background-size: contain;
     background-repeat: no-repeat;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
 }
 
 .team-info-button-map-notes-shown {
     background-image: url(../images/icons/map-note-shown-24.png);
     background-size: contain;
     background-repeat: no-repeat;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
 }
 
 .team-info-button-map-notes-hidden {
     background-image: url(../images/icons/map-notes-hidden-24.png);
     background-size: contain;
     background-repeat: no-repeat;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
 }
 
 @font-face {

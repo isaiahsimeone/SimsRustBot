@@ -1,8 +1,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import loguru
 
@@ -49,8 +50,15 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         self.server_info = await self.socket.get_info()
         await self.publish("server_info", RustServerInfo(server_info=self.server_info))
         
+        # The database service will publish this on startup. Wait for it, and register those sockets
+        stored_player_tokens = (await self.last_topic_message_or_wait("database_player_server_tokens")).data["tokens"]
+        for player_token in stored_player_tokens:
+            await self.register_player_server_token(player_token)
+        
         # The socket is ready for services to use
         await self.publish("socket_ready", Empty())
+        
+        await asyncio.Future()
         
     async def connect_to_server(self: RustPlusAPIService) -> None:
         """Connect to the rust server. Details are taken from the config, 
@@ -69,6 +77,7 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         
         self.info(f"Connected to {ip}:{port}!")
     
+    @loguru.logger.catch
     async def on_message(self: RustPlusAPIService, topic: str, message: Message) -> None:
         """Receive a message, under a subscribed topic, from the bus.
 
@@ -81,23 +90,23 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         """
         match topic:
             case "player_server_token":
-                await self.register_player_server_token(message)
+                self.info("GOT PLAYER_SERVER_TOKEN")
+                token = message.data
+                await self.register_player_server_token(token)
             case "player_fcm_token":
                 pass
             case _:
                 self.error(f"Encountered topic {topic} that I have no case for")
 
 
-    async def register_player_server_token(self: RustPlusAPIService, message: Message) -> None:
-        token = json.loads(message.data["token"])
-        steam_id = message.data.get("steam_id")
+    async def register_player_server_token(self: RustPlusAPIService, token_data: dict[str, Any]) -> None:
+        token = PlayerServerToken.from_dict(token_data)
+        self.debug("creating client socket", token.ip, token.port, token.steam_id, token.playerToken)
         
-        self.debug("creating client socket", token["ip"], token["port"], steam_id, token["playerToken"])
-        
-        if self.socket.leader_socket.steam_id == steam_id:
+        if self.socket.leader_socket.steam_id == token.steam_id:
             self.warning("The bot operator tried to overwrite their own FCM credentials. Ignoring")
             return None
         
-        self.socket.create_socket_thread(token["ip"], token["port"], steam_id, token["playerToken"])
+        self.socket.create_socket_thread(token.ip, token.port, token.steam_id, token.playerToken)
         
         self.debug("created client socket")

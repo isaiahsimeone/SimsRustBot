@@ -71,7 +71,7 @@ class MessageBus(Loggable):
     subscription within the bot. It allows various components of the
     system, referred to as subscribers, to publish messages to topics and
     subscribe to receive messages from those topics.
-    |
+    
     Subscribers can publish messages to any topic, and any subscriber subscribed
     to that topic will receive the message asynchronously. The MessageBus keeps
     track of the last message published under each topic, allowing new subscribers
@@ -148,7 +148,7 @@ class MessageBus(Loggable):
     async def last_topic_message_or_wait(self: MessageBus, topic: str) -> Message:
         """Return the last message under the specified topic, or wait
         for the first message published under that topic (polls
-        asynchronously every 0.5 seconds).
+        every 0.5 seconds).
 
         :param topic: The topic
         :type topic: str
@@ -161,6 +161,14 @@ class MessageBus(Loggable):
     
     @loguru.logger.catch()
     def last_topic_message(self: MessageBus, topic: str) -> Message | None:
+        """Return the last topic message under the specified topic, or
+        None if there is no such entry
+
+        :param topic: The topic
+        :type topic: str
+        :return: The last message published under the specified topic
+        :rtype: `Message <ipc.message.Message>` | None
+        """
         if topic not in self.last_message:
             return None
         return self.last_message[topic]
