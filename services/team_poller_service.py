@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, List
 
 import loguru
 
-from ipc.data_models import TeamInfo, TeamJoined, TeamLeaderChange, TeamLeft, TeamMemberConnectivity, TeamMemberJoin, TeamMemberLeft, TeamMemberVital
+from ipc.data_models import TeamInfo, TeamJoined, TeamLeaderChange, TeamLeft, TeamMapNotes, TeamMemberConnectivity, TeamMemberJoin, TeamMemberLeft, TeamMemberVital
 from rust_socket.rust_socket_manager import RustSocketManager
 if TYPE_CHECKING:
     pass
@@ -73,7 +73,10 @@ class TeamPollerService(BusSubscriber, Loggable):
                 # Left a team
                 self.debug("Team left")
                 await self.publish("team_left", TeamLeft())
-                
+
+        # Publish map notes to bus
+        self.debug(f"Publish {len(team_info.map_notes)} map notes")
+        await self.publish("team_map_notes", TeamMapNotes(map_notes=team_info.map_notes)) # type: ignore 
         print("team notes:", team_info.map_notes)
         print("leader notes:", team_info.leader_map_notes)
         

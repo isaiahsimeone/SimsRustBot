@@ -6,8 +6,6 @@ import { img_path } from "./main.js";
 
 const DEBUG = true;
 
-//TODO: vars here to record selected colour and other stuff when resummoning the popup box
-
 export function initialiseMapNotes() {
 
 }
@@ -25,6 +23,16 @@ let popup_open_location = null;
  */
 let temp_marker = null;
 let temp_marker_icon = null;
+
+const MapNoteColours = {
+	0: "#cbcd53",
+	1: "#2e66af",
+	2: "#6c9835",
+	3: "#a73533",
+	4: "#a253ae",
+	5: "#13d7b0"
+}
+
 
 
 export function showMapNoteDialog(event) {
@@ -219,6 +227,42 @@ function pickerColourChange(picker) {
 }
 
 window.pickerColourChange = pickerColourChange;
+
+
+export function receiveTeamMapNotes(map_notes) {
+    log("got map notes:", map_notes);
+
+    for (let i = 0; i < map_notes.length; i++)
+        plotMapNote(map_notes[i]);
+}
+
+
+
+
+function plotMapNote(extended_map_note) {
+    if (extended_map_note.note.type == 0)
+        return ; // Death marker
+    var map_note = extended_map_note.note
+    var icon_index = map_note.icon;
+    var colour_index = map_note.colour_index;
+    var label = map_note.label;
+    var x = map_note.x;
+    var y = map_note.y;
+    var author_steam_id = extended_map_note.steam_id;
+
+    log(icon_index, colour_index, label, x, y, author_steam_id);
+
+
+}
+/*
+colour_index: "0"
+icon: "0"
+label: []
+type: "1"
+x: "1033.3441162109375"
+y: "3021.762939453125"
+*/
+
 
 const dialog_html = `
 	<div id="map-note-dialog" class="map-note-dialog">

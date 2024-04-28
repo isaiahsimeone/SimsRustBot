@@ -75,6 +75,7 @@ class WebServerService(BusSubscriber, Loggable):
         await self.subscribe("crate_dropped")
         await self.subscribe("marker_expired")
         await self.subscribe("map_markers")
+        await self.subscribe("team_map_notes")
         
         # Get config
         self.config = (await self.last_topic_message_or_wait("config")).data["config"]
@@ -93,6 +94,9 @@ class WebServerService(BusSubscriber, Loggable):
         # Get relevant config
         self._port = int(self.config["WebServerService"].get("port", 5000))
         self._host = self.config["WebServerService"].get("host", "localhost")
+        
+        self.sockio = WebSocket(app, web_server=self)
+        
         # Block until socket ready
         await self.last_topic_message_or_wait("socket_ready")
         # Set the socket
@@ -123,7 +127,6 @@ class WebServerService(BusSubscriber, Loggable):
         resized.save("web/static/images/map.jpg")
         
         self.routes = WebRoutes(app, web_server=self)
-        self.sockio = WebSocket(app, web_server=self)
         
         await self.webserver_main()
         
@@ -149,6 +152,7 @@ class WebServerService(BusSubscriber, Loggable):
     def steam_api_key(self: WebServerService) -> str:
         return self._steam_api_key
     
+    @loguru.logger.catch
     async def on_message(self: WebServerService, topic: str, message: Message):
         match topic:
             case "team_joined":
@@ -172,6 +176,8 @@ class WebServerService(BusSubscriber, Loggable):
                 del self._permissions[member.steam_id]
             case "server_reload":
                 self.info("Web server should reload")
+            case "team_map_notes":
+                self.debug("GOT TEAM MAP NOTES")
             case "team_member_vital":
                 pass
             case "team_member_connectivity":

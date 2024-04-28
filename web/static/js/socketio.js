@@ -3,6 +3,7 @@
 import { receiveMarkers, removeMarker, setCreationTime } from "./map.js";
 import * as util from "./util.js";
 import * as team from "./team.js"; //{ initialiseTeam, teamMemberConnectivityChange, teamMemberVitalChange } from "./team.js";
+import * as note from "./map_notes.js";
 //import { receiveTeamInfo } from "./team.js";
 //import { receiveServerInfo } from "./server.js";
 //import { receiveWebMapNoteChange, receiveWebMapNotes } from "./note.js";
@@ -30,6 +31,10 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
     switch (type) {
         case "map_markers":
             receiveMarkers(data["markers"]);
+            break;
+        case "team_map_notes":
+            log("GOT TEAM MAP NOTES");
+            note.receiveTeamMapNotes(data["map_notes"]);
             break;
         case "team_joined": log("Joined a team");
         case "team_left": log("Left a team");

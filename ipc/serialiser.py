@@ -7,6 +7,8 @@ from rustplus.api.structures.rust_chat_message import RustChatMessage
 from rustplus.api.structures.rust_contents import RustContents
 from rustplus.api.structures.rust_item import RustItem
 
+from rust_socket.structures.extended_rust_team_note import ExtendedRustTeamNote
+
 class_mappings = {
     RustTeamMember: ['steam_id', 'name', 'x', 'y', 'is_online', 'spawn_time', 'is_alive', 'death_time'],
     RustTeamNote: ['type', 'x', 'y', 'icon', 'colour_index', 'label'],
@@ -19,7 +21,8 @@ class_mappings = {
     RustMonument: ['token', 'x', 'y'],
     RustChatMessage: ['steam_id', 'name', 'message', 'colour', 'time'],
     RustContents: ['protection_time', 'has_protection', 'contents'],
-    RustItem: ['name', 'item_id', 'quantity', 'is_blueprint']
+    RustItem: ['name', 'item_id', 'quantity', 'is_blueprint'],
+    ExtendedRustTeamNote: ['note', 'steam_id']
     
 }
 

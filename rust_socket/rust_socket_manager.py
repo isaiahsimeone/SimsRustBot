@@ -10,6 +10,8 @@ from rust_socket.client_rust_socket import ClientRustSocket
 
 
 from typing import TYPE_CHECKING, List, Union
+
+from rust_socket.structures.extended_rust_team_note import ExtendedRustTeamNote
 if TYPE_CHECKING:
     from rustplus.api.structures.rust_marker import RustMarker
     from rustplus.api.structures.rust_team_info import RustTeamNote
@@ -17,6 +19,7 @@ if TYPE_CHECKING:
 
 from rustplus import RustSocket
 from rustplus.exceptions.exceptions import ServerNotResponsiveError
+
 
 class RustSocketManager(Loggable):
     instance = None
@@ -120,9 +123,7 @@ class RustSocketManager(Loggable):
            
         rust_socket = RustSocket(ip, port, steam_id, int(playerToken))
         try:
-            self.debug("here we go")
             await rust_socket.connect(retries=5, delay=5)
-            self.debug("it connected?!?!?!??!")
             client_socket = ClientRustSocket(steam_id, rust_socket)
             self.sockets[steam_id] = client_socket
             
@@ -168,25 +169,28 @@ class RustSocketManager(Loggable):
         selected_socket = self.client_socket_most_tokens()
         self.debug("Using", selected_socket.steam_id, "for get_team_chat")
         return await selected_socket.socket.get_team_chat()
- 
+  
+
+  
     async def get_team_info(self) -> RustTeamInfo:
         # Start tasks for each socket concurrently with a timeout
-        tasks = [self.socket_get_with_timeout(value, "get_team_info") for _, value in self.sockets.items()]
-        completed_tasks = await asyncio.gather(*tasks, return_exceptions=True)
+        tasks = {steam_id: self.socket_get_with_timeout(socket, "get_team_info") for steam_id, socket in self.sockets.items()}
+        completed_tasks = await asyncio.gather(*tasks.values(), return_exceptions=True)
         self.debug("Have sockets for:", self.sockets.keys())
         # Initialize team_info and team_notes
         team_info = await self.leader_socket.socket.get_team_info()
-        team_notes: List[RustTeamNote] = []
+        team_notes = []
 
-        # Process results, ignoring timeouts and errors
-        for result in completed_tasks:
-            if isinstance(result, Exception):
+        # Process results, ignoring timeouts and errors, and wrap RustTeamNote with steam_id
+        for steam_id, result in zip(tasks.keys(), completed_tasks):
+            if isinstance(result, Exception) or isinstance(result, BaseException):
                 continue  # Skip exceptions
-            team_notes.extend(result) # type:ignore
+            for note in result:  # Assuming result is a list of RustTeamNote
+                enhanced_note = ExtendedRustTeamNote(note, steam_id)  # Wrap in custom class
+                team_notes.append(enhanced_note)
         
         team_info._map_notes = team_notes
         return team_info
-
         
     # Any socket
     async def get_markers(self) -> List[RustMarker]:

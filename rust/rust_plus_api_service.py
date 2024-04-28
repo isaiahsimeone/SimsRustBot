@@ -29,6 +29,8 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         self.config = {}
         self.socket: RustSocketManager
         
+        self.connected_rust_server_ip: str
+        
         self.server_info: RustInfo
     
     @loguru.logger.catch
@@ -67,15 +69,15 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         :param self: This instance
         :type self: :class:`RustPlusAPIService <rustplus_api.rust_plus_api_server.RustPlusAPIService>`
         """
-        ip = self.config["server_details"]["ip"]
+        self.connected_rust_server_ip = self.config["server_details"]["ip"]
         port = self.config["server_details"]["port"]
         playerId = self.config["server_details"]["playerId"]
         playerToken = self.config["server_details"]["playerToken"]
 
         self.socket = await RustSocketManager.get_instance()
-        await self.socket.initialise_socket_leader(ip, port, playerId, playerToken)
+        await self.socket.initialise_socket_leader(self.connected_rust_server_ip, port, playerId, playerToken)
         
-        self.info(f"Connected to {ip}:{port}!")
+        self.info(f"Connected to {self.connected_rust_server_ip}:{port}!")
     
     @loguru.logger.catch
     async def on_message(self: RustPlusAPIService, topic: str, message: Message) -> None:
@@ -106,6 +108,10 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         if self.socket.leader_socket.steam_id == token.steam_id:
             self.warning("The bot operator tried to overwrite their own FCM credentials. Ignoring")
             return None
+        
+        if self.connected_rust_server_ip != token.ip:
+            self.error(f"A server token for {token.steam_id} is for ip {token.ip}. But")
+            self.error(f"the bot operator is connected to {self.connected_rust_server_ip}")
         
         self.socket.create_socket_thread(token.ip, token.port, token.steam_id, token.playerToken)
         

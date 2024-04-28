@@ -15,6 +15,7 @@ from rustplus.api.structures.rust_team_info import RustTeamInfo
 from rustplus import RustSocket
 
 from database.models import ServerToken
+from rust_socket.structures.extended_rust_team_note import ExtendedRustTeamNote
 
 class BaseModel(PydanticBaseModel):
     class Config:
@@ -56,7 +57,10 @@ class RustServerInfo(BaseModel):
 
 class TeamInfo(BaseModel):
     team_info: RustTeamInfo
-    
+
+class TeamMapNotes(BaseModel):
+    map_notes: List[ExtendedRustTeamNote]
+
 class TeamLeft(BaseModel):
     pass
 
