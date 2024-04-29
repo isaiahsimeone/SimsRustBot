@@ -4,6 +4,8 @@ import { receiveMarkers, removeMarker, setCreationTime } from "./map.js";
 import * as util from "./util.js";
 import * as team from "./team.js"; //{ initialiseTeam, teamMemberConnectivityChange, teamMemberVitalChange } from "./team.js";
 import * as note from "./map_notes.js";
+import * as chat from "./chat.js";
+import * as structures from "./structures.js";
 //import { receiveTeamInfo } from "./team.js";
 //import { receiveServerInfo } from "./server.js";
 //import { receiveWebMapNoteChange, receiveWebMapNotes } from "./note.js";
@@ -98,6 +100,9 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
             log("cargo despawned");
             removeMarker(data["id"]);
             break;
+        case "team_message":
+            log("Got team message");
+            chat.addTeamChat(new structures.Chat(data));
         default:
             log("Encountered unknown broadcast type:", type);
     }

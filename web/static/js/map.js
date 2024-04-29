@@ -48,7 +48,9 @@ export let leaflet_monument_names;
 
 export let leaflet_map_note_dialog;
 
-export let leaflet_custom_map_notes;
+export let leaflet_custom_map_notes; // Notes directly from the Rust API
+
+export let leaflet_map_notes;
 
 // The scale of the map (image size / rust map_sz)
 export let scale;
@@ -182,6 +184,7 @@ function initLeaflet() {
     leaflet_monument_names = L.featureGroup().addTo(leaflet_map);
     leaflet_map_note_dialog = L.featureGroup().addTo(leaflet_map);
     leaflet_custom_map_notes = L.featureGroup().addTo(leaflet_map);
+    leaflet_map_notes = L.featureGroup().addTo(leaflet_map); // Map notes from the rust
 }
 
 function drawMonuments() {

@@ -66,6 +66,9 @@ class RustSocketManager(Loggable):
     
     #### Internal methods
     
+    def has_token_for_steam_id(self, steam_id) -> bool:
+        return int(steam_id) in self.sockets.keys()
+
         
     async def socket_get_with_timeout(self, client_socket, socket_method_name, timeout_seconds=2, *args, **kwargs):
         """
@@ -243,6 +246,19 @@ class RustSocketManager(Loggable):
     #????????
     async def get_camera_manager(self):
         pass
+    
+    def team_event(self, callback):
+        self.leader_socket.socket.team_event(callback)
+        
+    def chat_event(self, callback):
+        self.leader_socket.socket.chat_event(callback)
+        
+    def protobuf_received(self, callback):
+        self.leader_socket.socket.protobuf_received(callback)
+    
+    def register_entity_event_listener(self, callback, eid):
+        self.leader_socket.socket.remote.handle_subscribing_entity(eid, callback)
+    
     
     def __str__(self):
         s = "{"

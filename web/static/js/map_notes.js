@@ -1,7 +1,9 @@
 import { my_steam_id, nameFromSteamId } from "./steam.js";
 import * as socketio from "./socketio.js";
+import * as marker from "./marker.js";
 import { leaflet_map_note_dialog, leaflet_custom_map_notes } from "./map.js";
 import { darkenRGB, rgb2hex, createDiv, safeGetId, safeGetClassName } from "./util.js";
+import * as util from "./util.js"
 import { img_path } from "./main.js";
 
 const DEBUG = true;
@@ -17,6 +19,8 @@ let selected_note_colour_index = 0;
 let selected_note_icon_colour = "#cbcd53";
 let popup_open_location = null;
 
+let plotted_map_notes = new Map();
+
 /**
  * A leaflet marker used to show where the marker will be placed
  * when apply is clicked
@@ -24,7 +28,7 @@ let popup_open_location = null;
 let temp_marker = null;
 let temp_marker_icon = null;
 
-const MapNoteColours = {
+export const MapNoteColours = {
 	0: "#cbcd53",
 	1: "#2e66af",
 	2: "#6c9835",
@@ -232,29 +236,61 @@ window.pickerColourChange = pickerColourChange;
 export function receiveTeamMapNotes(map_notes) {
     log("got map notes:", map_notes);
 
-    for (let i = 0; i < map_notes.length; i++)
-        plotMapNote(map_notes[i]);
+    const newHashes = new Set();
+    map_notes.forEach(note => {
+        if (note.note.type === 0) return; // Skip death markers
+
+        const hash = util.hashObject(note);
+        newHashes.add(hash);
+
+        if (!plotted_map_notes.has(hash)) {
+            // new maker. Plot it
+            plotted_map_notes.set(hash, marker.createNoteMarker(note));
+        }
+    });
+
+    // Remove any markers that are no longer present
+    plotted_map_notes.forEach((marker, hash) => {
+        if (!newHashes.has(hash)) {
+            marker.remove(); // Remove from the map
+            plotted_map_notes.delete(hash); // Remove from the tracking map
+        }
+    });
 }
 
 
 
-
-function plotMapNote(extended_map_note) {
-    if (extended_map_note.note.type == 0)
-        return ; // Death marker
-    var map_note = extended_map_note.note
-    var icon_index = map_note.icon;
-    var colour_index = map_note.colour_index;
-    var label = map_note.label;
-    var x = map_note.x;
-    var y = map_note.y;
-    var author_steam_id = extended_map_note.steam_id;
-
-    log(icon_index, colour_index, label, x, y, author_steam_id);
-
-
-}
 /*
+
+    let note = createDiv("overlay map_note web_map_note");
+    note.style.fontSize = "10px";
+    note.innerHTML = label;
+
+    // Note background
+    let note_backg = createDiv("note-background");
+    note_backg.style.backgroundColor = darkenRGB(selected_note_icon_colour);
+
+    // Note mask
+    let note_mask = createDiv("note-mask");
+    note_mask.style = `mask: url('${img_path}/markers/${selected_note_icon_index}.png') no-repeat center / contain; mask-size: 60%; background-color: ${selected_note_icon_colour};`;
+
+    // Note border
+    let note_border = createDiv("note-border");
+    note_border.style.border = `1px solid ${selected_note_icon_colour}`;
+
+    note.appendChild(note_backg);
+    note.appendChild(note_mask);
+    note.appendChild(note_border);
+
+    temp_marker_icon = L.divIcon({
+        html: note.outerHTML,
+        iconSize: [20, 20],
+        iconAnchor: [20, 20],
+        className: '' // Avoid leaflet's default icon styling
+    });
+
+    return temp_marker_icon;
+
 colour_index: "0"
 icon: "0"
 label: []

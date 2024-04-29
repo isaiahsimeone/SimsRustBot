@@ -132,3 +132,13 @@ export function validateJSON(jsonString, schema) {
 
     return errors.length > 0 ? { isValid: false, errors } : { isValid: true };
 }
+
+export function hashObject(obj) {
+    let hash = 0;
+    let str = JSON.stringify(obj);
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash = hash & hash;
+    }
+    return hash;
+}

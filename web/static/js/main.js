@@ -5,6 +5,7 @@ import { initialiseTeam, teamInfoInstance } from "./team.js";
 import { initialiseServer } from "./server.js";
 import { initialiseMapNotes } from "./map_notes.js";
 //import { initialiseDialogs } from "./dialogs.js";
+import * as chat from "./chat.js";
 
 const DEBUG = true;
 
@@ -25,7 +26,7 @@ async function init() {
 
 	initialiseMapNotes();
 
-	//initialiseChat();
+	await chat.initialiseChat();
 
 	//initialiseCommands();
 

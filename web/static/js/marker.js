@@ -1,6 +1,8 @@
-import { map_markers, leaflet_shop_markers, scale, player_markers } from "./map.js";
+import { map_markers, leaflet_shop_markers, scale, player_markers, leaflet_custom_map_notes } from "./map.js";
 import { Marker } from "./structures.js";
 import { steamImageExists } from "./steam.js";
+import * as map_notes from "./map_notes.js";
+import * as util from "./util.js";
 
 var shopInStockIcon = L.icon({
     iconUrl: "static/images/rust/shop_green.png",
@@ -168,5 +170,38 @@ export function createRadiusMarker(radius) {
 export function createHeliMarker(heli) {
     var marker = L.marker([heli.y * scale, heli.x * scale], { icon: attackHelicopterIcon, rotationAngle: 360 - heli.rotation }).addTo(map_markers);
     marker.marker = heli;
+    return marker;
+}
+
+export function createNoteMarker(extended_note) {
+    var note = extended_note.note;
+    var creator_steam_id = extended_note.steam_id;
+
+    var selected_colour = map_notes.MapNoteColours[note.colour_index];
+    var background_colour = util.darkenRGB(selected_colour);
+    var icon_index = note.icon;
+    var label = note.label;
+
+    var noteIcon = L.divIcon({
+        html: `
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <div style="width: 22px; height: 22px; position: relative; display: flex; justify-content: center; align-items: center;">
+                    <div class="note-background" style="background-color: ${background_colour}; position: absolute; width: 100%; height: 100%;">
+                    </div>
+                    <div class="note-mask" style="mask: url('static/images/markers/${icon_index}.png') center center / 60% no-repeat; background-color: ${selected_colour}; position: absolute; width: 100%; height: 100%;">
+                    </div>
+                    <div class="note-border" style="border: 1px solid ${selected_colour}; position: absolute; width: 101%; height: 101%;">
+                    </div>
+                </div>
+            <div class="note-text">${label}</div>
+        </div>`,
+        iconSize: [20, 60], 
+        iconAnchor: [10, 30], 
+        className: '' // Avoid leaflet's default icon styling
+    });
+
+    var marker = L.marker([parseInt(note.y) * scale, parseInt(note.x) * scale], { icon: noteIcon }).addTo(leaflet_custom_map_notes);
+    marker.creation_time = util.timeNow();
+    marker.steam_id = creator_steam_id;
     return marker;
 }

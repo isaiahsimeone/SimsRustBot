@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from flask import request, session
 
-from ipc.data_models import BaseModel, Empty, PlayerFcmToken, PlayerServerToken
+from ipc.data_models import BaseModel, Empty, PlayerFcmToken, PlayerServerToken, RustTeamChatMessage
 from ipc.message import Message
 if TYPE_CHECKING:
     from web.web_server_service import WebServerService
@@ -110,6 +110,9 @@ class WebSocket(Loggable):
                     
                 case "player_fcm_token":
                     model = PlayerFcmToken(steam_id=msg["steam_id"], token=msg["token"].strip().replace("\n", ""))
+                case "team_message":
+                    model = RustTeamChatMessage(steam_id=msg["steam_id"], name=msg["name"], message=msg["message"],
+                                                colour=msg["colour"], time=int(msg["time"]))
                 case _:
                     self.error(f"Got client topic/data that can't be handled in match - Can't handle topic '{topic}'")
                     return None

@@ -1,5 +1,4 @@
-import { timeNow } from "./util.js";
-
+import * as util from "./util.js";
 
 const MarkerNames = {
     "1": "PLAYER",
@@ -1100,7 +1099,7 @@ export class Monument {
 export class Marker {
     constructor(markerData) { 
         this._data = markerData;
-        this._spawn_time = timeNow();
+        this._spawn_time = util.timeNow();
     }
 
     get alpha() { return this._data.alpha; }
@@ -1180,4 +1179,20 @@ export class SellOrder {
     get item_is_blueprint() { return this._data.item_is_blueprint; }
 
     get quantity() { return this._data.quantity; }
+}
+
+export class Chat {
+    constructor(chat) {
+        this._data = chat;
+    }
+
+    get steam_id() { return this._data.steam_id; }
+
+    get name() { return this._data.name; }
+
+    get message() { return this._data.message; }
+    
+    get colour() { return this._data.colour; }
+
+    get time() { return this._data.time }
 }

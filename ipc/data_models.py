@@ -84,8 +84,8 @@ class TeamMemberVital(BaseModel):
     steam_id: str
     is_alive: bool
 
-class RustTeamChatInitial(BaseModel):
-    chats: List[RustChatMessage]
+class RustTeamChatFull(BaseModel):
+    messages: List[RustTeamChatMessage]
 
 class HeliSpawned(BaseModel):
     """The Rust Marker Id of the heli"""

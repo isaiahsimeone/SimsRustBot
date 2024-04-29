@@ -2,7 +2,7 @@ from __future__ import annotations
 from base64 import b64encode
 from io import BytesIO
 from typing import TYPE_CHECKING
-from ipc.data_models import RustMapMonuments, RustServerInfo, RustServerMap, RustTeamChatInitial, RustTeamInfo
+from ipc.data_models import RustMapMonuments, RustServerInfo, RustServerMap, RustTeamChatFull, RustTeamInfo
 if TYPE_CHECKING:
     from rust_plus_api import RustPlusAPI
 
@@ -121,7 +121,7 @@ class MessageExecutor(Loggable):
             initial_team_chat = await self.socket.get_team_chat()
         except:
             return # Not in a team. 
-        data = RustTeamChatInitial(chats=initial_team_chat)
+        data = RustTeamChatFull(chats=initial_team_chat)
         message = Message(MT.RUST_TEAM_CHAT_INIT, data)
         await self.api.send_message(message, target_service_id=sender)
     

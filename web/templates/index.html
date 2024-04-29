@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="static/css/map_popups.css"/>
     <link rel="stylesheet" href="static/css/map_webnote.css"/>
     <link rel="stylesheet" href="static/css/player_config.css"/>
+    <link rel="stylesheet" href="static/css/chat.css"/>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
     
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -50,6 +51,10 @@
             bottom: 0;
             width: 12.5%;
             z-index: 3000;
+        }
+
+        #right-panel {
+          width: 14%;
         }
         
         .panel-entry-left {
@@ -101,88 +106,7 @@
             color: #fd9520;
             cursor: pointer;
         }
-        /*****************************************/
-        .chat-area {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            height: calc(100vh); /* Adjust height */
-            margin-bottom: 5px;
-          }
-          
-          .chat-messages {
-            overflow-y: auto;
-            flex-grow: 1;
-          }
-          
-          .chat-message {
-            padding: 0.5rem;
-            word-wrap: break-word;
-            margin-right: 0.5rem;
-            border-radius: 10px;
-            margin-bottom: 0.5rem;
-            max-width: 75%;
-          }
 
-          #chatMessageInput {
-            margin-right: 5px;
-          }
-          
-          #sendMessageBtn {
-            white-space: nowrap;
-            margin: 0 !important;
-            margin-left: 2px;
-          }
-          
-          .chat-message-header {
-            display: flex; /* Aligns children (image and text) in a row */
-            align-items: center; /* Aligns children vertically in the center */
-          }
-          .chat-message-header-image {
-            height: 25px;
-            width: 25px;
-            background-size: cover;
-            background-position: center;
-            margin-right: 10px; /* Adds some space between the image and the text */
-            border-radius: 50%; /* Makes the image round */
-          }
-          .chat-message-header-name {
-            font-size: 13px;
-            font-weight: bold;
-          }
-          
-          .chat-message.other {
-            background-color: #e5e5e5;
-            color: black;
-          }
-          
-          .chat-message.me {
-            background-color: #ca7a20;
-            color: black;
-            margin-left: auto;
-          }
-          
-          .chat-input {
-            display: flex; /* Make the input and button inline */
-            align-items: center; /* Align the button and input vertically */
-            padding: 5px !important;
-          }
-
-          #chat-join-a-team-first {
-            display: none;
-            font-size: 20px;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            top: 40%;
-          }
-          .circle-image {
-            width: 100px; /* or any size you want */
-            height: 100px; /* should be the same as width to create a circle */
-            border-radius: 50%; /* this creates the circle */
-            background-size: cover; /* this ensures your image covers the circle */
-            background-position: center; /* this ensures your image is centered in the circle */
-          }
           
           /*Leaflet */
 
@@ -377,11 +301,7 @@
 
 
 <div id="right-panel" class="panel-entry-right bg-dark text-light">
-    <div id="server-info">
-        Server Info
-        <br><br><br><br>
-        dfas
-    </div>
+
     
     <div id="game-chat" class="chat-area">
         <div id="chat-join-a-team-first">Join a team to chat</div>

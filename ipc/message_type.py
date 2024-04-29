@@ -19,7 +19,7 @@ class MessageType(Enum):
     RUST_MAP_MONUMENTS = ("rust_map_monuments", RustMapMonuments)
     RUST_SERVER_INFO = ("rust_server_info", RustServerInfo)
     RUST_TEAM_INFO = ("rust_team_info", RustTeamInfo)
-    RUST_TEAM_CHAT_INIT = ("rust_team_chat_init", RustTeamChatInitial)
+    RUST_TEAM_CHAT_INIT = ("rust_team_chat_init", RustTeamChatFull)
     
     # Heli
     RUST_HELI_SPAWNED = ("rust_heli_spawned", RustHeliSpawned)

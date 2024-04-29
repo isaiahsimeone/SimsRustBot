@@ -233,3 +233,13 @@
     border: 1px solid black; /* outer black border */
     z-index: 4;
   }
+
+  .note-text {
+    z-index: 99999;
+    font-family: RobotoBold;
+    font-size: 11px;
+    color: white;
+    text-align: center;
+    width: 100%;
+    margin-top: 2px;
+  }
