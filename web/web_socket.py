@@ -110,7 +110,7 @@ class WebSocket(Loggable):
                     
                 case "player_fcm_token":
                     model = PlayerFcmToken(steam_id=msg["steam_id"], token=msg["token"].strip().replace("\n", ""))
-                case "team_message":
+                case "send_player_message":
                     model = RustTeamChatMessage(steam_id=msg["steam_id"], name=msg["name"], message=msg["message"],
                                                 colour=msg["colour"], time=int(msg["time"]))
                 case _:

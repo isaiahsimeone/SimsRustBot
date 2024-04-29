@@ -38,7 +38,7 @@ class ChatManagerService(BusSubscriber, Loggable):
         await self.subscribe("cargo_spawned")
         await self.subscribe("cargo_despawned")
         await self.subscribe("send_chat_message")
-        await self.subscribe("team_message") 
+        await self.subscribe("send_player_message") 
 
         # Get config
         self.config = (await self.last_topic_message_or_wait("config")).data["config"]
@@ -72,20 +72,22 @@ class ChatManagerService(BusSubscriber, Loggable):
     
     # Send a message with a specific players socket, if we have one for them
     # or, prefix the message
-    async def send_player_team_message(self, chat: RustTeamChatMessage):
+    async def send_player_team_message(self, chat: dict[str, Any]):
         self.debug("sending player team chat message")
         send_with = self.socket.leader_socket.steam_id
         message = ""
         # Does the socket have a token for the sending steam id? If so, we send with that
-        if self.socket.has_token_for_steam_id(chat.steam_id):
+        if self.socket.has_token_for_steam_id(chat["steam_id"]):
             self.debug("we have a token for this dude")
-            send_with = int(chat.steam_id)
+            send_with = int(chat["steam_id"])
         else:
-            message += f"[{chat.name}] "
+            message += f"[{chat['steam_id']} "
         
-        message += chat.message
+        message += chat["message"]
         
-        await self.socket.send_team_message(message, steam_id=send_with)    
+        await self.socket.send_team_message(message, steam_id=send_with)
+        await self.publish("team_message", RustTeamChatMessage(steam_id=chat["steam_id"], name=chat["name"],
+                                                               message=chat["message"], colour=chat["colour"], time=chat["time"]))
         
 
     async def send_heli_message(self, message: Message) -> None:
@@ -123,7 +125,7 @@ class ChatManagerService(BusSubscriber, Loggable):
                 msg = message.data["message"]
                 await self.send_team_message_any(msg, prefix=f"[{sender}]")
             case "send_player_message":
-                await self.send_player_team_message(message) # type: ignore
+                await self.send_player_team_message(message.data) # type: ignore
             case "heli_spawned" | "heli_despawned" | "heli_downed":
                 await self.send_heli_message(message)
             case "cargo_spawned" | "cargo_despawned":

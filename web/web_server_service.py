@@ -77,7 +77,6 @@ class WebServerService(BusSubscriber, Loggable):
         await self.subscribe("map_markers")
         await self.subscribe("team_map_notes")
         await self.subscribe("team_message")
-        
         # Get config
         self.config = (await self.last_topic_message_or_wait("config")).data["config"]
         

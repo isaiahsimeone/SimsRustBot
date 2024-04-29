@@ -67,7 +67,8 @@ class RustSocketManager(Loggable):
     #### Internal methods
     
     def has_token_for_steam_id(self, steam_id) -> bool:
-        return int(steam_id) in self.sockets.keys()
+        self.warning("Axxx", str(steam_id) in self.sockets.keys(), " - ", self.sockets.keys())
+        return str(steam_id) in self.sockets.keys()
 
         
     async def socket_get_with_timeout(self, client_socket, socket_method_name, timeout_seconds=2, *args, **kwargs):
@@ -153,11 +154,10 @@ class RustSocketManager(Loggable):
     # Use specific socket, fallback to leader
     async def send_team_message(self, message: Union[str, object], steam_id: int | None = None):
         socket = self.leader_socket
-        if steam_id:
-            if self.sockets[steam_id]:
-                socket = self.sockets[steam_id]
-            else:
-                self.warning("Steam ID was provided but it doesn't have an associated socket")
+        if steam_id and self.has_token_for_steam_id(steam_id):
+            socket = self.sockets[str(steam_id)]
+        elif steam_id:
+            self.warning(f"Steam ID {steam_id} ({type(steam_id)}) was provided but it doesn't have an associated socket")
         self.debug("Using", socket.steam_id, "for send_team_message")
         return await socket.socket.send_team_message(message)
     

@@ -90,7 +90,7 @@ function sendTeamMessage() {
 	let data = {steam_id: my_steam_id, name: nameFromSteamId(my_steam_id),
                 message: message, colour: "#af5", time: util.timeNow()};
 
-	socketio.send_to_server("team_message", data);
+	socketio.send_to_server("send_player_message", data);
 
 	log("Sent teamchat (" + message + ") to server");
 }
