@@ -6,6 +6,7 @@ import { receiveTeamMembers, nameFromSteamId, steamImageExists, my_steam_id } fr
 import * as util from "./util.js";
 import { map_markers, snapToPlayer } from "./map.js";
 import * as map_popup from "./map_popup.js";
+import * as chat from "./chat.js";
 //import { toggleChatAvailability } from "./chat.js";
 
 const DEBUG = true;
@@ -29,6 +30,7 @@ let hidden_player_notes = new Set();
 export async function initialiseTeam() {
     const teamData = await socketio.request_topic("team_info");
     teamInfoInstance = new TeamInfo(teamData.team_info);
+    chat.toggleChatAvailability(operator_is_in_team());
     // Initialise steam id's and names
     receiveTeamMembers(teamInfoInstance.members);
     createTeamInfoPanel();
@@ -348,9 +350,9 @@ function validServerToken(token) {
  * Determines whether the operator of the bot (the bot owner) is in a rust team
  * @returns True if the bot owner is in a team
  */
-//function bot_owner_in_team() {
-//    return teamInfoInstance.leader_steam_id != 0;
-//}
+export function operator_is_in_team() {
+    return teamInfoInstance.leader_steam_id != 0;
+}
 
 /**
  * Log a message for this class, if the DEBUG variable is defined.

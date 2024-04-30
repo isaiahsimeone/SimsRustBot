@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List
 
 import loguru
 
-from ipc.data_models import RustTeamChatMessage
+from ipc.data_models import RustTeamChatMessage, TeamInfo
 from rust_socket.rust_socket_manager import RustSocketManager
 if TYPE_CHECKING:
     from rustplus import ChatEvent, TeamEvent, EntityEvent, ProtobufEvent
@@ -40,7 +40,8 @@ class EventListenerService(BusSubscriber, Loggable):
         
     async def team_event_handler(self, event: TeamEvent):
         team_info = event.team_info
-
+        
+        await self.publish("team_info_event", TeamInfo(team_info=team_info))
         self.debug("team_event", event)
         
     async def chat_event_handler(self, event: ChatEvent):

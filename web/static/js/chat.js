@@ -34,6 +34,23 @@ export async function initialiseChat() {
 
 }
 
+export function toggleChatAvailability(is_available) {
+	log("chat is:", is_available);
+	let chatMessageBox = document.getElementById("chatMessageInput");
+	let joinATeam = document.getElementById("chat-join-a-team-first");
+	let messageContainer = document.getElementById("messages_container");
+
+	chatMessageBox.disabled = !is_available;
+
+	if (!is_available) {
+		joinATeam.style.display = "flex";
+		messageContainer.style.visibility = "hidden";
+	} else {
+		joinATeam.style.display = "none";
+		messageContainer.style.visibility = "visible";
+	}
+}
+
 /**
  * Add a team chat to the chat panel
  * @param {structures.Chat} message The message to add to the team chat

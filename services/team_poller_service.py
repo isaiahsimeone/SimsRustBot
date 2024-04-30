@@ -34,6 +34,7 @@ class TeamPollerService(BusSubscriber, Loggable):
         
     @loguru.logger.catch
     async def execute(self: TeamPollerService) -> None:
+        await self.subscribe("team_info_event")
         # Get config
         self.config = (await self.last_topic_message_or_wait("config")).data["config"]
         # Block until socket ready
@@ -57,8 +58,14 @@ class TeamPollerService(BusSubscriber, Loggable):
             await self.poll_team()
             await asyncio.sleep(self.poll_rate)
             
-    async def poll_team(self) -> None:
-        team_info = await self.socket.get_team_info()
+    async def poll_team(self, event=None) -> None:
+        if event:
+            # We get an event before we can compare it with anything. This will fail, so just exit
+            if not self.last_team_info:
+                return None
+            team_info = event
+        else:
+            team_info = await self.socket.get_team_info()
         # Publish it to the bus, another service will probably use it
         await self.publish("team_info", TeamInfo(team_info=team_info))
         
@@ -75,11 +82,12 @@ class TeamPollerService(BusSubscriber, Loggable):
                 await self.publish("team_left", TeamLeft())
 
         # Publish map notes to bus
-        self.debug(f"Publish {len(team_info.map_notes)} map notes")
-        await self.publish("team_map_notes", TeamMapNotes(map_notes=team_info.map_notes)) # type: ignore 
-        print("team notes:", team_info.map_notes)
-        print("leader notes:", team_info.leader_map_notes)
-        
+        if not event:
+            self.debug(f"Publish {len(team_info.map_notes)} map notes")
+            await self.publish("team_map_notes", TeamMapNotes(map_notes=team_info.map_notes)) # type: ignore 
+            print("team notes:", team_info.map_notes)
+            print("leader notes:", team_info.leader_map_notes)
+            
         # Currently in a team
         if team_info.leader_steam_id != 0:
             if self.last_team_info.leader_steam_id == 0:
@@ -124,6 +132,12 @@ class TeamPollerService(BusSubscriber, Loggable):
         
     
     async def on_message(self: TeamPollerService, topic: str, message: Message) -> None:
+        match topic:
+            case "team_info_event":
+                self.warning("got the message")
+                await self.poll_team(event=message.data["team_info"])
+            case _:
+                self.error(f"Encountered a message topic {topic} that i don't have a case for")
         self.debug(f"Bus message ({topic}):", message)
 
 @staticmethod
