@@ -111,6 +111,8 @@ class WebSocket(Loggable):
                 case "player_fcm_token":
                     model = PlayerFcmToken(steam_id=msg["steam_id"], token=msg["token"].strip().replace("\n", ""))
                 case "send_player_message":
+                    if self.web_server.team_info.leader_steam_id == 0:
+                        return None # Player isn't in a team. Don't send the message
                     model = RustTeamChatMessage(steam_id=msg["steam_id"], name=msg["name"], message=msg["message"],
                                                 colour=msg["colour"], time=int(msg["time"]))
                 case _:

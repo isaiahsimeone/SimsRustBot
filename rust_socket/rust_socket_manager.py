@@ -171,8 +171,11 @@ class RustSocketManager(Loggable):
     async def get_team_chat(self):
         selected_socket = self.client_socket_most_tokens()
         self.debug("Using", selected_socket.steam_id, "for get_team_chat")
-        return await selected_socket.socket.get_team_chat()
-  
+        try:
+            return await selected_socket.socket.get_team_chat()
+        except Exception as e:
+            self.warning("Unable to get team chat. Bot operator isn't in a team. Will fetch once they're in a team")
+            return []
 
   
     async def get_team_info(self) -> RustTeamInfo:

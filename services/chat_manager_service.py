@@ -26,12 +26,26 @@ class ChatManagerService(BusSubscriber, Loggable):
         self.config = {}
         self.socket: RustSocketManager
         
-        self.all_chat_messages: List[RustTeamChatMessage]
+        self.team_info = None
+        
+        self.all_chat_messages: List[RustTeamChatMessage] = []
 
     
     @loguru.logger.catch
     async def execute(self: ChatManagerService) -> None:
+        # Get config
+        self.config = (await self.last_topic_message_or_wait("config")).data["config"]
+        # Block until socket ready
+        await self.last_topic_message_or_wait("socket_ready")
+        # Set the socket
+        self.socket = await RustSocketManager.get_instance()
+        
+        self.team_info = (await self.last_topic_message_or_wait("team_info")).data["team_info"]
+        
+        await self.publish_initial_team_chat()
+        
         # Subscribe to events that should be written to game chat
+        # Subscribe after socket is ready, so we can start writing events
         await self.subscribe("heli_spawned")
         await self.subscribe("heli_despawned")
         await self.subscribe("heli_downed")
@@ -39,17 +53,14 @@ class ChatManagerService(BusSubscriber, Loggable):
         await self.subscribe("cargo_despawned")
         await self.subscribe("send_chat_message")
         await self.subscribe("send_player_message") 
-
-        # Get config
-        self.config = (await self.last_topic_message_or_wait("config")).data["config"]
-        # Block until socket ready
-        await self.last_topic_message_or_wait("socket_ready")
-        # Set the socket
-        self.socket = await RustSocketManager.get_instance()
-        await self.publish_initial_team_chat()
+        await self.subscribe("team_joined")
+        await self.subscribe("team_info")
         
         await asyncio.Future()
-        
+    
+    def can_send_chat(self):
+        return self.team_info and self.team_info.get("leader_steam_id", 0) != 0 
+    
     async def publish_initial_team_chat(self):
         initial_team_chat = await self.socket.get_team_chat()
         initial_chat_messages = []
@@ -66,6 +77,9 @@ class ChatManagerService(BusSubscriber, Loggable):
         
         
     async def send_team_message_any(self, *args, **kwargs) -> None:
+        if self.can_send_chat():
+            self.warning("Dropping team chat message because bot operator not in a team")
+            return None
         message = ' '.join(arg for arg in args)
         prefix = kwargs.get("prefix", "[BOT]")
         await self.socket.send_team_message(f"{prefix} {message}")
@@ -73,6 +87,9 @@ class ChatManagerService(BusSubscriber, Loggable):
     # Send a message with a specific players socket, if we have one for them
     # or, prefix the message
     async def send_player_team_message(self, chat: dict[str, Any]):
+        if self.can_send_chat():
+            self.warning("Dropping team chat message because bot operator not in a team")
+            return None
         self.debug("sending player team chat message")
         send_with = self.socket.leader_socket.steam_id
         message = ""
@@ -106,6 +123,7 @@ class ChatManagerService(BusSubscriber, Loggable):
                 self.error(f"I don't know how to send {message.type} in send_heli_message()")
     
     async def send_cargo_message(self, message: Message) -> None:
+        
         model: dict[str, Any] = message.data
         match message.type:
             case "CargoSpawned":
@@ -130,6 +148,10 @@ class ChatManagerService(BusSubscriber, Loggable):
                 await self.send_heli_message(message)
             case "cargo_spawned" | "cargo_despawned":
                 await self.send_cargo_message(message)
+            case "team_joined":
+                await self.publish_initial_team_chat()
+            case "team_info":
+                self.team_info = message.data
             case "team_message":
                 chat = message.data
                 self.all_chat_messages.append(RustTeamChatMessage(steam_id=chat["steam_id"],
