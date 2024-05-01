@@ -48,7 +48,7 @@ class RustPlusAPIService(BusSubscriber, Loggable):
         # Connect to the rust server
         await self.connect_to_server()
         
-        # Fetch and publish server info, the majority of services will probably use it
+        # Fetch and publish server info
         self.server_info = await self.socket.get_info()
         await self.publish("server_info", RustServerInfo(server_info=self.server_info))
         

@@ -4,19 +4,15 @@ from sqlalchemy.orm import relationship, sessionmaker
 
 Base = declarative_base()
 
-class RustPlusUser(Base):
-    """A RustPlus user
-    """
+class DBRustPlusUser(Base):
     __tablename__ = "rust_plus_users"
-
+    
     steam_id = Column(Integer, primary_key=True)
     server_token_id = Column(String, ForeignKey("server_tokens.steam_id"))
-    fcm_token = Column(String, nullable=True)
-    
-    server_token = relationship("ServerToken", back_populates="users")
+    server_token = relationship("DBServerToken", back_populates="users")
 
-class ServerToken(Base):
-    __tablename__ ="server_tokens"
+class DBServerToken(Base):
+    __tablename__ = "server_tokens"
     steam_id = Column(String, primary_key=True)
     desc = Column(String, nullable=True)
     id = Column(String, nullable=False)
@@ -29,14 +25,19 @@ class ServerToken(Base):
     type_ = Column(String, nullable=True)
     url = Column(String, nullable=True)
     
-    users = relationship("RustPlusUser", back_populates="server_token")
+    users = relationship("DBRustPlusUser", back_populates="server_token")
 
-class Player(Base):
+class DBEncounteredFCMMessage(Base):
+    __tablename__ = "encountered_fcm_messages"
+    
+    message_id = Column(String, primary_key=True)
+
+class DBPlayer(Base):
     __tablename__ = "players"
     
     steam_id = Column(Integer, primary_key=True)
 
-class Message(Base):
+class DBMessage(Base):
     """A Rust in-game message
     """
     __tablename__ = "messages"
@@ -48,7 +49,7 @@ class Message(Base):
 
 
 # A rust plus device (smart switch, smart alarm, storage monitor)
-class Device(Base):
+class DBDevice(Base):
     """A Rust device
     """
     __tablename__ = "devices"

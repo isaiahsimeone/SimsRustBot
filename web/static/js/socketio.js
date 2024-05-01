@@ -103,6 +103,9 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
         case "team_message":
             log("Got team message");
             chat.addTeamChat(new structures.Chat(data));
+        case "smart_alarm_message":
+            log("Got an fcm notification", data);
+            break;
         default:
             log("Encountered unknown broadcast type:", type);
     }

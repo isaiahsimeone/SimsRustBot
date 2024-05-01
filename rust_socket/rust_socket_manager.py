@@ -155,7 +155,7 @@ class RustSocketManager(Loggable):
     async def send_team_message(self, message: Union[str, object], steam_id: int | None = None):
         socket = self.leader_socket
         if steam_id and self.has_token_for_steam_id(steam_id):
-            socket = self.sockets[str(steam_id)]
+            socket = self.sockets[str(steam_id)] # type: ignore
         elif steam_id:
             self.warning(f"Steam ID {steam_id} ({type(steam_id)}) was provided but it doesn't have an associated socket")
         self.debug("Using", socket.steam_id, "for send_team_message")

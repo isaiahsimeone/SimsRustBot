@@ -77,6 +77,8 @@ class WebServerService(BusSubscriber, Loggable):
         await self.subscribe("map_markers")
         await self.subscribe("team_map_notes")
         await self.subscribe("team_message")
+        await self.subscribe("smart_alarm_message")
+        
         # Get config
         self.config = (await self.last_topic_message_or_wait("config")).data["config"]
         
@@ -195,6 +197,8 @@ class WebServerService(BusSubscriber, Loggable):
             case "chinook_spawned" | "chinook_downed" | "chinook_despawned" | "crate_dropped":
                 pass
             case "team_message":
+                pass
+            case "smart_alarm_message":
                 pass
             case _:
                 self.error(f"Got a message (topic {topic}) from bus that doesn't have an implementation")

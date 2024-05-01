@@ -14,7 +14,7 @@ from rustplus.api.structures.rust_team_info import RustTeamInfo
 
 from rustplus import RustSocket
 
-from database.models import ServerToken
+from database.models import DBServerToken
 from rust_socket.structures.extended_rust_team_note import ExtendedRustTeamNote
 
 class BaseModel(PydanticBaseModel):
@@ -24,6 +24,49 @@ class BaseModel(PydanticBaseModel):
     @property
     def type(self) -> str:
         return self.__class__.__name__
+
+class FCMMessage(BaseModel):
+    entityType: str
+    ip: str
+    steam_id: str
+    entityName: str
+    server_id: str
+    message: str
+    title: str
+    channelId: str
+    fcm_message_id: str
+    
+    @classmethod
+    def is_from_smart_alarm(cls) -> bool:
+        return cls.channelId == "alarm"
+    
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(**data)
+    
+    @classmethod
+    @typing.no_type_check
+    def from_database_entry(cls, server_token: DBServerToken):
+        return cls(
+            # We are assigning Column[str]. At runtime, these hold a string
+            # The type checker can't tell
+            desc=server_token.desc,
+            id=server_token.id,
+            img=server_token.img,
+            ip=server_token.ip,
+            logo=server_token.logo,
+            name=server_token.name,
+            steam_id=server_token.steam_id,
+            playerToken=server_token.playerToken,
+            port=server_token.port,
+            type_=server_token.type_,
+            url=server_token.url
+        )
+
+class SmartAlarmMessage(BaseModel):
+    title: str
+    message: str
+    steam_id: str
 
 class RustTeamChatMessage(BaseModel):
     steam_id: str
@@ -179,7 +222,7 @@ class PlayerServerToken(BaseModel):
     
     @classmethod
     @typing.no_type_check
-    def from_database_server_token(cls, server_token: ServerToken):
+    def from_database_entry(cls, server_token: DBServerToken):
         return cls(
             # We are assigning Column[str]. At runtime, these hold a string
             # The type checker can't tell
@@ -199,6 +242,9 @@ class PlayerServerToken(BaseModel):
     
 class DatabasePlayerServerTokens(BaseModel):
     tokens: List[PlayerServerToken]
+    
+class DatabaseEncounteredFCMMessages(BaseModel):
+    encountered_messages: set[str]
 
 class RustPlayerStateChange(BaseModel):
     pass

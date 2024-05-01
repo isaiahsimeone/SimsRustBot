@@ -16,7 +16,7 @@ class Message:
     def __init__(self: Message, data: BaseModel, publisher: str | None = None, reply_to: str | None = None) -> None:
         self.id = str(uuid.uuid4())
         self.publisher = publisher
-        self.raw_data = data
+        self.raw_model = data
         self.model_data: dict[str, Any] = data.model_dump()
         self.model_type = data.__class__.__name__
 
@@ -39,7 +39,11 @@ class Message:
         :return: The provided message as a string
         :rtype: str
         """
-        return f"Message[Id={self.id}, type={self.type}, publisher={get_colourised_name(self.publisher)}, {self.raw_data}]"
+        return f"Message[Id={self.id}, type={self.type}, publisher={get_colourised_name(self.publisher)}, {self.raw_model}]"
+
+    @property
+    def model(self: Message) -> BaseModel:
+        return self.raw_model
 
     @property
     def data(self: Message) -> dict[str, Any]:

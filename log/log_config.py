@@ -26,6 +26,13 @@ color_map = {
     "WebRoutes": "#00BFA5",
     "BattleMetricsService": "#669101",
     "RustPlus.py": "#E040FB",
+    "FCMWorker": "#B71C1C",
+    "RustSocketManager": "#00C853",
+    "placeholder1": "#2962FF",
+    "placeholder2": "#FFD600",
+    "placeholder3": "#3E2723",
+    "placeholder4": "#AA00FF",
+    "placeholder5": "#64DD17",
     "default": "#FFFFFF",
 }
 

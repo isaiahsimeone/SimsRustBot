@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import text
-from .models import Base, Device
+from .models import Base, DBDevice
 import os
 
 DEBUG = True
@@ -42,7 +42,7 @@ class Database:
         dev_type = data['dev_type']
         state = data['state']
         
-        new_device = Device(id=id, name=name, dev_type=dev_type, state=state)
+        new_device = DBDevice(id=id, name=name, dev_type=dev_type, state=state)
         
         session = self.session
         
