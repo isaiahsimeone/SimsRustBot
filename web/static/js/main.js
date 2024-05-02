@@ -6,6 +6,7 @@ import { initialiseServer } from "./server.js";
 import { initialiseMapNotes } from "./map_notes.js";
 //import { initialiseDialogs } from "./dialogs.js";
 import * as chat from "./chat.js";
+import * as device_manager from "./device_manager.js";
 
 const DEBUG = true;
 
@@ -28,6 +29,7 @@ async function init() {
 
 	await chat.initialiseChat();
 
+	await device_manager.initialiseDeviceManager();
 	//initialiseCommands();
 
 	//initialiseDialogs();

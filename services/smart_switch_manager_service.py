@@ -85,11 +85,10 @@ class SmartSwitchManagerService(BusSubscriber, Loggable):
                 is_switch_enabled = await self.is_switch_enabled_in_game(switch_eid, switch_owner_steam_id)
                 self.switch_states[switch_eid] = is_switch_enabled
             
-            await asyncio.sleep(1) # Check the next switch in 1 second
-            
             if switch_index == total_switches - 1:
                 self.debug("Checked all switches. Going to start of list")
                 await self.publish("smart_switch_states", SmartSwitchStates(switches=self.switch_states))
+                await asyncio.sleep(9) # Wait 9 seconds
                 switch_index = 0
             else:
                 switch_index += 1

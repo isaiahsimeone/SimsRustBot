@@ -222,14 +222,22 @@
           <img src="static/images/sims_rust_bot_logo.png" alt="Sim's Rust Bot" class="img-fluid" />
         </a>
     </div>
-    <hr class="divider">
     <div id="menu">
         <div class="menu-opt">Menu Option 1</div>
         <div class="menu-opt">Menu Option 2</div>
         <div class="menu-opt">Menu Option 3</div>
         <div class="menu-opt">Menu Option 4</div>
     </div>
-    <hr class="divider">
+
+    <div class="device-info-wrapper">
+      <span class="team-info-header">Switches</span>
+      <div id="device-info" class="device-info">
+
+      </div>
+    </div>
+
+
+
 
     <div class="team-info-wrapper">
       <span class="team-info-header">The Team</span>
@@ -346,12 +354,18 @@
         }
       });
 
+      
+
     });
 
-
-
-   
-
+    function edit_device_name(element) {
+      let nameSpan = element.querySelector('.device-info-name');
+      let input = element.querySelector('.device-info-edit-name');
+      input.style.display = 'inline-block'; // Show the input
+      input.value = nameSpan.innerText; // Set input value to current text
+      nameSpan.style.display = 'none'; // Hide the current name span
+      input.focus(); // Focus the input field
+  }
   
   
 </script>

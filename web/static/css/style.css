@@ -9,14 +9,14 @@
 }
 
 .team-info-wrapper {
-    order: 2; 
+    order: 3; 
     margin-top: auto;
     margin-bottom: 30px;
     max-height: 200px;
 }
 
 .team-info {
-    order: 2; /* CHANGE THIS WHEN ADDING MORE ROWS */
+    order: 3; /* CHANGE THIS WHEN ADDING MORE ROWS */
     margin-top: auto;
     max-height: 200px;
 }
@@ -172,6 +172,145 @@
     background-repeat: no-repeat;
     width: 18px;
     height: 18px;
+}
+
+/********************************************************************** Devices */
+.device-info-wrapper {
+    order: 2; 
+    margin-top: auto;
+    margin-bottom: 30px;
+    max-height: 300px;
+}
+
+.device-info {
+    order: 2;
+    margin-top: auto;
+    max-height: 200px;
+}
+
+.device-info {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.device-info::-webkit-scrollbar {
+    width: 7px;
+}
+.device-info::-webkit-scrollbar-track {
+    background : rgb(52, 58, 64);
+    border-radius: 7px;
+}
+.device-info::-webkit-scrollbar-thumb {
+    background : rgb(253, 144, 18);
+    border-radius: 7px;
+    box-shadow:  0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+.device-info-entry {
+    display: flex;            /* Flex container */
+    align-items: center;      /* Center items vertically */
+    height: 40px;
+    margin: 2px 3px 5px;
+    background-color: #1f1f1f;
+    border-radius: 5px;
+    padding: 0 10px;          /* Padding on the sides of the container */
+    justify-content: space-between; /* This will put space between the main elements */
+}
+
+.device-info-entry .device-info-col:first-child {
+    flex-grow: 0; /* Prevents the image container from growing */
+    margin-right: 8px; /* Adjust this value to put the name right next to the image */
+}
+
+.device-info-col {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+
+.device-info-name {
+        font-family: RobotoBold;
+        font-size: 14px;
+        white-space: nowrap;
+        margin-left: auto;
+        margin-right: 20px;
+}
+
+
+/* The switch - the box around the slider */
+.device-info-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px; /* Width of the outer box */
+    height: 24px; /* Height of the outer box */
+    margin-bottom: 0px;
+  }
+  
+  /* Hide default HTML checkbox */
+  .device-info-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* The slider */
+  .device-info-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc; /* Off state color */
+    transition: .4s;
+    border-radius: 0; /* Makes the toggle square */
+  }
+  
+  .device-info-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 0; /* Keeps the inside slider square */
+  }
+  
+  input:checked + .device-info-slider {
+    background-color: #28a745; /* On state color */
+  }
+  
+  input:focus + .device-info-slider {
+    box-shadow: 0 0 1px #28a745;
+  }
+  
+  input:checked + .device-info-slider:before {
+    transform: translateX(22px); /* Slide effect */
+  }
+  
+  /* Rounded sliders */
+  .device-info-slider.round {
+    border-radius: 0px; /* Remove this if you prefer the slider to be square */
+  }
+  
+  .device-info-slider.round:before {
+    border-radius: 0%; /* Keeps the inside slider square */
+  }
+  
+ 
+  .device-info-edit-name {
+    height: 30px;
+    font-size: 14px;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    color: white; /* Adjust color based on your design */
+    background: transparent;
+    outline: none;
+    display: inline-block;
+    width: 90%; /* Adjust width as necessary */
 }
 
 @font-face {

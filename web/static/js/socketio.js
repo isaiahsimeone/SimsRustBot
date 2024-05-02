@@ -6,6 +6,7 @@ import * as team from "./team.js"; //{ initialiseTeam, teamMemberConnectivityCha
 import * as note from "./map_notes.js";
 import * as chat from "./chat.js";
 import * as structures from "./structures.js";
+import * as device_manager from "./device_manager.js";
 //import { receiveTeamInfo } from "./team.js";
 //import { receiveServerInfo } from "./server.js";
 //import { receiveWebMapNoteChange, receiveWebMapNotes } from "./note.js";
@@ -108,9 +109,11 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
             break;
         case "paired_devices":
             log("Got a list of paired devices", data);
+            device_manager.receivePairedDevices(data);
             break;
         case "smart_switch_states":
-            log("Got smart switch states", data);
+            //log("Got smart switch states", data);
+            device_manager.receiveSmartSwitchStates(data);
             break;
         default:
             log("Encountered unknown broadcast type:", type);
