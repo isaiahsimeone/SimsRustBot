@@ -31,6 +31,20 @@ class DBEncounteredFCMMessage(Base):
     __tablename__ = "encountered_fcm_messages"
     
     message_id = Column(String, primary_key=True)
+    
+class DBPairedDevice(Base):
+    __tablename__ = "paired_devices"
+    
+    entityId = Column(String, primary_key=True)
+    entityType = Column(String)
+    ip = Column(String)
+    steam_id = Column(String)
+    entityName= Column(String)
+    server_id = Column(String)
+    message = Column(String)
+    title = Column(String)
+    channelId = Column(String)
+    fcm_message_id = Column(String)
 
 class DBPlayer(Base):
     __tablename__ = "players"

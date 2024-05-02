@@ -16,6 +16,7 @@ from services.event_listener_service import EventListenerService
 from services.fcm_listener_service import FCMListenerService
 from services.map_poller_service import MapPollerService
 from services.rust_time_manager_service import RustTimeManagerService
+from services.smart_switch_manager_service import SmartSwitchManagerService
 from services.storage_monitor_manager_service import StorageMonitorManagerService
 from services.team_poller_service import TeamPollerService
 from util.printer import Printer
@@ -40,6 +41,7 @@ async def main() -> None:
         EventListenerService(bus),
         RustTimeManagerService(bus),
         FCMListenerService(bus),
+        SmartSwitchManagerService(bus),
         StorageMonitorManagerService(bus),
         CommandExecutorService(bus),
         DiscordBotService(bus),

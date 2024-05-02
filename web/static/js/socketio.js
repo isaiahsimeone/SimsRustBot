@@ -106,6 +106,12 @@ socket.on("broadcast", function(/** @type {{ type: any; data: any; }} */ raw_dat
         case "smart_alarm_message":
             log("Got an fcm notification", data);
             break;
+        case "paired_devices":
+            log("Got a list of paired devices", data);
+            break;
+        case "smart_switch_states":
+            log("Got smart switch states", data);
+            break;
         default:
             log("Encountered unknown broadcast type:", type);
     }

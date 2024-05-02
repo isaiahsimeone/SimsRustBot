@@ -8,6 +8,7 @@ import threading
 from log.loggable import Loggable
 from rust_socket.client_rust_socket import ClientRustSocket
 
+from rustplus.api.structures.rust_entity_info import RustEntityInfo
 
 from typing import TYPE_CHECKING, List, Union
 
@@ -216,9 +217,15 @@ class RustSocketManager(Loggable):
         self.debug("Using", selected_socket.steam_id, "for get_map")
         return await selected_socket.socket.get_map()
     
-    # pretty sure this is socket specific
-    async def get_entity_info(self):
-        pass
+    # Socket specific
+    async def get_entity_info(self, eid, steam_id) -> RustEntityInfo | None:
+        selected_socket = self.leader_socket
+        if steam_id != self.leader_socket.steam_id and steam_id in self.sockets.keys():
+            selected_socket = self.sockets[steam_id]
+        if not selected_socket:
+            self.error("Unable to get entity info with steam_id", steam_id)
+            return None
+        return await selected_socket.socket.get_entity_info(int(eid))
     
     # pretty sure this is socket specific
     async def _update_smart_device(self):

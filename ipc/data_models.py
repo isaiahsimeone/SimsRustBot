@@ -14,7 +14,7 @@ from rustplus.api.structures.rust_team_info import RustTeamInfo
 
 from rustplus import RustSocket
 
-from database.models import DBServerToken
+from database.models import DBPairedDevice, DBServerToken
 from rust_socket.structures.extended_rust_team_note import ExtendedRustTeamNote
 
 class BaseModel(PydanticBaseModel):
@@ -27,6 +27,7 @@ class BaseModel(PydanticBaseModel):
 
 class FCMMessage(BaseModel):
     entityType: str
+    entityId: str
     ip: str
     steam_id: str
     entityName: str
@@ -43,30 +44,44 @@ class FCMMessage(BaseModel):
     @classmethod
     def from_dict(cls, data: dict):
         return cls(**data)
-    
-    @classmethod
-    @typing.no_type_check
-    def from_database_entry(cls, server_token: DBServerToken):
-        return cls(
-            # We are assigning Column[str]. At runtime, these hold a string
-            # The type checker can't tell
-            desc=server_token.desc,
-            id=server_token.id,
-            img=server_token.img,
-            ip=server_token.ip,
-            logo=server_token.logo,
-            name=server_token.name,
-            steam_id=server_token.steam_id,
-            playerToken=server_token.playerToken,
-            port=server_token.port,
-            type_=server_token.type_,
-            url=server_token.url
-        )
+
+class SmartSwitchStates(BaseModel):
+    switches: dict[str, bool]
 
 class SmartAlarmMessage(BaseModel):
     title: str
     message: str
     steam_id: str
+    
+class DevicePaired(BaseModel):
+    entityId: str
+    entityType: str
+    ip: str
+    steam_id: str
+    entityName: str
+    server_id: str
+    message: str
+    title: str
+    channelId: str
+    fcm_message_id: str
+    
+    @classmethod
+    @typing.no_type_check
+    def from_database_entry(cls, paired_device: DBPairedDevice):
+        return cls(
+            # We are assigning Column[str]. At runtime, these hold a string
+            # The type checker can't tell
+            entityId = paired_device.entityId,
+            entityType = paired_device.entityType,
+            ip = paired_device.ip,
+            steam_id = paired_device.steam_id,
+            entityName = paired_device.entityName,
+            server_id = paired_device.server_id,
+            message = paired_device.message,
+            title = paired_device.title,
+            channelId = paired_device.channelId,
+            fcm_message_id = paired_device.fcm_message_id
+        )
 
 class RustTeamChatMessage(BaseModel):
     steam_id: str
@@ -246,9 +261,14 @@ class DatabasePlayerServerTokens(BaseModel):
 class DatabaseEncounteredFCMMessages(BaseModel):
     encountered_messages: set[str]
 
+class DatabasePairedDevices(BaseModel):
+    devices: List[DevicePaired]
+
 class RustPlayerStateChange(BaseModel):
     pass
 
+class PairedDevices(BaseModel):
+    devices: List[DevicePaired]
 
 class RustRequestSendTeamMessage(BaseModel):
     steam_id: str

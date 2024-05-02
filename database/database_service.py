@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, List
 
 import loguru
 
-from database.models import DBEncounteredFCMMessage, DBRustPlusUser, DBServerToken, db_setup
-from ipc.data_models import DatabaseEncounteredFCMMessages, FCMMessage, PlayerServerToken, DatabasePlayerServerTokens
+from database.models import DBEncounteredFCMMessage, DBPairedDevice, DBRustPlusUser, DBServerToken, db_setup
+from ipc.data_models import DatabaseEncounteredFCMMessages, DatabasePairedDevices, DevicePaired, FCMMessage, PlayerServerToken, DatabasePlayerServerTokens
 from rust_socket.rust_socket_manager import RustSocketManager
 if TYPE_CHECKING:
     pass
@@ -33,6 +33,7 @@ class DatabaseService(BusSubscriber, Loggable):
         await self.subscribe("player_server_token")
         await self.subscribe("player_fcm_token")
         await self.subscribe("fcm_message")
+        await self.subscribe("device_paired")
         
         # Get config
         self.config = (await self.last_topic_message_or_wait("config")).data["config"]
@@ -50,6 +51,10 @@ class DatabaseService(BusSubscriber, Loggable):
         # Publish the list of FCM messages that have been encountered
         encountered_messages = self.get_encountered_fcm_messages_set()
         await self.publish("database_encountered_fcm_messages", DatabaseEncounteredFCMMessages(encountered_messages=encountered_messages))
+        
+        # Publish the list of connected devices
+        paired_devices = [DevicePaired.from_database_entry(t) for t in self.get_paired_devices()]
+        await self.publish("database_paired_devices", DatabasePairedDevices(devices=paired_devices))
         
         # Get socket
         await self.last_topic_message_or_wait("socket_ready")
@@ -116,6 +121,19 @@ class DatabaseService(BusSubscriber, Loggable):
             return set()  # Return an empty set on failure
         finally:
             session.close()
+            
+    
+    def get_paired_devices(self):
+        session = self.session()
+        try:
+            # Query all records from DBPairedDevice
+            devices = session.query(DBPairedDevice).all()
+            return devices
+        except Exception as e:
+            self.error(f"Error fetching paired devices: {e}")
+            return []
+        finally:
+            session.close()
 
 
     
@@ -138,10 +156,26 @@ class DatabaseService(BusSubscriber, Loggable):
             session.commit()
         except Exception as e:
             session.rollback()
-            self.error(f"Database error: {e}")
+            self.error(f"Error while inserting FCM message: {e}")
         finally:
             session.close()
-    
+            
+    def insert_device(self, device_paired_message: dict) -> None:
+        session = self.session()
+        try:
+            new_device = DBPairedDevice(**device_paired_message)
+            
+            session.add(new_device)
+            self.debug("Inserted a new device")
+            
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            self.error(f"Error while inserting device: {e}")
+        finally:
+            session.close()
+            
+
     @loguru.logger.catch
     async def on_message(self, topic: str, message: Message):
         self.info("GOT A MESSAGE topic:", topic)
@@ -152,5 +186,7 @@ class DatabaseService(BusSubscriber, Loggable):
                 pass
             case "fcm_message":
                 self.insert_fcm_message(message.data) # inserting data_models.FCMMessage
+            case "device_paired":
+                self.insert_device(message.data) # inserting data_models.DevicePaired
             case _:
                 self.error("Received a message that I don't have a case for")
