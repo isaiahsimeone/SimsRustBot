@@ -43,7 +43,7 @@ async def main() -> None:
         FCMListenerService(bus),
         SmartSwitchManagerService(bus),
         StorageMonitorManagerService(bus),
-        CommandExecutorService(bus),
+        #CommandExecutorService(bus),
         DiscordBotService(bus),
         WebServerService(bus),
         ChatManagerService(bus),

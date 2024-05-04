@@ -45,6 +45,14 @@ class FCMMessage(BaseModel):
     def from_dict(cls, data: dict):
         return cls(**data)
 
+class CommandTime(BaseModel):
+    command: str
+    message: str
+    
+class SendChatMessage(BaseModel):
+    message: str
+    prefix: str
+
 class SmartSwitchStates(BaseModel):
     switches: dict[str, bool]
 

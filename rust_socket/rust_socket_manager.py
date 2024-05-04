@@ -225,8 +225,11 @@ class RustSocketManager(Loggable):
         if not selected_socket:
             self.error("Unable to get entity info with steam_id", steam_id)
             return None
-        return await selected_socket.socket.get_entity_info(int(eid))
-    
+        try:
+            return await selected_socket.socket.get_entity_info(int(eid))
+        except Exception as e:
+            self.error("Failed to get entity info on", eid)
+            
     # pretty sure this is socket specific
     async def _update_smart_device(self):
         pass

@@ -55,12 +55,18 @@ class ChatManagerService(BusSubscriber, Loggable):
         await self.subscribe("send_player_message") 
         await self.subscribe("team_joined")
         await self.subscribe("team_info")
+        await self.subscribe("command_result")
         
         await asyncio.Future()
     
     def can_send_chat(self):
-        return self.team_info and self.team_info.get("leader_steam_id", 0) != 0 
-    
+        if not self.team_info:
+            return False
+        else:
+            print("tema info is", self.team_info)
+        if not self.team_info.get("leader_steam_id", "") != 0:
+            return False
+        
     async def publish_initial_team_chat(self):
         initial_team_chat = await self.socket.get_team_chat()
         initial_chat_messages = []
@@ -139,9 +145,9 @@ class ChatManagerService(BusSubscriber, Loggable):
     async def on_message(self, topic: str, message: Message) -> None:
         match topic:
             case "send_chat_message":
-                sender = message.data["sender_name"]
+                prefix = message.data["prefix"]
                 msg = message.data["message"]
-                await self.send_team_message_any(msg, prefix=f"[{sender}]")
+                await self.send_team_message_any(msg, prefix=f"[{prefix}]")
             case "send_player_message":
                 await self.send_player_team_message(message.data) # type: ignore
             case "heli_spawned" | "heli_despawned" | "heli_downed":
@@ -160,6 +166,8 @@ class ChatManagerService(BusSubscriber, Loggable):
                                                                   colour=chat["colour"],
                                                                   time=chat["time"]))
                 await self.publish("team_chat_full", RustTeamChatFull(messages=self.all_chat_messages))
+            case "command_result":
+                await self.send_team_message_any(message.data["message"])
             case _:
                 self.error(f"I received a Message under topic '{topic}', but I have no implementation to handle it")
         self.debug(f"Got message ({topic})")

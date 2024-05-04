@@ -1,4 +1,4 @@
-from .command import Command
+
 
 # Ensure command is present in __init__.py
 

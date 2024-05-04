@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from rust_plus_api import RustPlusAPI
+
+from rust_socket.rust_socket_manager import RustSocketManager
+
     
 from abc import ABC, abstractmethod
 
@@ -12,7 +13,7 @@ class Command(ABC):
         return []
 
     @abstractmethod
-    async def execute(self, rust_api: RustPlusAPI, sender_steam_id, args=[]):
+    async def execute(self, socket: RustSocketManager, publish, sender_steam_id: str, args=[]):
         pass
     
     """

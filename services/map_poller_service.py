@@ -84,7 +84,7 @@ class MapPollerService(BusSubscriber, Loggable):
         unique_markers = {m.id: m for m in (markers + events)}.values()
         # Combined
         markers: List[RustMarker] = list(unique_markers)
-
+        """
         player = self.find_markers_with_type(markers, RustMarker.PlayerMarker)
         if player and player[0]:
             try:
@@ -93,6 +93,7 @@ class MapPollerService(BusSubscriber, Loggable):
                 self.debug((player[0].x, player[0].y))
             except Exception as e:
                 print(e, "PLAYER POS:", (player[0].x, player[0].y))
+        """
         # Check attack/patrol helicopters
         heli_messages = await self.check_helis(markers)
         
