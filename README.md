@@ -10,3 +10,5 @@ Currently supports:
 - other stuff
 
 
+![alt text](https://github.com/isaiahsimeone/SimsRustBot/blob/main/webmap.png?raw=true)
+![alt text](https://github.com/isaiahsimeone/SimsRustBot/blob/main/splash.png?raw=true)
